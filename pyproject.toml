@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "yugioh-exchange"
+version = "0.1.0"
+description = ""
+authors = ["Richard <richard.mzrosa@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+packages = [
+    { include = "models" },
+    { include = "api" },
+    { include = "db" },
+    { include = "webserver" }
+]
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+pydantic = "^2.11.4"
+fastapi = "^0.115.12"
+sqlmodel = "^0.0.24"
+uvicorn = "^0.34.2"
+django = "^5.2"
+requests = "^2.32.3"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
