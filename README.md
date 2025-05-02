@@ -39,7 +39,7 @@ The command above will add poetry into the terminal context so we can use it.
 
 In the terminal we enter the project dir to execute the commands that will be followed.
 
-First we configure where the virtual environment well be placed. In our case we prefer it to be placed in our project root dir inside the .venv folder. We do this by executing the command:
+First we configure where the virtual environment will be placed. In our case we prefer it to be placed in our project root dir inside the .venv folder. We do this by executing the command:
 
 ```bash
 poetry config virtualenvs.in-project true --local
