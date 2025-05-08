@@ -9,6 +9,9 @@ PORT = 8001
 
 URL = f'http://{HOST}:{PORT}'
 
+def initial(request):
+  return render(request, 'initial_screen.html')
+
 def select(request):
 
   response = requests.get(URL)
