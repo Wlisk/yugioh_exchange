@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Select cards</title>
+</head>
+<body>
+
+  <div>
+    <a href="/select" style="margin-right: 20px;"> Search cards </a>
+    <a href="/exchanges"> View Exchanges </a>
+  </div>
+
+  <h1>Select cards</h1>
+
+  <form method="GET" action="">
+    <input type="text" name="q" placeholder="Search for cards..." value="{{ request.GET.q }}">
+    <button type="submit">Search</button>
+  </form>
+
+  <form method="POST" onsubmit="return validSelection()">
+    {% csrf_token %}
+
+    <div>
+      <br>
+
+      <div id="error-message" style="color: red; display: none; margin-bottom: 10px;">
+      <!-- Div for error message -->
+      </div>
+
+      {% for card in cards %}
+        <label>
+          {{ card.name }}
+          <input type="checkbox" name="cards" value="{{ card.id }}">
+          
+        </label>
+      <br>
+      {% endfor %}
+    </div>
+
+    <br>
+
+    <button type="submit">Continue</button>
+  </form>
+
+  <script>
+    function validSelection() {
+      const checkboxes = document.querySelectorAll('input[name="cards"]:checked');
+      const errorMessage = document.getElementById('error-message')
+
+      if (checkboxes.length === 0) {
+        errorMessage.textContent = "Select at least one card."
+        errorMessage.style.display = "block"
+        return false;
+      }
+
+      errorMessage.style.display = "block"
+      return true;
+    }
+  </script>
+
+</body>
+</html>
