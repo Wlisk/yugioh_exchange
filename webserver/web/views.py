@@ -9,25 +9,21 @@ PORT = 8001
 
 URL = f'http://{HOST}:{PORT}'
 
-def initial(request):
-  return render(request, 'initial_screen.html')
+def home(request):
+  return render(request, 'home_screen.html')
 
 def select(request):
+
+  query = request.GET.get('q', '').lower()
 
   response = requests.get(URL)
   data = response.json() 
 
-  '''
-  query = request.GET.get('q') # Faz a pesquisa na API (ainda precisa implementar corretamente)
-
+  # Função de pesquisa funcional mas temporária 
   if query:
-    response = requests.get(URL, params={'q': query})
-  else:
-    response = requests.get(URL)
+    data = [card for card in data if query in card['name'].lower()]
 
-  data = response.json() 
-
-  '''
+  print(query)
 
   if request.method == 'POST':
     

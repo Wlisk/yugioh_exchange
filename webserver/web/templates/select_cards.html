@@ -3,37 +3,119 @@
 <head>
   <meta charset="UTF-8">
   <title>Select cards</title>
+
+  <style>
+    .navigation {
+      text-align: center;
+      font-family: system-ui;
+      font-size: 20px;
+      margin-top: 20px;
+    }
+
+    hr {
+      margin-top: 20px;
+      margin-bottom: 0px;
+      color: black;
+    }
+
+    a:any-link {
+      text-decoration: none;
+      color: rgb(255, 255, 255);
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 5px;
+      background-color: rgb(104, 6, 104);
+    }
+
+    .title {
+      text-align: left;
+      font-family: system-ui;
+      font-size: 20px;
+      color: rgb(0, 0, 0);
+    }
+
+    #searchField {
+      font-family: system-ui;
+      margin-left: 10px;
+      border-radius: 6px;
+      border-style: groove;
+    }
+
+    #searchButton {
+      font-family: system-ui;
+      border-radius: 6px;
+      border-style: groove;
+      cursor: pointer;
+    }
+
+    #errorMessage {
+      color: red;
+      display: none;
+      margin-bottom: 10px;
+      margin-left: 10px;
+      font-family: system-ui;
+    }
+
+    .card-label {
+      margin: 10px 20px 0 10px;
+      display: flex;
+      font-family: system-ui;
+      font-size: 18px;
+      align-items: center;
+    }
+
+    .card-label input[type="checkbox"] {
+      margin-left: 20px;
+      cursor: pointer;
+    }
+
+    #continueButton {
+      align-self: center;
+      margin-top: 20px;
+      font-family: system-ui;
+      font-size: 18px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      background-color: rgb(14, 69, 172);
+      color: white;
+      cursor: pointer;
+    }
+
+  </style>
 </head>
+
 <body>
 
-  <div>
+  <div class="navigation">
     <a href="/" style="margin-right: 20px;"> Home </a>
     <a href="/select" style="margin-right: 20px;"> Search cards </a>
     <a href="/exchanges"> View Exchanges </a>
   </div>
 
-  <h1>Select cards</h1>
+  <hr>
+
+  <div class="title">
+    <h1> Select Cards </h1>
+  </div>
 
   <form method="GET" action="">
-    <input type="text" name="q" placeholder="Search for cards..." value="{{ request.GET.q }}">
-    <button type="submit">Search</button>
+    <input id="searchField" type="text" name="q" placeholder="Search for cards..." value="{{ request.GET.q }}">
+    <button id="searchButton" type="submit">Search</button>
   </form>
 
   <form method="POST" onsubmit="return validSelection()">
     {% csrf_token %}
-
     <div>
       <br>
 
-      <div id="error-message" style="color: red; display: none; margin-bottom: 10px;">
+      <div id="errorMessage">
       <!-- Div for error message -->
       </div>
 
       {% for card in cards %}
-        <label>
+        <label class="card-label">
           {{ card.name }}
           <input type="checkbox" name="cards" value="{{ card.id }}">
-          
         </label>
       <br>
       {% endfor %}
@@ -41,13 +123,13 @@
 
     <br>
 
-    <button type="submit">Continue</button>
+    <button id="continueButton" type="submit">Continue</button>
   </form>
 
   <script>
     function validSelection() {
       const checkboxes = document.querySelectorAll('input[name="cards"]:checked');
-      const errorMessage = document.getElementById('error-message')
+      const errorMessage = document.getElementById('errorMessage')
 
       if (checkboxes.length === 0) {
         errorMessage.textContent = "Select at least one card."
@@ -58,6 +140,42 @@
       errorMessage.style.display = "block"
       return true;
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Restaurar marcações
+      const selected = JSON.parse(localStorage.getItem("selectedCards") || "[]");
+      selected.forEach(id => {
+        const checkbox = document.querySelector(`input[name="cards"][value="${id}"]`);
+        if (checkbox) checkbox.checked = true;
+      });
+
+      // Salvar marcações
+      const checkboxes = document.querySelectorAll('input[name="cards"]');
+      checkboxes.forEach(cb => {
+        cb.addEventListener("change", () => {
+          const selectedIds = Array.from(document.querySelectorAll('input[name="cards"]:checked')).map(cb => cb.value);
+          localStorage.setItem("selectedCards", JSON.stringify(selectedIds));
+        });
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const searchInput = document.getElementById("searchField");
+
+      searchInput.addEventListener("input", () => {
+        const query = searchInput.value.toLowerCase();
+        const cards = document.querySelectorAll(".card-label");
+
+        cards.forEach(card => {
+          const name = card.textContent.toLowerCase();
+          if (name.includes(query)) {
+            card.style.display = "block";
+          } else {
+            card.style.display = "none";
+          }
+        });
+      });
+    });
   </script>
 
 </body>
