@@ -1,5 +1,5 @@
 #from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import requests
 
 from models.yugioh_card import YugiohCardRead
@@ -9,15 +9,39 @@ PORT = 8001
 
 URL = f'http://{HOST}:{PORT}'
 
-def index(request):
-  #return HttpResponse("Hello, world. You're at the index of the web server.")
-  response = requests.get(URL)
-  data: list[YugiohCardRead] = response.json() 
+def home(request):
+  return render(request, 'home_screen.html')
 
-  return render(
-    request, 
-    'cards.html', 
-    {
-      'cards': data
-    }
-  )
+def select(request):
+
+  query = request.GET.get('q', '').lower()
+
+  response = requests.get(URL)
+  data = response.json() 
+
+  # Função de pesquisa funcional mas temporária 
+  if query:
+    data = [card for card in data if query in card['name'].lower()]
+
+  print(query)
+
+  if request.method == 'POST':
+    
+    ids = request.POST.getlist('cards') # Faz uma lista com os ids das cartas que foram marcadas no checkbox
+ 
+    ids = list(map(int, ids)) 
+
+    print(ids)
+
+    return redirect('/make_exchange')
+
+  return render(request, 'select_cards.html', {'cards': data})
+
+def make_exchange(request):
+
+  # Alguma forma de armazenar as cartas selecionadas pelo usuário na tela anterior
+
+  return render(request, 'make_exchange.html')
+
+def exchanges(request):
+  return render(request, 'exchanges.html')
