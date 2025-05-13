@@ -58,3 +58,79 @@ footer{
   margin-top: 50px;
   vertical-align: top;
 }
+
+.navigation {
+  text-align: center;
+  font-family: system-ui;
+  font-size: 20px;
+  margin-top: 20px;
+}
+
+hr {
+  margin-top: 20px;
+  margin-bottom: 0px;
+  color: black;
+}
+
+a:any-link {
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: rgb(104, 6, 104);
+}
+
+.title .exchanges {
+  text-align: left;
+  font-family: system-ui;
+  font-size: 20px;
+  color: rgb(0, 0, 0);
+}
+
+#searchField {
+  font-family: system-ui;
+  margin-left: 10px;
+  border-radius: 6px;
+  border-style: groove;
+}
+
+#searchButton {
+  font-family: system-ui;
+  border-radius: 6px;
+  border-style: groove;
+  cursor: pointer;
+}
+
+#errorMessage {
+  color: red;
+  display: none;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  font-family: system-ui;
+}
+
+.card-label {
+  margin: 10px 20px 0 10px;
+  display: flex;
+  font-family: system-ui;
+  font-size: 18px;
+  align-items: center;
+}
+
+.card-label input[type="checkbox"] {
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+#continueButton {
+  align-self: center;
+  margin-top: 20px;
+  font-family: system-ui;
+  font-size: 18px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background-color: rgb(14, 69, 172);
+  color: white;
+  cursor: pointer;
+}

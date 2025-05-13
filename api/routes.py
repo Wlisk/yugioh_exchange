@@ -11,7 +11,7 @@ router = APIRouter()
 SessionDep = Annotated[Session, Depends(get_session)]
 
 ###############################################################################
-@router.get("/", response_model=list[YugiohCardRead])
+@router.get("/cards", response_model=list[YugiohCardRead])
 async def get_cards(session: SessionDep):
   """Get all Yu-gi-oh cards"""
   db_cards = session.exec(select(YugiohCard)).all()

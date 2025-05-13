@@ -10,8 +10,14 @@ PORT = 8001
 
 URL = f'http://{HOST}:{PORT}'
 
+PATHS = {
+  'home': '/',
+  'list': '/cards',
+}
+
 #########################################################################################
 def home(request):
+  """Home page"""
   return render(request, 'home_screen.html')
 
 #########################################################################################
@@ -30,17 +36,12 @@ def select(request):
   # Função de pesquisa funcional mas temporária 
   if query:
     data = [card for card in data if query in card['name'].lower()]
-
   print(query)
 
   if request.method == 'POST':
-    
     ids = request.POST.getlist('cards') # Faz uma lista com os ids das cartas que foram marcadas no checkbox
- 
     ids = list(map(int, ids)) 
-
     print(ids)
-
     return redirect('/make_exchange')
 
   return render(request, 'select_cards.html', {'cards': data})
@@ -56,7 +57,8 @@ def exchanges(request):
 
 #########################################################################################
 def card_list(request):
-  response = requests.get(URL)
+  """Page to list all Yu-gi-oh cards"""
+  response = requests.get(f"{URL}/{PATHS['list']}") 
   data: list[YugiohCardRead] = response.json() 
 
   return render(
