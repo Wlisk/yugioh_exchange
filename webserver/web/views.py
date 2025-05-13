@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect
 import requests
 
-from models.yugioh_card import YugiohCardRead, CardType, MonsterType
+from models.yugioh_card import YugiohCardRead
 from db.main import card_operations
 
 HOST = '127.0.0.1'

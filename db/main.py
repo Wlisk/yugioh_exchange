@@ -38,9 +38,10 @@ class card_operations:
   def select_card(name: str = "", card_type: CardType = None, monster_type: MonsterType = None) -> list[YugiohCard]:
     with Session(ENGINE) as session:
       # Seleciona todas as linhas da database que possuem o parâmetro passado, se tiver parâmetro
-      statement = select(YugiohCard).where(YugiohCard.name.like('%' + name + '%')).where(
-        or_(YugiohCard.card_type == card_type, card_type == None)).where(
-        or_(YugiohCard.monster_type == monster_type, monster_type == None))
+      statement = select(YugiohCard)\
+        .where(YugiohCard.name.like('%' + name + '%'))\
+        .where(or_(YugiohCard.card_type == card_type, card_type is None))\
+        .where(or_(YugiohCard.monster_type == monster_type, monster_type is None))
       
       results = session.exec(statement, execution_options={"prebuffer_rows": True})
       return results
