@@ -1,0 +1,55 @@
+.title {
+  text-align: left;
+  font-family: system-ui;
+  font-size: 20px;
+  color: rgb(0, 0, 0);
+}
+
+hr {
+  margin-top: 20px;
+  margin-bottom: 0px;
+  color: black;
+}
+
+h3 {
+  text-align: left;
+  font-family: system-ui;
+  font-size: 20px;
+  color: rgb(0, 0, 0);
+}
+
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 10px;
+}
+
+.card-label {
+  width: 180px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+  font-family: system-ui;
+}
+
+.card-label:hover {
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.confirm-button-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+#confirmOfferButton {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: system-ui;
+}

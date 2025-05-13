@@ -10,6 +10,30 @@
   <link rel="stylesheet" href="/static/css/select_cards_styles.css">
 
   <script src="/static/js/select_cards_scripts.js"></script>
+
+  <script>
+    // Função para alternar os campos de entrada com base no tipo de filtro
+    function toggleFields() {
+      const filterType = document.getElementById('filterType').value;
+      
+      // Esconde todos os campos
+      document.getElementById('nameField').style.display = 'none';
+      document.getElementById('cardTypeField').style.display = 'none';
+      document.getElementById('monsterTypeField').style.display = 'none';
+
+      // Exibe o campo correspondente com base na seleção
+      if (filterType === 'name') {
+        document.getElementById('nameField').style.display = 'block';
+      } else if (filterType === 'card_type') {
+        document.getElementById('cardTypeField').style.display = 'block';
+      } else if (filterType === 'monster_type') {
+        document.getElementById('monsterTypeField').style.display = 'block';
+      }
+    }
+
+    // Chama a função na inicialização para carregar o estado correto com base na seleção atual
+    window.onload = toggleFields;
+  </script>
 </head>
 
 <body>
@@ -27,14 +51,60 @@
   </div>
 
   <form method="GET" action="">
-    <select id="filterType" name="filter_type">
-      <option value="name" {% if filter_type == 'name' %}selected{% endif %}>Name</option>
-      <option value="card_type" {% if filter_type == 'card_type' %}selected{% endif %}>Card Type</option>
-      <option value="monster_type" {% if filter_type == 'monster_type' %}selected{% endif %}>Monster Type</option>
-    </select>
-  
-    <input id="searchField" type="text" name="q" placeholder="Search..." value="{{ query }}">
-  
+    <div class="form-container">
+      <div class="select-wrapper">
+        <select id="filterType" name="filter_type" onchange="toggleFields()">
+          <option value="name" {% if filter_type == 'name' %}selected{% endif %}>Name</option>
+          <option value="card_type" {% if filter_type == 'card_type' %}selected{% endif %}>Card Type</option>
+          <option value="monster_type" {% if filter_type == 'monster_type' %}selected{% endif %}>Monster Type</option>
+        </select> 
+      </div>
+    </div>
+
+    <div id="nameField" style="display:none;">
+      <input id="searchField" type="text" name="q" placeholder="Search..." value="{{ query }}">
+    </div>
+
+    <div id="cardTypeField" style="display:none;">
+      <select name="card_type_select">
+        <option value="monster">Monster</option>
+        <option value="spell">Spell</option>
+        <option value="trap">Trap</option>
+        <!-- Adicione os tipos de card_type aqui -->
+      </select>
+    </div>
+
+    <div id="monsterTypeField" style="display:none;">
+      <select name="monster_type_select">
+        <option value="aqua">Aqua</option>
+        <option value="beast">Beast</option>
+        <option value="beast_warrior">Beast-Warrior</option>
+        <option value="creator_god">Creator God</option>
+        <option value="cyberse">Cyberse</option>
+        <option value="dinosaur">Dinosaur</option>
+        <option value="divine_beast">Divine-Beast</option>
+        <option value="dragon">Dragon</option>
+        <option value="fairy">Fairy</option>
+        <option value="fiend">Fiend</option>
+        <option value="fish">Fish</option>
+        <option value="insect">Insect</option>
+        <option value="machine">Machine</option>
+        <option value="plant">Plant</option>
+        <option value="psychic">Psychic</option>
+        <option value="pyro">Pyro</option>
+        <option value="reptile">Reptile</option>
+        <option value="rock">Rock</option>
+        <option value="sea_serpent">Sea Serpent</option>
+        <option value="spellcaster">Spellcaster</option>
+        <option value="thunder">Thunder</option>
+        <option value="warrior">Warrior</option>
+        <option value="winged_beast">Winged Beast</option>
+        <option value="wyrm">Wyrm</option>
+        <option value="zombie">Zombie</option>
+        <!-- Adicione os tipos de monster_type aqui -->
+      </select>
+    </div>
+
     <button id="searchButton" type="submit">Search</button>
   </form>
 
@@ -47,22 +117,25 @@
       <!-- Div for error message -->
       </div>
 
-      {% for card in cards %}
-        <label class="card-label">
-          <input type="checkbox" name="cards" value="{{ card.id }}">
-
-          <div class="card-info">
-            <strong>{{ card.name }}</strong><br>
-            <span class="card-type">{{ card.card_type.value }}{% if card.monster_type %} - {{ card.monster_type.value }}{% endif %}</span>
-          </div>
-        </label>
-      <br>
-      {% endfor %}
+      <div class="card-grid">
+        {% for card in cards %}
+          <label class="card-label">
+            <input type="checkbox" name="cards" value="{{ card.name }}">
+    
+            <div class="card-info">
+              <strong>{{ card.name }}</strong><br>
+              <span class="card-type">{{ card.card_type.value }}{% if card.monster_type %} - {{ card.monster_type.value }}{% endif %}</span>
+            </div>
+          </label>
+        {% endfor %}
+      </div>
     </div>
 
     <br>
 
-    <button id="continueButton" type="submit">Continue</button>
+    <div class="confirm-button-container">
+      <button id="continueButton" type="submit">Continue</button>
+    </div>
   </form>
 
 </body>

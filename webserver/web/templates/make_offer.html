@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8">
+  <title>Make Offer</title>
+
+  <link rel="stylesheet" href="/static/css/make_offer_styles.css">
+
+</head>
+
+<body>
+  <div class="title">
+    <h1> Make Offer</h1>
+  </div>
+  
+  <div>
+    <h3> Cards you want: </h3>
+  
+    <div class="card-grid">
+      {% for card in cards_want %}
+        <label class="card-label">
+          <div class="card-info">
+            <strong>{{ card.name }}</strong><br>
+            <span class="card-type">{{ card.card_type.value }}{% if card.monster_type %} - {{ card.monster_type.value }}{% endif %}</span>
+          </div>
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <hr>
+  
+  <form method="POST" onsubmit="return validSelection()">
+    {% csrf_token %}
+
+    <div>
+      <h3> Cards you will give: </h3>
+    
+      <div class="card-grid">
+        {% for card in user_cards %}
+          <label class="card-label">
+            <input type="checkbox" name="cards" value="{{ card.name }}">
+    
+            <div class="card-info">
+              <strong>{{ card.name }}</strong><br>
+              <span class="card-type">{{ card.card_type.value }}{% if card.monster_type %} - {{ card.monster_type.value }}{% endif %}</span>
+            </div>
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+  
+    <div class="confirm-button-container">
+      <button id="confirmOfferButton" type="submit">Confirm Offer</button>
+    </div>
+
+  </form>
+
+</body>

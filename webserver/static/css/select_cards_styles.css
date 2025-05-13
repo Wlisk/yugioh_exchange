@@ -11,9 +11,28 @@ hr {
   color: black;
 }
 
+.form-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.form-container > div {
+  display: inline-block;
+}
+
+select, input, button {
+  padding: 5px;
+  font-size: 14px;
+}
+
+.select-wrapper {
+  display: flex;
+  align-items: center;
+}
+
 #searchField {
   font-family: system-ui;
-  margin-left: 10px;
   border-radius: 6px;
   border-style: groove;
 }
@@ -33,17 +52,30 @@ hr {
   font-family: system-ui;
 }
 
-.card-label {
-  margin: 10px 20px 0 10px;
+.card-grid {
   display: flex;
-  font-family: system-ui;
-  font-size: 18px;
-  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 10px;
 }
 
-.card-label input[type="checkbox"] {
-  margin: 0 20px 0 20px;
+.card-label {
+  width: 180px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+  font-family: system-ui;
+}
+
+.card-label:hover {
+  background-color: #f0f0f0;
   cursor: pointer;
+}
+
+.confirm-button-container {
+  text-align: center;
+  margin-top: 20px;
 }
 
 #continueButton {

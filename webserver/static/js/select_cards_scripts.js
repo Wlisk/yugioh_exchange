@@ -1,3 +1,31 @@
+function toggleFields() {
+  const filterType = document.getElementById("filterType").value;
+  
+  const searchField = document.getElementById("searchField");
+  const cardTypeSelect = document.getElementById("cardTypeSelect");
+  const monsterTypeSelect = document.getElementById("monsterTypeSelect");
+
+  // Esconde todos os campos primeiro
+  searchField.style.display = "none";
+  cardTypeSelect.style.display = "none";
+  monsterTypeSelect.style.display = "none";
+
+  // Mostra apenas o campo relevante
+  if (filterType === "name") {
+    searchField.style.display = "inline-block";
+  } else if (filterType === "card_type") {
+    cardTypeSelect.style.display = "inline-block";
+  } else if (filterType === "monster_type") {
+    monsterTypeSelect.style.display = "inline-block";
+  }
+}
+
+// Executa a função ao carregar a página
+document.addEventListener("DOMContentLoaded", () => {
+  toggleFields(); // Inicializa os campos com base no valor atual
+  document.getElementById("filterType").addEventListener("change", toggleFields); // Reage a mudanças
+});
+
 function validSelection() {
   const checkboxes = document.querySelectorAll('input[name="cards"]:checked');
   const errorMessage = document.getElementById('errorMessage')
