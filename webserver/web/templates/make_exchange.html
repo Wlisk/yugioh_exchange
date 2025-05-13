@@ -12,13 +12,16 @@
   <div> 
     <h3> Selected cards </h3>
     <!-- Mostrar as cartas selecionadas -->
-    {% for card in cards %}
-    <label class="card-label">
-      {{ card.name }}
-    </label>
-    <br>
-    {% endfor %}
-  
+      {% for card in cards %}
+      <label class="card-label">
+        {{ card.name }}
+      </label>
+      <br>
+      {% empty %}
+      <div class="">
+        <p>No Cards Selected.</p>
+      </div>
+      {% endfor %}
   </div>
 
   <hr>

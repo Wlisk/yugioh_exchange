@@ -23,15 +23,18 @@
     <button id="searchButton" type="submit">Search</button>
   </form>
 
-  <form method="POST" onsubmit="return validSelection()">
-    <!--% csrf_token %-->
+  <form method="POST" 
+    id="selectForm" 
+    hx-post="/make_exchange/"
+    hx-target="#main-content"
+    hx-swap="innerHTML"
+    hx-ext="json-enc">
+    <!-- no need for csrf_token as it is already on the body tag of base.html -->
     <div>
       <br>
 
-      <div id="errorMessage">
-        <!-- Div for error message -->
-      </div>
-
+      <div id="errorMessage" class="text-red-600 font-semibold mb-2"></div>
+      
       {% for card in cards %}
         <label class="card-label">
           <input type="checkbox" name="cards" value="{{ card.id }}">

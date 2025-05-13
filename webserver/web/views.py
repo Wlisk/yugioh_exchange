@@ -1,4 +1,5 @@
 #from django.http import HttpResponse
+import json
 from django.shortcuts import render, redirect
 import requests
 
@@ -50,28 +51,38 @@ def select(request):
     result = card_operations.select_card()
 
   if request.method == 'POST':
-    
     selected_cards = request.POST.getlist('cards') # Faz uma lista com os ids das cartas que foram marcadas no checkbox
     selected_cards = list(map(int, selected_cards)) 
-
-    return redirect('/make_exchange')
+    # TODO: send select_cards with the redirect
+    return redirect('/make_exchange', {'selected_cards': selected_cards})
   
   template_name = 'select_cards.html'
   if request.htmx:
     template_name = f'{template_name}#select-partial'
 
-  return render(request, template_name, {'cards': cards})
+  return render(request, template_name, {'cards':  result})
 
 #########################################################################################
 def make_exchange(request):
   """Page to make an exchange of cards"""
   # TODO: Alguma forma de armazenar as cartas selecionadas pelo usuário na tela anterior
+  json_cards = json.loads(request.body) if request.method == 'POST' else []
+
+  # You could fetch the card objects here if needed
+  cards = card_operations.select_card()
+  selected_cards = [c for c in cards if str(c.id) in json_cards['cards']]
 
   template_name = 'make_exchange.html'
   if request.htmx:
     template_name = f'{template_name}#make-exchange-partial'
 
-  return render(request, template_name)
+  return render(
+    request, 
+    template_name, 
+    {
+      'cards':  selected_cards, 
+    }
+  )
 
 #########################################################################################
 def exchanges(request):
