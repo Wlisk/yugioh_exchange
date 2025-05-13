@@ -16,34 +16,35 @@ def home(request):
 
 #########################################################################################
 def select(request):
+  filter_type = request.GET.get('filter_type', 'name')
   query = request.GET.get('q', '').lower()
 
   #result = card_operations.select_card(name= "Blue-Eyes White Dragon", card_type = CardType.MONSTER, monster_type = MonsterType.DRAGON)
-  result = card_operations.select_card(name="drag")
+  
+  '''
   for i in result:
     print(i)
     print(i.name)
+  '''
 
-  response = requests.get(URL)
-  data = response.json() 
-
-  # Função de pesquisa funcional mas temporária 
   if query:
-    data = [card for card in data if query in card['name'].lower()]
-
-  print(query)
+    if filter_type == 'name':
+      result = card_operations.select_card(name=query)
+    elif filter_type == 'card_type':
+      result = card_operations.select_card(card_type=CardType[query.upper()])
+    elif filter_type == 'monster_type':
+      result = card_operations.select_card(monster_type=MonsterType[query.upper()])
+  else:
+    result = card_operations.select_card()
 
   if request.method == 'POST':
     
-    ids = request.POST.getlist('cards') # Faz uma lista com os ids das cartas que foram marcadas no checkbox
- 
-    ids = list(map(int, ids)) 
-
-    print(ids)
+    selected_cards = request.POST.getlist('cards') # Faz uma lista com os ids das cartas que foram marcadas no checkbox
+    selected_cards = list(map(int, selected_cards)) 
 
     return redirect('/make_exchange')
 
-  return render(request, 'select_cards.html', {'cards': data})
+  return render(request, 'select_cards.html', {'cards': result})
 
 #########################################################################################
 def make_exchange(request):
