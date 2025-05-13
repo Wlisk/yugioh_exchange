@@ -2,7 +2,8 @@
 from django.shortcuts import render, redirect
 import requests
 
-from models.yugioh_card import YugiohCardRead
+from models.yugioh_card import YugiohCardRead, CardType, MonsterType
+from db.main import card_operations
 
 HOST = '127.0.0.1'
 PORT = 8001
@@ -16,6 +17,12 @@ def home(request):
 #########################################################################################
 def select(request):
   query = request.GET.get('q', '').lower()
+
+  #result = card_operations.select_card(name= "Blue-Eyes White Dragon", card_type = CardType.MONSTER, monster_type = MonsterType.DRAGON)
+  result = card_operations.select_card(name="drag")
+  for i in result:
+    print(i)
+    print(i.name)
 
   response = requests.get(URL)
   data = response.json() 

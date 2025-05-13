@@ -1,5 +1,5 @@
 from typing import Any, Generator
-from sqlmodel import create_engine, SQLModel, Session, select
+from sqlmodel import create_engine, SQLModel, Session, select, or_
 from models.yugioh_card import YugiohCard, CardType, MonsterType
 
 DB_FILENAME = "yugioh.db"
@@ -33,3 +33,14 @@ def create_sample_data() -> None:
       ]
       session.add_all(cards)
       session.commit()
+
+class card_operations:  
+  def select_card(name: str = "", card_type: CardType = None, monster_type: MonsterType = None) -> list[YugiohCard]:
+    with Session(ENGINE) as session:
+      # Seleciona todas as linhas da database que possuem o parâmetro passado, se tiver parâmetro
+      statement = select(YugiohCard).where(YugiohCard.name.like('%' + name + '%')).where(
+        or_(YugiohCard.card_type == card_type, card_type == None)).where(
+        or_(YugiohCard.monster_type == monster_type, monster_type == None))
+      
+      results = session.exec(statement, execution_options={"prebuffer_rows": True})
+      return results
