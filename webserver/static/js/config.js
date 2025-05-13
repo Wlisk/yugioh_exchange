@@ -40,6 +40,27 @@ function searchCardsByInput() {
   }
 }
 
+function toggleFields() {
+  const filterEl = document.getElementById('filterType');
+  
+  if(filterEl) {
+    const filterType = filterEl.value;
+    // Esconde todos os campos
+    document.getElementById('nameField').style.display = 'none';
+    document.getElementById('cardTypeField').style.display = 'none';
+    document.getElementById('monsterTypeField').style.display = 'none';
+
+    // Exibe o campo correspondente com base na seleção
+    if (filterType === 'name') {
+      document.getElementById('nameField').style.display = 'block';
+    } else if (filterType === 'card_type') {
+      document.getElementById('cardTypeField').style.display = 'block';
+    } else if (filterType === 'monster_type') {
+      document.getElementById('monsterTypeField').style.display = 'block';
+    }
+  }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 document.addEventListener('DOMContentLoaded', function () {
   // Handle back/forward navigation
@@ -54,6 +75,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   loadMarks();
   searchCardsByInput();
+  
+  toggleFields(); // Inicializa os campos com base no valor atual
+  document.getElementById("filterType").addEventListener("change", toggleFields); // Reage a mudanças
 
   ///////////////////////////////////////////////////////////////////////////////////////
   // loading indicator before each request

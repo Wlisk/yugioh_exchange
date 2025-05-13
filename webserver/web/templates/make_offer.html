@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load partials %}
+
+{% block subtitle %}: Make Offer{% endblock %}
+
+{% block main %}
+  {% partialdef make-offer-partial inline %}
+  <hr>
+
+  <div class="title exchanges">
+    <h1>Make Offer</h1>
+  </div>
+  
+  <div>
+    <h3> Cards you want: </h3>
+    <div class="card-grid">
+      {% for card in cards_want %}
+        <label class="card-label">
+          <div class="card-info">
+            <strong>{{ card.name }}</strong><br>
+            <span class="card-type">{{ card.card_type.value }}{% if card.monster_type %} - {{ card.monster_type.value }}{% endif %}</span>
+          </div>
+        </label>
+      {% empty %}
+        <div class="">
+          <p>No Cards Wanted.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <hr>
+  
+  <form method="POST"
+    id="selectForm" 
+    hx-post="/exchanges/"
+    hx-target="#main-content"
+    hx-swap="innerHTML"
+    hx-ext="json-enc">
+    <!-- no need for csrf_token as it is already on the body tag of base.html -->
+    <div>
+      <h3> Cards you will give: </h3>
+      <div class="card-grid">
+        {% for card in user_cards %}
+          <label class="card-label">
+            <input type="checkbox" name="cards" value="{{ card.name }}">
+    
+            <div class="card-info">
+              <strong>{{ card.name }}</strong><br>
+              <span class="card-type">{{ card.card_type.value }}{% if card.monster_type %} - {{ card.monster_type.value }}{% endif %}</span>
+            </div>
+          </label>
+        {% empty %}
+          <div class="">
+            <p>No User Cards.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  
+    <div class="confirm-button-container">
+      <button id="confirmOfferButton" type="submit">Confirm Offer</button>
+    </div>
+
+  </form>
+  {% endpartialdef make-offer-partial %}
+{% endblock main %}

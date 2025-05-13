@@ -95,6 +95,16 @@ a:any-link {
   border-style: groove;
 }
 
+select, input, button {
+  padding: 5px;
+  font-size: 14px;
+}
+
+.select-wrapper {
+  display: flex;
+  align-items: center;
+}
+
 #searchButton {
   font-family: system-ui;
   border-radius: 6px;
@@ -110,17 +120,14 @@ a:any-link {
   font-family: system-ui;
 }
 
-.card-label {
-  margin: 10px 20px 0 10px;
-  display: flex;
-  font-family: system-ui;
-  font-size: 18px;
-  align-items: center;
-}
-
 .card-label input[type="checkbox"] {
   margin-left: 20px;
   cursor: pointer;
+}
+
+.confirm-button-container {
+  text-align: center;
+  margin-top: 20px;
 }
 
 #continueButton {
@@ -140,4 +147,50 @@ h3 {
   font-family: system-ui;
   font-size: 20px;
   color: rgb(0, 0, 0);
+}
+
+#confirmOfferButton {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: system-ui;
+}
+
+.card-label {
+  width: 180px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+  font-family: system-ui;
+}
+
+.card-label:hover {
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.confirm-button-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 10px;
+}
+
+.form-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.form-container > div {
+  display: inline-block;
 }
