@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Yu-Gi-World {% block subtitle %}{% endblock %}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="{% static 'js/htmx.min.js' %}" defer></script>
+  <script src="{% static 'js/config.js' %}" defer></script>
+  <script src="{% static 'js/tailwind.min.js' %}" defer></script>
+
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body 
+  hx-boost="true" 
+  hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'
+  class="bg-gray-100 font-sans">
+  
+  <nav>
+    <a href="/" 
+      hx-get="{% url 'card_list' %}" 
+      hx-target="#main-content" 
+      hx-push-url="true">
+      Home
+    </a>
+  </nav>
+    
+  <main id="main-content" class="container mx-auto p-4">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    © 2025 Yu-Gi-World (UFRGS)
+ </footer>
+</body>
+</html>

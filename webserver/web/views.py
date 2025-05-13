@@ -9,11 +9,12 @@ PORT = 8001
 
 URL = f'http://{HOST}:{PORT}'
 
+#########################################################################################
 def home(request):
   return render(request, 'home_screen.html')
 
+#########################################################################################
 def select(request):
-
   query = request.GET.get('q', '').lower()
 
   response = requests.get(URL)
@@ -37,11 +38,24 @@ def select(request):
 
   return render(request, 'select_cards.html', {'cards': data})
 
+#########################################################################################
 def make_exchange(request):
-
   # Alguma forma de armazenar as cartas selecionadas pelo usuário na tela anterior
-
   return render(request, 'make_exchange.html')
 
+#########################################################################################
 def exchanges(request):
   return render(request, 'exchanges.html')
+
+#########################################################################################
+def card_list(request):
+  response = requests.get(URL)
+  data: list[YugiohCardRead] = response.json() 
+
+  return render(
+    request, 
+    'card_list.html', 
+    {
+      'cards': data
+    }
+  )

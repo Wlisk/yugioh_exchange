@@ -17,25 +17,19 @@ def get_session() -> Generator[Session, Any, None]:
     yield session
 
 
-
 def create_sample_data() -> None:
   """Add sample data to the database"""
   with Session(ENGINE) as session:
     # execute only if there is no data in the table
     if not session.exec(select(YugiohCard)).first(): 
       cards = [
-        #YugiohCard(id=1, name="Blue-Eyes White Dragon"),
-        #YugiohCard(id=2, name="Dark Magician"),
-        #YugiohCard(id=3, name="Red-Eyes Black Dragon"),
-        #YugiohCard(id=4, name="Exodia the Forbidden One"),
-        #YugiohCard(id=5, name="Summoned Skull"),
-        YugiohCard(id=1, name="Blue-Eyes White Dragon", card_type=CardType.MONSTER, monster_type=MonsterType.DRAGON),
-        YugiohCard(id=2, name="Dark Magician", card_type=CardType.MONSTER, monster_type=MonsterType.SPELLCASTER),
-        YugiohCard(id=3, name="Red-Eyes Black Dragon", card_type=CardType.MONSTER, monster_type=MonsterType.DRAGON),
+        YugiohCard(id=1, name="Blue-Eyes White Dragon",   card_type=CardType.MONSTER, monster_type=MonsterType.DRAGON),
+        YugiohCard(id=2, name="Dark Magician",            card_type=CardType.MONSTER, monster_type=MonsterType.SPELLCASTER),
+        YugiohCard(id=3, name="Red-Eyes Black Dragon",    card_type=CardType.MONSTER, monster_type=MonsterType.DRAGON),
         YugiohCard(id=4, name="Exodia the Forbidden One", card_type=CardType.MONSTER, monster_type=MonsterType.SPELLCASTER),
-        YugiohCard(id=5, name="Summoned Skull", card_type=CardType.MONSTER, monster_type=MonsterType.FIEND),
-        YugiohCard(id=6, name="Pot of Greed", card_type=CardType.SPELL),
-        YugiohCard(id=7, name="Mirror Force", card_type=CardType.TRAP)
+        YugiohCard(id=5, name="Summoned Skull",           card_type=CardType.MONSTER, monster_type=MonsterType.FIEND),
+        YugiohCard(id=6, name="Pot of Greed",             card_type=CardType.SPELL),
+        YugiohCard(id=7, name="Mirror Force",             card_type=CardType.TRAP),
       ]
       session.add_all(cards)
       session.commit()
