@@ -1,5 +1,6 @@
 from typing import Any, Generator
-from sqlmodel import create_engine, SQLModel, Session, select, or_, alias
+from sqlmodel import create_engine, SQLModel, Session, select, or_
+from sqlalchemy import text
 from models.yugioh_card import YugiohCard, User, Offer, OfferCardsGiven, OfferCardsWants, CardType, MonsterType
 
 DB_FILENAME = "yugioh.db"
@@ -97,10 +98,23 @@ class offer_operations:
 
   ## TODO ARRUMAR ISSO QUE NÃO ESTÁ FUNCIONANDO
     with Session(ENGINE) as session:
-      statement = select(Offer, OfferCardsWants, OfferCardsGiven, YugiohCard).where(
-                  Offer.id == id, OfferCardsGiven.offer_id == id, OfferCardsWants.offer_id == id).join_from(
-                  from_=OfferCardsGiven, target=YugiohCard, onclause=OfferCardsGiven.card_id == YugiohCard.id).join_from(
-                  from_=OfferCardsWants, target=YugiohCard, onclause=OfferCardsWants.card_id == YugiohCard.id)
-      
-      results = session.exec(statement, execution_options={"prebuffer_rows": True})
+      #statement = select(Offer, OfferCardsWants, OfferCardsGiven, YugiohCard).where(
+      #            Offer.id == id, OfferCardsGiven.offer_id == id, OfferCardsWants.offer_id == id).join_from(
+      #            from_=OfferCardsGiven, target=YugiohCard, onclause=OfferCardsGiven.card_id == YugiohCard.id).join_from(
+      #            from_=OfferCardsWants, target=YugiohCard, onclause=OfferCardsWants.card_id == YugiohCard.id)
+      #
+      #statement = "SELECT offer.id, offer.user_id, offercardswants.offer_id, offercardswants.card_id, offercardsgiven.offer_id AS offer_id_1, offercardsgiven.card_id AS card_id_1, yugiohcard.name, yugiohcard.card_type, yugiohcard.monster_type, yugiohcard.id AS id_1" + \
+      #            "FROM offercardsgiven JOIN yugiohcard ON offercardsgiven.card_id = yugiohcard.id, offercardswants JOIN yugiohcard ON offercardswants.card_id = yugiohcard.id, offer WHERE offer.id = :id_2 AND offercardsgiven.offer_id = :offer_id_2 AND offercardswants.offer_id = :offer_id_3"
+
+      #statement = text("SELECT offer.id,\
+      #                  user.name,\
+      #                  yugiohcard.name as card_given,\
+      #                  yugiohcard.name as card_,\
+      #                  yugiohcard.card_type,\
+      #                  yugiohcard.monster_type,\
+      #                  yugiohcard.id AS card_id\
+      #                  FROM offercardsgiven JOIN yugiohcard ON offercardsgiven.card_id = yugiohcard.id, user JOIN offer ON user.id = ofer.user_id, offercardswants JOIN yugiohcard ON offercardswants.card_id = yugiohcard.id, offer WHERE offer.id = :id_2 AND offercardsgiven.offer_id = :id_2 AND offercardswants.offer_id = :id_2").bindparams(id_2 = id)
+      statement = text("SELECT offer.id AS offer_id, u.name AS user_name, card_given.name AS given_card_name, card_want.name AS wants_card_name FROM offer LEFT JOIN offercardsgiven given ON offer.id = given.offer_id LEFT JOIN offercardswants wanted ON offer.id = wanted.offer_id LEFT JOIN user u ON offer.user_id = u.id LEFT JOIN yugiohcard card_given ON card_given.id = given.card_id LEFT JOIN yugiohcard card_want ON card_want.id = wanted.card_id WHERE (offer.id = :id_2)").bindparams(id_2 = id)
+
+      results = session.exec(statement, execution_options={"prebuffer_rows": True}).all()
       return results

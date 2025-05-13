@@ -19,11 +19,17 @@ def select(request):
   filter_type = request.GET.get('filter_type', 'name')
   query = request.GET.get('q', '').lower()
 
-#  #result = card_operations.select_card(name= "Blue-Eyes White Dragon", card_type = CardType.MONSTER, monster_type = MonsterType.DRAGON)
-#  result = offer_operations.get_offer_from_id(1)
-#  for i in result:
-#    print(i)
-
+  #result = card_operations.select_card(name= "Blue-Eyes White Dragon", card_type = CardType.MONSTER, monster_type = MonsterType.DRAGON)
+  #result = offer_operations.get_offer_from_id(1)
+  #print(result)
+  #for i in result:
+  #  print(i)
+  #  print(i.offer_id)
+  #  print(i.user_name)
+  #  print(i.given_card_name)
+  #  print(i.wants_card_name)
+  #  print("\n")
+  #
   if query:
     if filter_type == 'name':
       result = card_operations.select_card(name=query)
