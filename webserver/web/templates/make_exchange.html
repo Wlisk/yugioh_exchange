@@ -1,43 +1,17 @@
-<!DOCTYPE html>
-<head>
-  <meta charset="UTF-8">
-  <title>Make Exchange</title>
+{% extends "base.html" %}
+{% load partials %}
 
-  <style>
+{% block subtitle %}: Exchange{% endblock %}
 
-    .title {
-      text-align: left;
-      font-family: system-ui;
-      font-size: 20px;
-      color: rgb(0, 0, 0);
-    }
-
-    hr {
-      margin-top: 20px;
-      margin-bottom: 0px;
-      color: black;
-    }
-
-    h3 {
-      text-align: left;
-      font-family: system-ui;
-      font-size: 20px;
-      color: rgb(0, 0, 0);
-    }
-
-  </style>
-
-</head>
-
-<body>
-  <div class="title">
-    <h1> Make Exchange</h1>
+{% block main %}
+  {% partialdef make-exchange-partial inline %}
+  <div class="title exchanges">
+    <h1>Exchange Yu-Gi-Oh Cards</h1>
   </div>
   
   <div> 
     <h3> Selected cards </h3>
     <!-- Mostrar as cartas selecionadas -->
-  
   </div>
 
   <hr>
@@ -45,6 +19,6 @@
   <div>
     <h3> Choose the cards you want to exchange </h3>
     <!-- Mostrar as cartas que o usuário tem e selecionar elas-->
-
   </div>
-</body>
+  {% endpartialdef make-exchange-partial %}
+{% endblock %}

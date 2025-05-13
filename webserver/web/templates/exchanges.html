@@ -1,11 +1,14 @@
-{% extends "home_screen.html" %}
+{% extends "base.html" %}
+{% load partials %}
 
 {% block subtitle %}: Exchange{% endblock %}
 
 {% block main %}
+  {% partialdef exchange-partial inline %}
   <hr>
 
   <div class="title exchanges">
     <h1> Exchanges </h1>
   </div>
+  {% endpartialdef exchange-partial %}
 {% endblock main %}

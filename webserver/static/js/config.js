@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Handle back/forward navigation
-  /*window.addEventListener('popstate', function(event) {
+  window.addEventListener('popstate', function(event) {
     if(event.state && event.state.htmx) {
           htmx.ajax('GET', window.location.pathname, {
               target: '#main-content',
               swap: 'innerHTML'
           });
     }
-  });*/
+  });
 
   // used on onSubmit form method of select_cards
   function validSelection() {

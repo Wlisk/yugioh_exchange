@@ -134,3 +134,10 @@ a:any-link {
   color: white;
   cursor: pointer;
 }
+
+h3 {
+  text-align: left;
+  font-family: system-ui;
+  font-size: 20px;
+  color: rgb(0, 0, 0);
+}

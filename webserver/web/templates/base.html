@@ -19,25 +19,25 @@
   
   <nav>
     <a href="/" 
-      hx-get="{% url '/' %}" 
+      hx-get="{% url 'home' %}" 
       hx-target="#main-content" 
       hx-push-url="true">
       Home
     </a>
     <a href="/card_list" 
-      hx-get="{% url '/card_list' %}" 
+      hx-get="{% url 'card_list' %}" 
       hx-target="#main-content" 
       hx-push-url="true">
       List All
     </a>
     <a href="/select" 
-      hx-get="{% url '/select' %}" 
+      hx-get="{% url 'select' %}" 
       hx-target="#main-content" 
       hx-push-url="true">
       Select Cards
     </a>
     <a href="/exchanges" 
-      hx-get="{% url '/exchanges' %}" 
+      hx-get="{% url 'exchanges' %}" 
       hx-target="#main-content" 
       hx-push-url="true">
       Exchange Cards

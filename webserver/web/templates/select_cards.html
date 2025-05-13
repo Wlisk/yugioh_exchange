@@ -1,8 +1,10 @@
-{% extends "home_screen.html" %}
+{% extends "base.html" %}
+{% load partials %}
 
 {% block subtitle %}: Select cards{% endblock %}
 
 {% block main %}
+  {% partialdef select-partial inline %}
   <hr>
 
   <div class="title exchanges">
@@ -36,4 +38,5 @@
 
     <button id="continueButton" type="submit">Continue</button>
   </form>
+  {% endpartialdef select-partial %}
 {% endblock main %}

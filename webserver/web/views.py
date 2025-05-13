@@ -18,10 +18,16 @@ PATHS = {
 #########################################################################################
 def home(request):
   """Home page"""
-  return render(request, 'home_screen.html')
+
+  template_name = 'home_screen.html'
+  if request.htmx:
+    template_name = f'{template_name}#home-partial'
+
+  return render(request, template_name)
 
 #########################################################################################
 def select(request):
+  """Page to select cards for exchange"""
   query = request.GET.get('q', '').lower()
 
   #result = card_operations.select_card(name= "Blue-Eyes White Dragon", card_type = CardType.MONSTER, monster_type = MonsterType.DRAGON)
@@ -31,11 +37,11 @@ def select(request):
     print(i.name)
 
   response = requests.get(URL)
-  data = response.json() 
+  cards = response.json() 
 
   # Função de pesquisa funcional mas temporária 
   if query:
-    data = [card for card in data if query in card['name'].lower()]
+    cards = [card for card in cards if query in card['name'].lower()]
   print(query)
 
   if request.method == 'POST':
@@ -43,28 +49,48 @@ def select(request):
     ids = list(map(int, ids)) 
     print(ids)
     return redirect('/make_exchange')
+  
+  template_name = 'select_cards.html'
+  if request.htmx:
+    template_name = f'{template_name}#select-partial'
 
-  return render(request, 'select_cards.html', {'cards': data})
+  return render(request, template_name, {'cards': cards})
 
 #########################################################################################
 def make_exchange(request):
-  # Alguma forma de armazenar as cartas selecionadas pelo usuário na tela anterior
-  return render(request, 'make_exchange.html')
+  """Page to make an exchange of cards"""
+  # TODO: Alguma forma de armazenar as cartas selecionadas pelo usuário na tela anterior
+
+  template_name = 'make_exchange.html'
+  if request.htmx:
+    template_name = f'{template_name}#make-exchange-partial'
+
+  return render(request, template_name)
 
 #########################################################################################
 def exchanges(request):
-  return render(request, 'exchanges.html')
+  """Page to list the available exchange offers"""
+
+  template_name = 'exchanges.html'
+  if request.htmx:
+    template_name = f'{template_name}#exchange-partial'
+
+  return render(request, template_name)
 
 #########################################################################################
 def card_list(request):
   """Page to list all Yu-gi-oh cards"""
   response = requests.get(f"{URL}/{PATHS['list']}") 
-  data: list[YugiohCardRead] = response.json() 
+  cards: list[YugiohCardRead] = response.json() 
+
+  template_name = 'card_list.html'
+  if request.htmx:
+    template_name = f'{template_name}#cards-partial'
 
   return render(
     request, 
-    'card_list.html', 
+    template_name, 
     {
-      'cards': data
+      'cards': cards
     }
   )
