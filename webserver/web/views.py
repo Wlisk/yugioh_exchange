@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 import requests
 
 from models.yugioh_card import YugiohCardRead, CardType, MonsterType
-from db.main import card_operations
+from db.main import card_operations, offer_operations
 
 HOST = '127.0.0.1'
 PORT = 8001
@@ -19,13 +19,10 @@ def select(request):
   filter_type = request.GET.get('filter_type', 'name')
   query = request.GET.get('q', '').lower()
 
-  #result = card_operations.select_card(name= "Blue-Eyes White Dragon", card_type = CardType.MONSTER, monster_type = MonsterType.DRAGON)
-  
-  '''
-  for i in result:
-    print(i)
-    print(i.name)
-  '''
+#  #result = card_operations.select_card(name= "Blue-Eyes White Dragon", card_type = CardType.MONSTER, monster_type = MonsterType.DRAGON)
+#  result = offer_operations.get_offer_from_id(1)
+#  for i in result:
+#    print(i)
 
   if query:
     if filter_type == 'name':
