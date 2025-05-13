@@ -18,10 +18,10 @@ def select(request):
   query = request.GET.get('q', '').lower()
 
   #result = card_operations.select_card(name= "Blue-Eyes White Dragon", card_type = CardType.MONSTER, monster_type = MonsterType.DRAGON)
-  #result = card_operations.select_card(card_type = CardType.TRAP)
-  #for i in result:
-  #  print(i)
-  #  print(i.name)
+  result = card_operations.select_card(name="drag")
+  for i in result:
+    print(i)
+    print(i.name)
 
   response = requests.get(URL)
   data = response.json() 
