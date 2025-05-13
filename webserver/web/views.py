@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect
 import requests
 
-from models.yugioh_card import YugiohCardRead
+from models.yugioh_card import YugiohCardRead, CardType, MonsterType
 from db.main import card_operations
 
 HOST = '127.0.0.1'
@@ -28,26 +28,32 @@ def home(request):
 #########################################################################################
 def select(request):
   """Page to select cards for exchange"""
+  filter_type = request.GET.get('filter_type', 'name')
   query = request.GET.get('q', '').lower()
 
   #result = card_operations.select_card(name= "Blue-Eyes White Dragon", card_type = CardType.MONSTER, monster_type = MonsterType.DRAGON)
-  result = card_operations.select_card(name="drag")
+  
+  '''
   for i in result:
     print(i)
     print(i.name)
+  '''
 
-  response = requests.get(URL)
-  cards = response.json() 
-
-  # Função de pesquisa funcional mas temporária 
   if query:
-    cards = [card for card in cards if query in card['name'].lower()]
-  print(query)
+    if filter_type == 'name':
+      result = card_operations.select_card(name=query)
+    elif filter_type == 'card_type':
+      result = card_operations.select_card(card_type=CardType[query.upper()])
+    elif filter_type == 'monster_type':
+      result = card_operations.select_card(monster_type=MonsterType[query.upper()])
+  else:
+    result = card_operations.select_card()
 
   if request.method == 'POST':
-    ids = request.POST.getlist('cards') # Faz uma lista com os ids das cartas que foram marcadas no checkbox
-    ids = list(map(int, ids)) 
-    print(ids)
+    
+    selected_cards = request.POST.getlist('cards') # Faz uma lista com os ids das cartas que foram marcadas no checkbox
+    selected_cards = list(map(int, selected_cards)) 
+
     return redirect('/make_exchange')
   
   template_name = 'select_cards.html'

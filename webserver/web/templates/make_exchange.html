@@ -12,6 +12,13 @@
   <div> 
     <h3> Selected cards </h3>
     <!-- Mostrar as cartas selecionadas -->
+    {% for card in cards %}
+    <label class="card-label">
+      {{ card.name }}
+    </label>
+    <br>
+    {% endfor %}
+  
   </div>
 
   <hr>
