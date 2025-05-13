@@ -2,19 +2,27 @@
 from django.shortcuts import render, redirect
 import requests
 
-from models.yugioh_card import YugiohCardRead
+from models.yugioh_card import YugiohCardRead, CardType, MonsterType
+from db.main import card_operations
 
 HOST = '127.0.0.1'
 PORT = 8001
 
 URL = f'http://{HOST}:{PORT}'
 
+#########################################################################################
 def home(request):
   return render(request, 'home_screen.html')
 
+#########################################################################################
 def select(request):
-
   query = request.GET.get('q', '').lower()
+
+  #result = card_operations.select_card(name= "Blue-Eyes White Dragon", card_type = CardType.MONSTER, monster_type = MonsterType.DRAGON)
+  result = card_operations.select_card(name="drag")
+  for i in result:
+    print(i)
+    print(i.name)
 
   response = requests.get(URL)
   data = response.json() 
@@ -37,11 +45,24 @@ def select(request):
 
   return render(request, 'select_cards.html', {'cards': data})
 
+#########################################################################################
 def make_exchange(request):
-
   # Alguma forma de armazenar as cartas selecionadas pelo usuário na tela anterior
-
   return render(request, 'make_exchange.html')
 
+#########################################################################################
 def exchanges(request):
   return render(request, 'exchanges.html')
+
+#########################################################################################
+def card_list(request):
+  response = requests.get(URL)
+  data: list[YugiohCardRead] = response.json() 
+
+  return render(
+    request, 
+    'card_list.html', 
+    {
+      'cards': data
+    }
+  )

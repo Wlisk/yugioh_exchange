@@ -1,0 +1,17 @@
+{% extends "home_screen.html" %}
+{% load partials %}
+
+{% block main %}
+  {% partialdef cards-partial inline %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+    {% for card in cards %}
+    <div class="card bg-white hover:shadow-xl transition-shadow">
+        <!--<img src="{{ card.image.url }}" alt="{{ card.name }}" class="w-full h-64 object-contain p-4">-->
+        <div class="p-4 bg-yugioh-blue text-black">
+            <h3 class="text-lg font-bold truncate">{{ card.name }}</h3>
+        </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endpartialdef cards-partial %}
+{% endblock main %}
