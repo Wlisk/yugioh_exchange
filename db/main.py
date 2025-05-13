@@ -1,5 +1,5 @@
 from typing import Any, Generator
-from sqlmodel import create_engine, SQLModel, Session, select
+from sqlmodel import create_engine, SQLModel, Session, select, or_
 from models.yugioh_card import YugiohCard, CardType, MonsterType
 
 DB_FILENAME = "yugioh.db"
@@ -24,11 +24,6 @@ def create_sample_data() -> None:
     # execute only if there is no data in the table
     if not session.exec(select(YugiohCard)).first(): 
       cards = [
-        #YugiohCard(id=1, name="Blue-Eyes White Dragon"),
-        #YugiohCard(id=2, name="Dark Magician"),
-        #YugiohCard(id=3, name="Red-Eyes Black Dragon"),
-        #YugiohCard(id=4, name="Exodia the Forbidden One"),
-        #YugiohCard(id=5, name="Summoned Skull"),
         YugiohCard(id=1, name="Blue-Eyes White Dragon", card_type=CardType.MONSTER, monster_type=MonsterType.DRAGON),
         YugiohCard(id=2, name="Dark Magician", card_type=CardType.MONSTER, monster_type=MonsterType.SPELLCASTER),
         YugiohCard(id=3, name="Red-Eyes Black Dragon", card_type=CardType.MONSTER, monster_type=MonsterType.DRAGON),
@@ -39,3 +34,15 @@ def create_sample_data() -> None:
       ]
       session.add_all(cards)
       session.commit()
+
+class card_operations:  
+  def select_card(name: str = None, card_type: CardType = None, monster_type: MonsterType = None) -> list[YugiohCard]:
+    with Session(ENGINE) as session:
+      # Seleciona todas as linhas da database que possuem o parâmetro passado, se tiver parâmetro
+      statement = select(YugiohCard).where(
+        or_(YugiohCard.name == name, name == None)).where(
+        or_(YugiohCard.card_type == card_type, card_type == None)).where(
+        or_(YugiohCard.monster_type == monster_type, monster_type == None))
+      
+      results = session.exec(statement, execution_options={"prebuffer_rows": True})
+      return results
