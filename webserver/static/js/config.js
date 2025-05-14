@@ -23,11 +23,11 @@ function loadMarks() {
 function searchCardsByInput() {
   const searchInput = document.getElementById("searchField");
 
-  if(searchInput) {
+  if (searchInput) {
     searchInput.addEventListener("input", () => {
       const query = searchInput.value.toLowerCase();
       const cards = document.querySelectorAll(".card-label");
-  
+
       cards.forEach(card => {
         const name = card.textContent.toLowerCase();
         if (name.includes(query)) {
@@ -42,8 +42,8 @@ function searchCardsByInput() {
 
 function toggleFields() {
   const filterEl = document.getElementById('filterType');
-  
-  if(filterEl) {
+
+  if (filterEl) {
     const filterType = filterEl.value;
     // Esconde todos os campos
     document.getElementById('nameField').style.display = 'none';
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   loadMarks();
   searchCardsByInput();
-  
+
   toggleFields(); // Inicializa os campos com base no valor atual
   document.getElementById("filterType").addEventListener("change", toggleFields); // Reage a mudanças
 
@@ -86,29 +86,6 @@ document.addEventListener('DOMContentLoaded', function () {
     runSpinner('main-content');
     //validSelection(event);
   });
-
-  if(htmx) {
-    htmx.defineExtension('debug', {
-      onEvent: function (name, evt) {
-        if (console.debug) console.debug(name, evt);
-        else if (console) console.log("DEBUG:", name, evt);
-        else throw "NO CONSOLE SUPPORTED";
-      }
-    });
-
-    htmx.defineExtension('json-enc', {
-      onEvent: function (name, evt) {
-          if (name === "htmx:configRequest") {
-              evt.detail.headers['Content-Type'] = "application/json";
-          }
-      },
-      
-      encodeParameters : function(xhr, parameters, elt) {
-          xhr.overrideMimeType('text/json');
-          return (JSON.stringify(parameters));
-      }
-  });
-  }
 });
 
 function runSpinner(id) {

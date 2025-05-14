@@ -66,8 +66,12 @@ def make_offer(request):
   cards_wants = []
 
   if request.method == 'POST':
-    json_cards = json.loads(request.body)
-    ncards = json_cards['cards']
+    try:
+      json_cards = json.loads(request.body)
+      ncards = json_cards['cards']
+    except json.JSONDecodeError:
+      ncards = request.POST.get('selected_cards', '[]')
+    
     if isinstance(ncards, list):
       cards_wants = [card for card in user_cards if str(card.id) in ncards]
 

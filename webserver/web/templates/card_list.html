@@ -4,14 +4,21 @@
 {% block subtitle %}: List Cards{% endblock %}
 
 {% block main %}
-  {% partialdef cards-partial inline %}
+
+  {% partialdef cards-partial %}
+  <div class="text-center pt-12 mx-auto">
+    <h1 class="text-4xl md:text-5xl font-bold text-purple-900 mb-6">
+      List of Yu-Gi-Oh Cards
+    </h1>
+  </div>
+  <hr class="border-t border-gray-200 my-6">
+  
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
     {% for card in cards %}
-    <div class="card bg-white hover:shadow-xl transition-shadow">
-        <!--<img src="{{ card.image.url }}" alt="{{ card.name }}" class="w-full h-64 object-contain p-4">-->
-        <div class="p-4 bg-yugioh-blue text-black">
-            <h3 class="text-lg font-bold truncate">{{ card.name }}</h3>
-        </div>
+    <div class="card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-[0px_4px_8px_0px_rgba(0,_0,_0,_0.8)] transition-shadow duration-300 cursor-pointer">
+      <div class="p-4 bg-purple-400 text-black text-center">
+        <h3 class="text-lg font-bold truncate">{{ card.name }}</h3>
+      </div>
     </div>
     {% endfor %}
   </div>

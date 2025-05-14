@@ -4,11 +4,12 @@
 {% block subtitle %}: Exchange{% endblock %}
 
 {% block main %}
-  {% partialdef exchange-partial inline %}
-  <hr>
-
-  <div class="title exchanges">
-    <h1> Exchanges </h1>
+  {% partialdef exchange-partial %}
+  <div class="text-center pt-12 mx-auto">
+    <h1 class="text-4xl md:text-5xl font-bold text-purple-900 mb-6">
+      Exchanges
+    </h1>
   </div>
+  <hr class="border-t border-gray-200 my-6">
   {% endpartialdef exchange-partial %}
 {% endblock main %}
