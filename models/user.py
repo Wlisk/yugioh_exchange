@@ -1,7 +1,15 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import Relationship, SQLModel, Field
+from models.yugioh_card import YugiohCard
 
-# Tabela do usuario tem nome e senha (por enquanto)
+class UserCard(SQLModel, table=True):
+    """Association table for user-card ownership"""
+    user_id: int | None = Field(foreign_key="user.id", primary_key=True)
+    card_id: int | None = Field(foreign_key="yugiohcard.id", primary_key=True)
+
+
 class User(SQLModel, table=True):
+  """User model, holder of cards"""
   id: int | None = Field(default=None, primary_key=True)
-  name: str
+  name: str = Field(index=True)
   password: str
+  cards: list[YugiohCard] = Relationship(link_model=UserCard)  
