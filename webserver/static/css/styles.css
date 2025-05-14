@@ -58,3 +58,139 @@ footer{
   margin-top: 50px;
   vertical-align: top;
 }
+
+.navigation {
+  text-align: center;
+  font-family: system-ui;
+  font-size: 20px;
+  margin-top: 20px;
+}
+
+hr {
+  margin-top: 20px;
+  margin-bottom: 0px;
+  color: black;
+}
+
+a:any-link {
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: rgb(104, 6, 104);
+}
+
+.title .exchanges {
+  text-align: left;
+  font-family: system-ui;
+  font-size: 20px;
+  color: rgb(0, 0, 0);
+}
+
+#searchField {
+  font-family: system-ui;
+  margin-left: 10px;
+  border-radius: 6px;
+  border-style: groove;
+}
+
+select, input, button {
+  padding: 5px;
+  font-size: 14px;
+}
+
+.select-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+#searchButton {
+  font-family: system-ui;
+  border-radius: 6px;
+  border-style: groove;
+  cursor: pointer;
+}
+
+#errorMessage {
+  color: red;
+  display: none;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  font-family: system-ui;
+}
+
+.card-label input[type="checkbox"] {
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+.confirm-button-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+#continueButton {
+  align-self: center;
+  margin-top: 20px;
+  font-family: system-ui;
+  font-size: 18px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background-color: rgb(14, 69, 172);
+  color: white;
+  cursor: pointer;
+}
+
+h3 {
+  text-align: left;
+  font-family: system-ui;
+  font-size: 20px;
+  color: rgb(0, 0, 0);
+}
+
+#confirmOfferButton {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: system-ui;
+}
+
+.card-label {
+  width: 180px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+  font-family: system-ui;
+}
+
+.card-label:hover {
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.confirm-button-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 10px;
+}
+
+.form-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.form-container > div {
+  display: inline-block;
+}

@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% load partials %}
 
-{% block subtitle %}
-  : Home
-{% endblock %}
+{% block subtitle %}: Home{% endblock %}
 
-{% block content %}
-  <h1>Exchange Yu-Gi-Oh Cards</h1>
+{% block main %}
+  {% partialdef home-partial inline %}
+  <div class="title exchanges">
+    <h1>Exchange Your Virtual Yu-Gi-Oh Cards</h1>
+  </div>
 
-  <p>This sites enable the exchange of Yu-Gi-Oh Cards</p>
-
-  {% block main %}{% endblock %}
+  <p>This sites enable the exchange of virtual Yu-Gi-Oh Cards</p>
+  {% endpartialdef home-partial %}
 {% endblock %}
