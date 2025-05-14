@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 import requests
 import json
 from models.yugioh_card import YugiohCardRead, CardType, MonsterType
-from db.main import card_operations
+from db.main import card_operations, offer_operations, exchange_operations
 
 HOST = '127.0.0.1'
 PORT = 8001
@@ -31,6 +31,19 @@ def select(request):
   """
   filter_type = request.GET.get('filter_type', 'name')
   query = request.GET.get('q', '').lower()
+
+  #result = card_operations.select_card(name= "Blue-Eyes White Dragon", card_type = CardType.MONSTER, monster_type = MonsterType.DRAGON)
+  #result = offer_operations.get_offer_from_id(1)
+  #result = exchange_operations.get_exchange()
+  #print(result)
+  #for i in result:
+  #  print(i)
+  #  print(i.offer_id)
+  #  print(i.user_name)
+  #  print(i.given_card_name)
+  #  print(i.wants_card_name)
+  #  print("\n")
+  #
   card_type_form = request.GET.get('card_type_select', None)  
   monster_type_form = request.GET.get('monster_type_select', None)
   

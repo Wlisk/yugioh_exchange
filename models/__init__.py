@@ -1,15 +1,6 @@
 # models init file
-from .yugioh_card import \
-  YugiohCard, \
-  YugiohCardBase, \
-  YugiohCardRead, \
-  YugiohCardCreate, \
-  YugiohCardUpdate
+from .yugioh_card import YugiohCard
 
 __all__ = [
-  'YugiohCard', 
-  'YugiohCardBase', 
-  'YugiohCardRead', 
-  'YugiohCardCreate', 
-  'YugiohCardUpdate'
+  'YugiohCard'
 ]
