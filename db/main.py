@@ -1,7 +1,9 @@
 from typing import Any, Generator
-from sqlmodel import create_engine, SQLModel, Session, select, or_
+from sqlmodel import Sequence, create_engine, SQLModel, Session, select, or_
 from sqlalchemy import text
-from models.yugioh_card import YugiohCard, User, Offer, OfferCardsGiven, OfferCardsWants, CardType, MonsterType
+from models.yugioh_card import YugiohCard, CardType, MonsterType
+from models.offer import Exchange, Offer, OfferCardsGiven, OfferCardsWants
+from models.user import User
 
 DB_FILENAME = "yugioh.db"
 DB_URL = f"sqlite:///{DB_FILENAME}"
@@ -20,7 +22,7 @@ def get_session() -> Generator[Session, Any, None]:
 # Remove todas as cartas e usuários da database
 def delete_db() -> None:
   with Session(ENGINE) as session:
-    for table in [YugiohCard, User, Offer, OfferCardsWants, OfferCardsGiven]:
+    for table in [YugiohCard, User, Offer, OfferCardsWants, OfferCardsGiven, Exchange]:
       statement = select(table)
       results = session.exec(statement, execution_options={"prebuffer_rows": True})
       for i in results:
@@ -45,20 +47,17 @@ def create_sample_data() -> None:
     user_operations.create_user(name="Ric", password="aaa")
     user_operations.create_user(name="admin", password="admin")
 
-    user = user_operations.get_user("Mat").first()
+    user = user_operations.get_user("Mat")[0].id
     cardsIn = []
     for i in card_operations.select_card(name="drag"):
       cardsIn.append(i)
-    print("\n\n\n")
-    print(cardsIn)
     cardsOut = []
     for i in card_operations.select_card(card_type=CardType.TRAP):
       cardsOut.append(i)
     for i in card_operations.select_card(card_type=CardType.SPELL):
       cardsOut.append(i)
-    print(cardsOut)
-    print("\n\n\n")
-    offer_operations.create_offer(user_id=user.id, cards_given=cardsIn, cards_wanted=cardsOut)
+    offer_operations.create_offer(user_id=user, cards_given=cardsIn, cards_wanted=cardsOut)
+    exchange_operations.create_exchange(user_id=user, offer_id=1)
 
 class card_operations:  
   def create_card(name: str, card_type: CardType, monster_type: MonsterType = None) -> None:
@@ -66,7 +65,7 @@ class card_operations:
       session.add(YugiohCard(name=name, card_type=card_type, monster_type=monster_type))
       session.commit()
 
-  def select_card(name: str = "", card_type: CardType = None, monster_type: MonsterType = None): # -> list[YugiohCard]:
+  def select_card(name: str = "", card_type: CardType = None, monster_type: MonsterType = None) -> Sequence[YugiohCard]:
     with Session(ENGINE) as session:
       # Seleciona todas as linhas da database que possuem o parâmetro passado, se tiver parâmetro
       statement = select(YugiohCard)\
@@ -74,7 +73,7 @@ class card_operations:
         .where(or_(YugiohCard.card_type == card_type, card_type is None))\
         .where(or_(YugiohCard.monster_type == monster_type, monster_type is None))
       
-      results = session.exec(statement, execution_options={"prebuffer_rows": True})
+      results = session.exec(statement, execution_options={"prebuffer_rows": True}).all()
       return results
     
 class user_operations:
@@ -83,10 +82,10 @@ class user_operations:
       session.add(User(name=name, password=password))
       session.commit()
 
-  def get_user(name: str): # ->list[User]: Não é uma lista
+  def get_user(name: str) -> Sequence[User]:
     with Session(ENGINE) as session:
       statement = select(User).where(User.name.like('%' + name + '%'))
-      results = session.exec(statement, execution_options={"prebuffer_rows": True})
+      results = session.exec(statement, execution_options={"prebuffer_rows": True}).all()
       return results
     
 class offer_operations:
@@ -95,27 +94,27 @@ class offer_operations:
       session.add(Offer(user_id=user_id, cards_given=cards_given, cards_wants=cards_wanted))
       session.commit()
 
-  def get_offer_from_id(id:int): # -> list[Offer]: Não é uma lista
+  def get_offer_from_id(id:int) -> Sequence[Offer]:
 
-  ## TODO ARRUMAR ISSO QUE NÃO ESTÁ FUNCIONANDO
     with Session(ENGINE) as session:
-      #statement = select(Offer, OfferCardsWants, OfferCardsGiven, YugiohCard).where(
-      #            Offer.id == id, OfferCardsGiven.offer_id == id, OfferCardsWants.offer_id == id).join_from(
-      #            from_=OfferCardsGiven, target=YugiohCard, onclause=OfferCardsGiven.card_id == YugiohCard.id).join_from(
-      #            from_=OfferCardsWants, target=YugiohCard, onclause=OfferCardsWants.card_id == YugiohCard.id)
-      #
-      #statement = "SELECT offer.id, offer.user_id, offercardswants.offer_id, offercardswants.card_id, offercardsgiven.offer_id AS offer_id_1, offercardsgiven.card_id AS card_id_1, yugiohcard.name, yugiohcard.card_type, yugiohcard.monster_type, yugiohcard.id AS id_1" + \
-      #            "FROM offercardsgiven JOIN yugiohcard ON offercardsgiven.card_id = yugiohcard.id, offercardswants JOIN yugiohcard ON offercardswants.card_id = yugiohcard.id, offer WHERE offer.id = :id_2 AND offercardsgiven.offer_id = :offer_id_2 AND offercardswants.offer_id = :offer_id_3"
-
-      #statement = text("SELECT offer.id,\
-      #                  user.name,\
-      #                  yugiohcard.name as card_given,\
-      #                  yugiohcard.name as card_,\
-      #                  yugiohcard.card_type,\
-      #                  yugiohcard.monster_type,\
-      #                  yugiohcard.id AS card_id\
-      #                  FROM offercardsgiven JOIN yugiohcard ON offercardsgiven.card_id = yugiohcard.id, user JOIN offer ON user.id = ofer.user_id, offercardswants JOIN yugiohcard ON offercardswants.card_id = yugiohcard.id, offer WHERE offer.id = :id_2 AND offercardsgiven.offer_id = :id_2 AND offercardswants.offer_id = :id_2").bindparams(id_2 = id)
-      statement = text("SELECT offer.id AS offer_id, u.name AS user_name, card_given.name AS given_card_name, card_want.name AS wants_card_name FROM offer LEFT JOIN offercardsgiven given ON offer.id = given.offer_id LEFT JOIN offercardswants wanted ON offer.id = wanted.offer_id LEFT JOIN user u ON offer.user_id = u.id LEFT JOIN yugiohcard card_given ON card_given.id = given.card_id LEFT JOIN yugiohcard card_want ON card_want.id = wanted.card_id WHERE (offer.id = :id_2)").bindparams(id_2 = id)
+      statement = text("SELECT offer.id AS offer_id, u.name AS user_name, card_given.name AS given_card_name, card_want.name AS wants_card_name " \
+      "FROM offer LEFT JOIN offercardsgiven given ON offer.id = given.offer_id JOIN offercardswants wanted ON offer.id = wanted.offer_id " \
+      "LEFT JOIN user u ON offer.user_id = u.id LEFT JOIN yugiohcard card_given ON card_given.id = given.card_id LEFT JOIN yugiohcard card_want ON card_want.id = wanted.card_id WHERE (offer.id = :id_2)").bindparams(id_2 = id)
 
       results = session.exec(statement, execution_options={"prebuffer_rows": True}).all()
       return results
+    
+class exchange_operations:
+  def create_exchange(user_id:int, offer_id:int) -> None:
+    with Session(ENGINE) as session:
+      session.add(Exchange(user_accepted=user_id, offer_id=offer_id, date= "")) #TODO data
+      session.commit()
+
+  def get_exchange(id:int = None, user_id:int = None, offer_id:int = None) -> Sequence[Exchange]:
+    with Session(ENGINE) as session:
+      statement = select(Exchange).where(
+        or_(Exchange.id == id, id == None)).where(
+        or_(Exchange.user_accepted == user_id, user_id == None)).where(or_(Exchange.offer_id == offer_id, offer_id == None))
+      results = session.exec(statement, execution_options={"prebuffer_rows": True}).all()
+      return results
+    
