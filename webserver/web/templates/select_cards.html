@@ -1,10 +1,4 @@
-{% extends "base.html" %}
-{% load partials %}
 
-{% block subtitle %}: Select cards{% endblock %}
-
-{% block main %}
-  {% partialdef select-partial %}
   <div class="text-center pt-12 mx-auto">
     <h1 class="text-4xl md:text-5xl font-bold text-purple-900 mb-6">
       Select cards
@@ -100,5 +94,3 @@
       </button>
     </div>
   </form>
-  {% endpartialdef select-partial %}
-{% endblock main %}

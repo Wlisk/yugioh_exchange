@@ -13,68 +13,27 @@ URL = f'http://{HOST}:{PORT}'
 PATHS = {
   'home': '/',
   'list': '/cards',
+  'offers': '/offers',
 }
 
 #########################################################################################
 def home(request):
-  """Home page"""
-
-  template_name = 'home_screen.html'
-  if request.htmx:
-    template_name = f'{template_name}#home-partial'
-
-  return render(request, template_name)
+  template = 'home_screen.html' if request.htmx else 'base.html'
+  context = {'page': 'home'} if not request.htmx else {}
+  return render(request, template, context)
 
 #########################################################################################
 def select(request):
-  """Page to select cards for exchange"""
-  """
-  filter_type = request.GET.get('filter_type', 'name')
-  query = request.GET.get('q', '').lower()
-
-  #result = card_operations.select_card(name= "Blue-Eyes White Dragon", card_type = CardType.MONSTER, monster_type = MonsterType.DRAGON)
-  #result = offer_operations.get_offer_from_id(1)
-  #result = exchange_operations.get_exchange()
-  #print(result)
-  #for i in result:
-  #  print(i)
-  #  print(i.offer_id)
-  #  print(i.user_name)
-  #  print(i.given_card_name)
-  #  print(i.wants_card_name)
-  #  print("\n")
-  #
-  card_type_form = request.GET.get('card_type_select', None)  
-  monster_type_form = request.GET.get('monster_type_select', None)
-  
-  if filter_type == 'name' and query:
-    result = card_operations.select_card(name=query)
-  elif filter_type == 'card_type' and card_type_form:
-    result = card_operations.select_card(card_type=CardType[card_type_form.upper()])
-  elif filter_type == 'monster_type' and monster_type_form:
-    result = card_operations.select_card(monster_type=MonsterType[monster_type_form.upper()])
-  else:
-    
-  """
   result = card_operations.select_card()
-  """
-  if request.method == 'POST':
-    selected_cards = request.POST.getlist('cards') # Faz uma lista com os ids das cartas que foram marcadas no checkbox
-    selected_cards = list(map(int, selected_cards)) 
 
-    response = redirect('/make_offer', {'selected_cards': selected_cards})
-    response.set_cookie('selected_card_names', json.dumps(selected_cards))
-    return response
-  """
-  template_name = 'select_cards.html'
-  if request.htmx:
-    template_name = f'{template_name}#select-partial'
-
-  return render(request, template_name, {'cards':  result})
+  template = 'select_cards.html' if request.htmx else 'base.html'
+  context = {'cards': result} if not request.htmx else {'cards': result}
+  if not request.htmx:
+    context['page'] = 'select'
+  return render(request, template, context)
 
 #########################################################################################
 def make_offer(request):
-  """Page to make an exchange of cards"""
   user_cards = card_operations.select_card()
   cards_wants = []
 
@@ -84,56 +43,156 @@ def make_offer(request):
       ncards = json_cards['cards']
     except json.JSONDecodeError:
       ncards = request.POST.get('selected_cards', '[]')
-    
+
     if isinstance(ncards, list):
       cards_wants = [card for card in user_cards if str(card.id) in ncards]
 
   else:
     selected_names_str = request.COOKIES.get('selected_card_names', '[]')
     selected_names = json.loads(selected_names_str)
-    
+
     for name in selected_names:
       cards = list(card_operations.select_card(name=name))
       if cards:
-        cards_wants.append(cards[0]) 
-  
-  template_name = 'make_offer.html'
-  if request.htmx:
-    template_name = f'{template_name}#make-offer-partial'
+        cards_wants.append(cards[0])
 
-  return render(
-    request, 
-    template_name, 
-    {
-      'cards_want': cards_wants, 
-      'user_cards': user_cards,
-    }
-  )
+  template = 'make_offer.html' if request.htmx else 'base.html'
+  context = {
+    'cards_want': cards_wants,
+    'user_cards': user_cards
+  }
+  if not request.htmx:
+    context['page'] = 'make_offer'
+
+  return render(request, template, context)
 
 #########################################################################################
 def exchanges(request):
-  """Page to list the available exchange offers"""
-
-  template_name = 'exchanges.html'
-  if request.htmx:
-    template_name = f'{template_name}#exchange-partial'
-
-  return render(request, template_name)
+  template = 'exchanges.html' if request.htmx else 'base.html'
+  context = {} if request.htmx else {'page': 'exchanges'}
+  return render(request, template, context)
 
 #########################################################################################
 def card_list(request):
-  """Page to list all Yu-gi-oh cards"""
-  response = requests.get(f"{URL}/{PATHS['list']}") 
-  cards: list[YugiohCardRead] = response.json() 
+  response = requests.get(f"{URL}/{PATHS['list']}")
+  cards: list[YugiohCardRead] = response.json()
 
-  template_name = 'card_list.html'
-  if request.htmx:
-    template_name = f'{template_name}#cards-partial'
+  template = 'card_list.html' if request.htmx else 'base.html'
+  context = {'cards': cards}
+  if not request.htmx:
+    context['page'] = 'card_list'
 
-  return render(
-    request, 
-    template_name, 
-    {
-      'cards': cards
+  return render(request, template, context)
+
+#########################################################################################
+def set_user(request):
+  if request.method != 'POST':
+    return HttpResponse(status=400)
+
+  user_id = request.POST.get('user_id')
+  response = HttpResponse(status=200)
+  response.set_cookie('user_id', user_id, max_age=3600*24*7)
+  response.content = json.dumps({'user_id': user_id})
+  return response
+
+#########################################################################################
+def offers(request):
+  user_id = request.COOKIES.get('user_id', '1') # default to one
+
+  response = requests.get(f'{URL}/user/{user_id}/cards')
+  cards: list[YugiohCardRead] = response.json()
+
+  # Get offers for the current user
+  offers_response = requests.get(
+    f"{URL}/{PATHS['offers']}",
+    params={'user_id': user_id}
+  )
+  
+  offers = []
+  if offers_response.status_code == 200:
+    raw_offers = offers_response.json()
+    # Transform the offers to include only necessary owner info
+    offers = [{
+      'offer_id': offer['offer']['id'],
+      'owner': {
+        'id': offer['owner']['id'],
+        'name': offer['owner']['name']
+      },
+      'cards_given': offer['cards_given'],
+      'cards_wanted': offer['cards_wanted']
+    } for offer in raw_offers]
+
+  template = 'offers.html' if request.htmx else 'base.html'
+  context = {
+    'cards': cards,
+    'offers': offers,
+    'user_id': user_id
+  }
+  
+  if not request.htmx:
+    context['page'] = 'offers'
+
+  return render(request, template, context)
+
+#########################################################################################
+def respond_offer(request):
+  if request.method != 'POST':
+    return HttpResponse(status=400)
+
+  try:
+    offer_id = int(request.POST.get('offer_id'))
+    accepted = request.POST.get('accepted') == 'true'
+    user_id = request.COOKIES.get('user_id', '1')
+  except (ValueError, TypeError):
+    return HttpResponse(status=400)
+
+  # Make API call to respond to offer
+  response = requests.post(
+    f"{URL}/offers/respond",
+    params={
+      "offer_id": offer_id,
+      "user_id": int(user_id),
+      "accepted": accepted
     }
   )
+
+  if response.status_code == 200:
+    data = response.json()
+    if data.get('ok'):
+      if accepted:
+        return HttpResponse(
+          status=200,
+          content=json.dumps({"status": "ok"}),
+          content_type="application/json"
+        )
+      else:
+        return HttpResponse(
+          status=200,
+          content=json.dumps({"status": "refused"}),
+          content_type="application/json"
+        )
+    else:
+      return HttpResponse(
+        status=400,
+        content=json.dumps({"status": "error", "message": data.get("message", "Unknown error")}),
+        content_type="application/json"
+      )
+  elif response.status_code == 400:
+    error_data = response.json()
+    if "not found in your collection" in error_data.get("detail", ""):
+      return HttpResponse(
+        status=400,
+        content=json.dumps({"status": "user_has_no_card"}),
+        content_type="application/json"
+      )
+    return HttpResponse(
+      status=400,
+      content=json.dumps({"status": "error", "message": error_data.get("detail", "Bad request")}),
+      content_type="application/json"
+    )
+  else:
+    return HttpResponse(
+      status=response.status_code,
+      content=json.dumps({"status": "error", "message": "Server error"}),
+      content_type="application/json"
+    )

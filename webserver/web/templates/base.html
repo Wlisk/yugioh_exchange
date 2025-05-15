@@ -11,8 +11,6 @@
   <script src="{% static 'js/tailwind.min.js' %}" defer></script>
   <script src="{% static 'js/json.ext.min.js' %}" defer></script>
 
-  <!--<link rel="stylesheet" href="{% static 'css/styles.css' %}">-->
-
   <style>
     @keyframes spin {
       to { transform: rotate(360deg); }
@@ -26,46 +24,69 @@
   hx-boost="true" 
   hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'
   class="bg-gray-100 font-sans leading-normal tracking-normal">
-  
+
   <nav class="text-center py-4 bg-purple-900">
     <div class="space-x-4">
-      <a href="/" 
+      <a 
+        href="{% url 'home' %}" 
         hx-get="{% url 'home' %}" 
         hx-target="#main-content" 
         hx-push-url="true"
-        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors">
-        Home
-      </a>
-      <a href="/card_list" 
+        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
+      >Home</a>
+
+      <a 
+        href="{% url 'card_list' %}" 
         hx-get="{% url 'card_list' %}" 
         hx-target="#main-content" 
         hx-push-url="true"
-        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors">
-        List All
-      </a>
-      <a href="/select" 
+        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
+      >List All</a>
+
+      <a 
+        href="{% url 'offers' %}" 
+        hx-get="{% url 'offers' %}" 
+        hx-target="#main-content" 
+        hx-push-url="true"
+        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
+      >Offers</a>
+
+      <a 
+        href="{% url 'select' %}" 
         hx-get="{% url 'select' %}" 
         hx-target="#main-content" 
         hx-push-url="true"
-        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors">
-        Select Cards
-      </a>
-      <a href="/exchanges" 
+        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
+      >Select Cards</a>
+
+      <a 
+        href="{% url 'exchanges' %}" 
         hx-get="{% url 'exchanges' %}" 
         hx-target="#main-content" 
         hx-push-url="true"
-        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors">
-        Exchange Cards
-      </a>
+        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
+      >Exchange Cards</a>
     </div>
   </nav>
-    
+
   <main id="main-content" class="container mx-auto px-4 py-8">
-    {% block main %}{% endblock %}
+    {% if page == 'home' %}
+      {% include 'home_screen.html' %}
+    {% elif page == 'card_list' %}
+      {% include 'card_list.html' %}
+    {% elif page == 'offers' %}
+      {% include 'offers.html' %}
+    {% elif page == 'select' %}
+      {% include 'select.html' %}
+    {% elif page == 'exchanges' %}
+      {% include 'exchanges.html' %}
+    {% else %}
+      {% block main %}{% endblock %}
+    {% endif %}
   </main>
 
   <footer class="text-center mt-12 py-4 text-gray-800">
     © 2025 Yu-Gi-World (UFRGS)
- </footer>
+  </footer>
 </body>
 </html>

@@ -85,6 +85,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // CSS on static/css
     runSpinner('main-content');
     //validSelection(event);
+    check_offer_status(event);
+
+    if (evt.detail.requestConfig.url === '/set_user/') {
+      // Reload to ensure cookie is applied
+      window.location.reload();
+    }
   });
 });
 
@@ -95,6 +101,30 @@ function runSpinner(id) {
       <div class="loading-text">Loading...</div>
     </div>
   `;
+}
+
+function check_offer_status(evt) {
+  if (evt.detail.elt.getAttribute('hx-post') === '/offers/respond/') {
+    const response = JSON.parse(evt.detail.xhr.responseText);
+    
+    if (response.status === 'ok') {
+      // Show success message and refresh offers
+      htmx.trigger('#main-content', 'refreshOffers');
+      alert('Offer accepted successfully!');
+    } else if (response.status === 'refused') {
+      // Show refusal message and refresh offers
+      htmx.trigger('#main-content', 'refreshOffers');
+      alert('Offer rejected successfully!');
+    } else if (response.status === 'user_has_no_card') {
+      alert('You do not have all the required cards to accept this offer!');
+    } else {
+      alert('Error: ' + (response.message || 'Unknown error occurred'));
+    }
+  }
+
+  document.body.addEventListener('refreshOffers', function() {
+    htmx.ajax('GET', '/offers/', { target: '#main-content', swap: 'innerHTML' });
+  });
 }
 // TODO: validation not working yet
 /*
@@ -116,3 +146,18 @@ function validSelection(event) {
   }
 }
 */
+
+function setUserIdCookie() {
+  const userIdInput = document.getElementById('user-id');
+  const userId = userIdInput.value || '1';
+
+  // Set the cookie: name=value; expires=...
+  const expirationDays = 7;
+  const date = new Date();
+  date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000));
+  const expires = "expires=" + date.toUTCString();
+
+  document.cookie = `user_id=${userId}; ${expires}; path=/`;
+
+  alert(`User ID set to ${userId}`);
+}

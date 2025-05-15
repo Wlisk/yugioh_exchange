@@ -76,7 +76,15 @@ def list_available_offers(
   session: SessionDep,
   user_id: int | None = None,
 ):
-  """Get all available offers (not accepted and not rejected by current user)"""
+  """Get all available offers (not accepted and not rejected by current user)
+  Returns:
+      list[dict]: Each offer with:
+          - offer: Basic offer info
+          - owner: Owner details
+          - cards_given: List of cards being offered
+          - cards_wanted: List of cards requested
+  """
+  # Base query for available offers
   query = select(Offer).where(Offer.accepted_by == None)
 
   # Exclude offers rejected by this user
@@ -88,21 +96,61 @@ def list_available_offers(
 
     if rejected_offers:
       query = query.where(Offer.id.not_in(rejected_offers))
-    
+  
   offers = session.exec(query).all()
-    
+  
   results = []
   for offer in offers:
+    # Get owner info
     owner = session.get(User, offer.user_id)
+    
+    # Get cards being offered
+    cards_given = session.exec(
+      select(YugiohCard)
+      .join(OfferCardsGiven, YugiohCard.id == OfferCardsGiven.card_id)
+      .where(OfferCardsGiven.offer_id == offer.id)
+    ).all()
+    
+    # Get cards wanted
+    cards_wanted = session.exec(
+      select(YugiohCard)
+      .join(OfferCardsWants, YugiohCard.id == OfferCardsWants.card_id)
+      .where(OfferCardsWants.offer_id == offer.id)
+    ).all()
+    
+    # Format the response
     results.append({
-      "offer": offer,
+      "offer": {
+        "id": offer.id,
+        "user_id": offer.user_id,
+        "accepted_by": offer.accepted_by
+      },
       "owner": {
         "id": owner.id,
         "name": owner.name
-      }
+      },
+      "cards_given": [
+        {
+          "id": card.id,
+          "name": card.name,
+          "card_type": card.card_type.value,
+          "monster_type": card.monster_type.value if card.monster_type else None
+        }
+        for card in cards_given
+      ],
+      "cards_wanted": [
+        {
+          "id": card.id,
+          "name": card.name,
+          "card_type": card.card_type.value,
+          "monster_type": card.monster_type.value if card.monster_type else None
+        }
+        for card in cards_wanted
+      ]
     })
 
   return results
+
 
 ###############################################################################
 @router.get("/offers/accepted/{user_id}", response_model=list[dict])
@@ -229,3 +277,122 @@ def respond_to_offer(
     "offer_id": offer_id,
     "accepted": accepted
   }
+
+###############################################################################
+@router.get("/user/{user_id}/cards", response_model=list[YugiohCardRead])
+def get_user_cards(
+  user_id: int,
+  session: SessionDep,
+):
+  """get all the user cards"""
+  # Get all card IDs owned by the user
+  user_card_ids = session.exec(
+    select(UserCard.card_id)
+    .where(UserCard.user_id == user_id)
+  ).all()
+
+  if not user_card_ids:
+    return []
+
+  # Get the full card details for these cards
+  user_cards = session.exec(
+    select(YugiohCard)
+    .where(YugiohCard.id.in_(user_card_ids))
+  ).all()
+
+  return user_cards
+
+#########################################################################################
+@router.get("/exchanges", response_model=list[dict])
+def list_all_exchanges(
+  session: SessionDep,
+  user_id: int | None = None  # Optional filter by user
+):
+  """
+  Get all completed exchanges.
+  
+  Args:
+    user_id: Optional filter to only show exchanges involving this user
+  Returns:
+    List of exchanges with details including:
+    - exchange: Basic exchange info
+    - offer: Original offer details
+    - offering_user: User who created the offer
+    - accepting_user: User who accepted the offer
+    - cards_given: Cards that were exchanged
+    - cards_wanted: Cards that were requested
+  """
+  # Base query
+  query = select(Exchange)
+  
+  # Optional user filter
+  if user_id:
+    query = query.where(
+      (Exchange.user_accepted == user_id) |
+      (Offer.user_id == user_id)
+    ).join(Offer, Exchange.offer_id == Offer.id)
+  
+  exchanges = session.exec(query).all()
+  
+  results = []
+  for exchange in exchanges:
+    # Get related offer
+    offer = session.get(Offer, exchange.offer_id)
+    
+    # Get user info
+    offering_user = session.get(User, offer.user_id)
+    accepting_user = session.get(User, exchange.user_accepted)
+    
+    # Get cards involved
+    cards_given = session.exec(
+      select(YugiohCard)
+      .join(OfferCardsGiven, YugiohCard.id == OfferCardsGiven.card_id)
+      .where(OfferCardsGiven.offer_id == offer.id)
+    ).all()
+    
+    cards_wanted = session.exec(
+      select(YugiohCard)
+      .join(OfferCardsWants, YugiohCard.id == OfferCardsWants.card_id)
+      .where(OfferCardsWants.offer_id == offer.id)
+    ).all()
+    
+    # Format response
+    results.append({
+      "exchange": {
+        "id": exchange.id,
+        "date": exchange.date,
+        "offer_id": exchange.offer_id
+      },
+      "offer": {
+        "id": offer.id,
+        "created_by": offer.user_id
+      },
+      "offering_user": {
+        "id": offering_user.id,
+        "name": offering_user.name
+      },
+      "accepting_user": {
+        "id": accepting_user.id,
+        "name": accepting_user.name
+      },
+      "cards_given": [
+        {
+          "id": card.id,
+          "name": card.name,
+          "card_type": card.card_type.value,
+          "monster_type": card.monster_type.value if card.monster_type else None
+        }
+        for card in cards_given
+      ],
+      "cards_wanted": [
+        {
+          "id": card.id,
+          "name": card.name,
+          "card_type": card.card_type.value,
+          "monster_type": card.monster_type.value if card.monster_type else None
+        }
+        for card in cards_wanted
+      ]
+    })
+  
+  return results
