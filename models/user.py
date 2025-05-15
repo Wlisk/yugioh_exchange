@@ -3,8 +3,8 @@ from models.yugioh_card import YugiohCard
 
 class UserCard(SQLModel, table=True):
     """Association table for user-card ownership"""
-    user_id: int | None = Field(foreign_key="user.id", primary_key=True)
-    card_id: int | None = Field(foreign_key="yugiohcard.id", primary_key=True)
+    user_id: int = Field(foreign_key="user.id", primary_key=True)
+    card_id: int = Field(foreign_key="yugiohcard.id", primary_key=True)
 
 
 class User(SQLModel, table=True):

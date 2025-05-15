@@ -32,8 +32,8 @@ class card_operations:
       # Seleciona todas as linhas da database que possuem o parâmetro passado, se tiver parâmetro
       statement = select(YugiohCard)\
         .where(YugiohCard.name.like('%' + name + '%'))\
-        .where(or_(YugiohCard.card_type == card_type, card_type is None))\
-        .where(or_(YugiohCard.monster_type == monster_type, monster_type is None))
+        .where(or_(YugiohCard.card_type == card_type, card_type == None))\
+        .where(or_(YugiohCard.monster_type == monster_type, monster_type == None))
       
       results = session.exec(statement, execution_options={"prebuffer_rows": True}).all()
       return results
@@ -77,8 +77,8 @@ class exchange_operations:
   def get_exchange(id:int = None, user_id:int = None, offer_id:int = None) -> Sequence[Exchange]:
     with Session(ENGINE) as session:
       statement = select(Exchange).where(
-        or_(Exchange.id == id, id is None)).where(
-        or_(Exchange.user_accepted == user_id, user_id is None)).where(or_(Exchange.offer_id == offer_id, offer_id is None))
+        or_(Exchange.id == id, id == None)).where(
+        or_(Exchange.user_accepted == user_id, user_id == None)).where(or_(Exchange.offer_id == offer_id, offer_id == None))
       results = session.exec(statement, execution_options={"prebuffer_rows": True}).all()
       return results
     
