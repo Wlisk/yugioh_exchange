@@ -269,7 +269,7 @@ def respond_to_offer(
     session.add(rejection)
     message = "Offer rejected"
   
-  #session.commit()
+  session.commit()
   
   return {
     "ok": True,
