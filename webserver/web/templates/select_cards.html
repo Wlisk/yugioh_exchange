@@ -71,7 +71,8 @@
     hx-target="#main-content"
     hx-swap="innerHTML"
     hx-ext="json-enc"
-    class="space-y-4">
+    class="space-y-4"
+    hx-vals="js:{ cards: Array.from(document.querySelectorAll('input[name=cards]:checked')).map(cb => cb.value) }">
     <!-- no need for csrf_token as it is already on the body tag of base.html -->
     <div id="errorMessage" class="text-red-600 font-semibold mb-2"></div>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
