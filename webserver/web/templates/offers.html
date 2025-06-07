@@ -20,12 +20,12 @@
             <div class="border rounded-lg p-3">
               <h4 class="font-semibold text-purple-700 mb-2">Cards Offered:</h4>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {% for card in offer.cards_given %}
+                {% for given_card in offer.cards_given %}
                   <div class="bg-gray-50 p-2 rounded">
-                    <div class="font-medium">{{ card.name }}</div>
+                    <div class="font-medium">{{ given_card.name }}</div>
                     <div class="text-sm text-gray-600">
-                      {{ card.card_type }}
-                      {% if card.monster_type %}• {{ card.monster_type }}{% endif %}
+                      {{ given_card.card_type }}
+                      {% if given_card.monster_type %}• {{ given_card.monster_type }}{% endif %}
                     </div>
                   </div>
                 {% endfor %}
@@ -36,20 +36,22 @@
             <div class="border rounded-lg p-3">
               <h4 class="font-semibold text-purple-700 mb-2">Cards Wanted:</h4>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {% for card in offer.cards_wanted %}
-                  <div class="bg-gray-50 p-2 rounded">
-                    <div class="font-medium">{{ card.name }}</div>
+                {% for wanted_card in offer.cards_wanted %}
+                  <div class="p-2 rounded border-2 {% if wanted_card in user_cards %}border-green-400 bg-green-50{% else %}border-red-400 bg-red-50{% endif %}">
+                    <div class="font-medium">{{ wanted_card.name }}</div>
+
                     <div class="text-sm text-gray-600">
-                      {{ card.card_type }}
-                      {% if card.monster_type %}• {{ card.monster_type }}{% endif %}
+                      {{ wanted_card.card_type }}
+                      {% if wanted_card.monster_type %}• {{ wanted_card.monster_type }}{% endif %}
                     </div>
+
                   </div>
                 {% endfor %}
               </div>
             </div>
           </div>
 
-          <!-- Accept/Reject Buttons -->
+          <!-- Accept/Hide Buttons -->
           <div class="flex justify-end space-x-2 mt-4">
             <button 
               hx-post="{% url 'respond_offer' %}"
@@ -61,7 +63,7 @@
               hx-post="{% url 'respond_offer' %}"
               hx-vals='{"offer_id": "{{ offer.offer_id }}", "accepted": "false"}'
               class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
-              Reject Offer
+              Hide Offer
             </button>
           </div>
         </div>
@@ -76,7 +78,7 @@
 <div class="mt-12">
   <h2 class="text-2xl font-bold text-purple-900 mb-6 text-center">Your Available Cards</h2>
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-    {% for card in cards %}
+    {% for card in user_cards %}
     <div class="card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer">
       <div class="p-4 bg-purple-400 text-black text-center">
         <h3 class="text-lg font-bold truncate">{{ card.name }}</h3>

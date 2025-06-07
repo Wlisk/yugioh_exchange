@@ -77,8 +77,15 @@ def card_list(request):
   response = requests.get(f"{URL}/{PATHS['list']}")
   cards: list[YugiohCardRead] = response.json()
 
+  user_id = request.COOKIES.get('user_id', '1') 
+  response = requests.get(f'{URL}/user/{user_id}/cards')
+  user_cards: list[YugiohCardRead] = response.json()
+
   template = 'card_list.html' if request.htmx else 'base.html'
-  context = {'cards': cards}
+  context = {
+    'cards': cards,
+    'user_cards': user_cards
+  }
   if not request.htmx:
     context['page'] = 'card_list'
 
@@ -124,7 +131,7 @@ def offers(request):
 
   template = 'offers.html' if request.htmx else 'base.html'
   context = {
-    'cards': cards,
+    'user_cards': cards,
     'offers': offers,
     'user_id': user_id
   }
