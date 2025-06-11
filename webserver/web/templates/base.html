@@ -50,15 +50,25 @@
                     hidden z-10">
           <div class="py-1">
             <a 
-              href="{% url 'card_list' %}" 
-              hx-get="{% url 'card_list' %}" 
+              href="{% url 'card_list_filtered' list_type='all' %}" 
+              hx-get="{% url 'card_list_filtered' list_type='all' %}" 
               hx-target="#main-content" 
-              hx-push-url="true" 
+              hx-push-url="true"
               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
             >Todas as cartas</a>
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+            <a 
+              href="{% url 'card_list_filtered' list_type='user_cards' %}" 
+              hx-get="{% url 'card_list_filtered' list_type='user_cards' %}" 
+              hx-target="#main-content" 
+              hx-push-url="true"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
             >Suas cartas</a>
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+            <a 
+              href="{% url 'card_list_filtered' list_type='wishlist' %}" 
+              hx-get="{% url 'card_list_filtered' list_type='wishlist' %}" 
+              hx-target="#main-content" 
+              hx-push-url="true"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
             >Lista de desejos</a>
           </div>
         </div>
@@ -109,38 +119,5 @@
   <footer class="text-center mt-12 py-4 text-gray-800">
     © 2025 Yu-Gi-World (UFRGS)
   </footer>
-
-  <!-- Deixei o script aqui pois não consegui fazer funcionar em config.js -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      
-      function initializeDropdown() {
-        const dropdownButton = document.getElementById('dropdown-button');
-        const dropdownMenu = document.getElementById('dropdown-menu');
-  
-        if (!dropdownButton || !dropdownMenu) {
-          return;
-        }
-  
-        dropdownButton.addEventListener('click', function(event) {
-          event.stopPropagation();
-          dropdownMenu.classList.toggle('hidden');
-        });
-  
-        window.addEventListener('click', function(event) {
-          if (!dropdownMenu.classList.contains('hidden')) {
-              dropdownMenu.classList.add('hidden');
-          }
-        });
-        
-        dropdownMenu.addEventListener('click', function(event) {
-          event.stopPropagation();
-        });
-      }
-  
-      initializeDropdown();
-  
-    });
-  </script>
 </body>
 </html>

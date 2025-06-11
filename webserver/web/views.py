@@ -73,13 +73,17 @@ def exchanges(request):
   return render(request, template, context)
 
 #########################################################################################
-def card_list(request):
-  response = requests.get(f"{URL}/{PATHS['list']}")
-  cards: list[YugiohCardRead] = response.json()
-
+def card_list(request, list_type='all'):
   user_id = request.COOKIES.get('user_id', '1') 
   response = requests.get(f'{URL}/user/{user_id}/cards')
   user_cards: list[YugiohCardRead] = response.json()
+
+  if list_type == 'all':
+    response = requests.get(f'{URL}{PATHS["list"]}')
+    cards: list[YugiohCardRead] = response.json()
+  elif list_type == 'user_cards':
+    cards = user_cards
+  #elif list_type == 'wishlist':
 
   template = 'card_list.html' if request.htmx else 'base.html'
   context = {

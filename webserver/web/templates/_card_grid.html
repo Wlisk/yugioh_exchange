@@ -1,0 +1,17 @@
+<div id="card-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+  {% for card in cards %}
+  <div class="card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-[0px_4px_8px_0px_rgba(0,_0,_0,_0.8)] transition-shadow duration-300 cursor-pointer">
+
+    <img class="card-img w-full h-auto object-cover" src="https://images.ygoprodeck.com/images/cards/89631139.jpg" alt="{{ card.name }}">
+
+    <div class="card-details p-4 bg-purple-400 text-black text-center">
+      <h3 class="text-lg font-bold truncate">{{ card.name }}</h3>
+    </div>
+
+    <div class="card-buttons w-full py-2 px-4 rounded-b-lg flex justify-center items-center space-x-4"> 
+      {% include "_card_buttons.html" %}
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
