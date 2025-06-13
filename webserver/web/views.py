@@ -80,15 +80,31 @@ def card_list(request, list_type='all'):
 
   if list_type == 'all':
     response = requests.get(f'{URL}{PATHS["list"]}')
-    cards: list[YugiohCardRead] = response.json()
+    base_cards: list[YugiohCardRead] = response.json()
   elif list_type == 'user_cards':
-    cards = user_cards
+    base_cards = user_cards
   #elif list_type == 'wishlist':
 
-  template = 'card_list.html' if request.htmx else 'base.html'
+  filtered_cards = search_cards(request, base_cards)
+
+  title_map = {
+    'all': "Lista de Todas as Cartas",
+    'user_cards': "Minhas Cartas",
+    'wishlist': "Minha Lista de Desejos",
+  }
+  page_title = title_map.get(list_type, "Lista de Cartas")
+
+  is_filter_request = request.GET.get('source') == 'filter_form'
+
+  if is_filter_request:
+    template = '_card_grid.html' if request.htmx else 'base.html'
+  else:
+    template = 'card_list.html' if request.htmx else 'base.html'
+  
   context = {
-    'cards': cards,
-    'user_cards': user_cards
+    'cards': filtered_cards,
+    'user_cards': user_cards,
+    'page_title': page_title,
   }
   if not request.htmx:
     context['page'] = 'card_list'
@@ -207,3 +223,30 @@ def respond_offer(request):
       content=json.dumps({"status": "error", "message": "Server error"}),
       content_type="application/json"
     )
+
+#########################################################################################
+def search_cards(request, base_cards):
+  name_query = request.GET.get('name_query', '').strip()
+  card_type_str = request.GET.get('card_type', '')
+  monster_type_str = request.GET.get('monster_type', '')
+
+  card_type_enum = None
+  if card_type_str:
+    card_type_enum = CardType(card_type_str)
+
+  monster_type_enum = None
+  if monster_type_str:
+    monster_type_enum = MonsterType(monster_type_str)
+
+  filtered_cards = base_cards
+
+  if name_query:
+    filtered_cards = [card for card in filtered_cards if name_query.lower() in card.get('name', '').lower()]
+
+  if card_type_enum:
+    filtered_cards = [card for card in filtered_cards if card.get('card_type') == card_type_enum]
+  
+  if monster_type_enum:
+    filtered_cards = [card for card in filtered_cards if card.get('monster_type') == monster_type_enum]
+  
+  return filtered_cards

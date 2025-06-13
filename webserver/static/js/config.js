@@ -1,7 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////
-function initializeDropdownMenu() {
+function cardListDropdownMenu() {
   const dropdownButton = document.getElementById('dropdown-button');
   const dropdownMenu = document.getElementById('dropdown-menu');
+  const arrowIcon = document.getElementById('menu-arrow-icon');
 
   if (!dropdownButton || !dropdownMenu) {
     return;
@@ -10,11 +11,13 @@ function initializeDropdownMenu() {
   dropdownButton.addEventListener('click', function(event) {
     event.stopPropagation();
     dropdownMenu.classList.toggle('hidden');
+    arrowIcon.classList.toggle('rotate-180');
   });
 
   window.addEventListener('click', function(event) {
     if (!dropdownMenu.classList.contains('hidden')) {
         dropdownMenu.classList.add('hidden');
+        arrowIcon.classList.remove('rotate-180');
     }
   });
   
@@ -23,7 +26,7 @@ function initializeDropdownMenu() {
   });
 }
 
-function initializeViewSwitcher() {
+function cardViewSwitcher() {
            
   const listViewBtn = document.getElementById('list-view-btn');
   const gridViewBtn = document.getElementById('grid-view-btn');
@@ -78,6 +81,35 @@ function initializeViewSwitcher() {
           const buttons = card.querySelector('.card-buttons');
           buttons.className = 'card-buttons w-full py-2 px-4 rounded-b-lg content-around flex justify-center items-center space-x-4'; 
       });
+  });
+}
+
+function filterFieldToggle() {
+  const toggleButton = document.getElementById('filter-toggle-button');
+  const filterForm = document.getElementById('filter-form');
+  const arrowIcon = document.getElementById('filter-arrow-icon');
+
+  if (!toggleButton || !filterForm || !arrowIcon) {
+      return;
+  }
+
+  toggleButton.addEventListener('click', () => {
+      filterForm.classList.toggle('hidden');
+      arrowIcon.classList.toggle('rotate-180');
+  });
+}
+
+function clearFilters() {
+  const clearButton = document.getElementById('clear-filters-btn');
+  const filterForm = document.getElementById('filter-form');
+
+  if (!clearButton || !filterForm) {
+      return;
+  }
+
+  clearButton.addEventListener('click', () => {
+      filterForm.reset();
+      htmx.trigger(filterForm, 'submit');
   });
 }
 
@@ -192,9 +224,14 @@ function setUserIdCookie() {
   alert(`User ID set to ${userId}`);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
-function initializeComponents() {
-  initializeDropdownMenu();
-  initializeViewSwitcher();
+function initializePersistentComponents() {
+  cardListDropdownMenu();
+}
+
+function initializePageContent() {
+  cardViewSwitcher();
+  clearFilters();
+  filterFieldToggle();
   loadMarks();
   searchCardsByInput();
   toggleFields();
@@ -202,14 +239,10 @@ function initializeComponents() {
 /////////////////////////////////////////////////////////////////////////////////////////
 document.addEventListener('DOMContentLoaded', function () {
 
-  initializeComponents();
+  initializePersistentComponents();
+  initializePageContent();
 
-  document.body.addEventListener('htmx:afterSwap', function (){
-    initializeViewSwitcher();
-    loadMarks();
-    searchCardsByInput();
-    toggleFields();
-  });
+  document.body.addEventListener('htmx:afterSwap', initializePageContent);
   
   // Por algum motivo, remover essa linha de código faz com que aceitar ou esconder uma oferta fique carregando infinitamente
   // Não consegui descobrir porque isso acontece

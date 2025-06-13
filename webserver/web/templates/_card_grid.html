@@ -6,6 +6,7 @@
 
     <div class="card-details p-4 bg-purple-400 text-black text-center">
       <h3 class="text-lg font-bold truncate">{{ card.name }}</h3>
+      <p class="text-sm mt-1">{{ card.card_type }}{% if card.monster_type %} - {{ card.monster_type }}{% endif %}</p>
     </div>
 
     <div class="card-buttons w-full py-2 px-4 rounded-b-lg flex justify-center items-center space-x-4"> 
