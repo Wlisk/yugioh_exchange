@@ -94,6 +94,8 @@ def card_list(request, list_type='all'):
   }
   page_title = title_map.get(list_type, "Lista de Cartas")
 
+  view_mode = request.GET.get('view_mode', 'grid')
+
   is_filter_request = request.GET.get('source') == 'filter_form'
 
   if is_filter_request:
@@ -105,6 +107,7 @@ def card_list(request, list_type='all'):
     'cards': filtered_cards,
     'user_cards': user_cards,
     'page_title': page_title,
+    'view_mode': view_mode,
   }
   if not request.htmx:
     context['page'] = 'card_list'

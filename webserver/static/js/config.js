@@ -26,6 +26,8 @@ function cardListDropdownMenu() {
   });
 }
 
+let currentViewMode = 'grid'; 
+
 function cardViewSwitcher() {
            
   const listViewBtn = document.getElementById('list-view-btn');
@@ -40,6 +42,7 @@ function cardViewSwitcher() {
   const inactiveBtnClasses = ['text-gray-500', 'hover:bg-gray-200', 'hover:text-gray-800'];
   
   listViewBtn.addEventListener('click', () => {
+      currentViewMode = 'list';
       listViewBtn.classList.add(...activeBtnClasses);
       listViewBtn.classList.remove(...inactiveBtnClasses);
       gridViewBtn.classList.add(...inactiveBtnClasses);
@@ -62,6 +65,7 @@ function cardViewSwitcher() {
   });
 
   gridViewBtn.addEventListener('click', () => {
+      currentViewMode = 'grid';
       gridViewBtn.classList.add(...activeBtnClasses);
       gridViewBtn.classList.remove(...inactiveBtnClasses);
       listViewBtn.classList.add(...inactiveBtnClasses);
@@ -243,6 +247,12 @@ document.addEventListener('DOMContentLoaded', function () {
   initializePageContent();
 
   document.body.addEventListener('htmx:afterSwap', initializePageContent);
+
+  document.body.addEventListener('htmx:configRequest', (event) => {
+    if (event.detail.elt.id === 'filter-form') {
+        event.detail.parameters['view_mode'] = currentViewMode;
+    }
+  });
   
   // Por algum motivo, remover essa linha de código faz com que aceitar ou esconder uma oferta fique carregando infinitamente
   // Não consegui descobrir porque isso acontece
