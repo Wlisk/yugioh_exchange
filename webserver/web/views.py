@@ -25,9 +25,11 @@ def home(request):
 #########################################################################################
 def select(request):
   result = card_operations.select_card()
+  user_id = request.COOKIES.get('user_id', '1') 
+  user_result = requests.get(f'{URL}/user/{user_id}/cards').json()
 
   template = 'select_cards.html' if request.htmx else 'base.html'
-  context = {'cards': result} if not request.htmx else {'cards': result}
+  context = {'cards': result, 'user_cards': user_result}
   if not request.htmx:
     context['page'] = 'select'
   return render(request, template, context)
