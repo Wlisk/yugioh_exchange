@@ -1,0 +1,12 @@
+<!-- TODAS AS CARTAS -->
+  {{ filters|json_script:"filterActiveL"}}
+  {% for card in cardsLeft %}
+  <label id="{{ card.name|slugify }}_wanted" class="{{ card.name|slugify }}_wanted flex items-start p-4 border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 cursor-pointer w-full" onclick="select_card(this, true)">
+    <div class="ml-3">
+      <img style="margin-left: auto; margin-right: auto;" class="card-img w-full h-auto object-cover" src="https://images.ygoprodeck.com/images/cards/89631139.jpg" alt="{{ card.name }}">
+      <strong style="text-align: center;" class="block text-gray-900 font-medium">{{ card.name }}</strong>
+      <span style="text-align: center; align-items: flex-end;" class="block text-gray-500 text-sm">{{ card.card_type }}</span>
+      <span style="text-align: center; align-items: flex-end;" class="block text-gray-500 text-sm">{% if card.monster_type %} {{ card.monster_type }}{% endif %}</span>
+    </div>
+  </label>
+  {% endfor %}

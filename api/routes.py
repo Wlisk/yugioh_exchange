@@ -7,7 +7,7 @@ from models.offer import Exchange, Offer, OfferCardsGiven, OfferCardsWants, Offe
 from models.user import User, UserCard
 from models.yugioh_card import YugiohCard, YugiohCardRead, \
   YugiohCardCreate, YugiohCardUpdate
-from db.main import get_session
+from db.main import card_operations, get_session
 from api.utils import check_card
 
 router = APIRouter()
@@ -396,3 +396,50 @@ def list_all_exchanges(
     })
   
   return results
+
+###############################################################################
+@router.get("/cards/{filters}", response_model=list[YugiohCardRead])
+def get_cards(filters: str, session: SessionDep):
+  """Get some Yu-gi-oh cards"""
+  name, card_type, monster_type = filters.split("|")
+  if (card_type == ""):
+    card_type = None
+  if (monster_type == ""):
+    monster_type = None
+  db_cards = card_operations.select_card(name=name, card_type=card_type, monster_type=monster_type)
+  return db_cards
+
+###############################################################################
+@router.get("/user/{user_id}/cards/{filters}", response_model=list[YugiohCardRead])
+def get_user_cards(
+  user_id: int,
+  filters: str,
+  session: SessionDep,
+):
+  """get all the user cards"""
+  # Get all card IDs owned by the user
+  user_card_ids = session.exec(
+    select(UserCard.card_id)
+    .where(UserCard.user_id == user_id)
+  ).all()
+
+  if not user_card_ids:
+    return []
+
+  name, card_type, monster_type = filters.split("|")
+  if (card_type == ""):
+    card_type = None
+  if (monster_type == ""):
+    monster_type = None
+  # Get filtered cards
+  filtered_cards = card_operations.select_card(name=name, card_type=card_type, monster_type=monster_type)
+
+  # Get the full card details for user cards
+  user_cards = session.exec(
+    select(YugiohCard)
+    .where(YugiohCard.id.in_(user_card_ids))
+  ).all()
+
+  filtered_user_cards = [card for card in user_cards if card in filtered_cards]
+
+  return filtered_user_cards

@@ -24,15 +24,38 @@ def home(request):
 
 #########################################################################################
 def select(request):
-  result = card_operations.select_card()
   user_id = request.COOKIES.get('user_id', '1') 
-  user_result = requests.get(f'{URL}/user/{user_id}/cards').json()
+  cardsOnLeft = requests.get(f'{URL}/cards/').json()
+  cardsOnRight = requests.get(f'{URL}/user/{user_id}/cards/').json()
+  
+  print("\n\n")
+  print(cardsOnLeft)
+  print(cardsOnRight)
 
   template = 'select_cards.html' if request.htmx else 'base.html'
-  context = {'cards': result, 'user_cards': user_result}
+  context = {'cardsLeft': cardsOnLeft, 'cardsRight': cardsOnRight, 'filters': "||"}
   if not request.htmx:
     context['page'] = 'select'
   return render(request, template, context)
+
+def select_filter(request, filter = "||", isSideLeft = False):
+  user_id = request.COOKIES.get('user_id', '1') 
+  cards = ""
+  template = ""
+  context = {}
+  if (isSideLeft == "true"):
+    cards = requests.get(f'{URL}/cards/{filter}').json()
+    template = 'select_cards_wanted.html' if request.htmx else 'base.html'
+    context = {'cardsLeft': cards, 'filters': filter}
+  else:
+    cards = requests.get(f'{URL}/user/{user_id}/cards/{filter}').json()
+    template = 'select_cards_offer.html' if request.htmx else 'base.html'
+    context = {'cardsRight': cards, 'filters': filter}
+
+  if not request.htmx:
+    context['page'] = 'select_filter'
+  return render(request, template, context)
+
 
 #########################################################################################
 def make_offer(request):

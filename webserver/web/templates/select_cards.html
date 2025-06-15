@@ -33,7 +33,7 @@
 
       <div style="margin-top: 2rem;"><h2>Escolha as cartas desejadas:</h2></div>
       <div style="overflow: hidden; border-radius: 10px;">
-        <div style=" width:fit-content; height:500px; overflow:scroll; background-color:rgb(192 132 252);">
+        <div style=" width:100%; height:500px; overflow:scroll; background-color:rgb(192 132 252);">
           <div style="margin: 5px;">
             <button type="button" onclick="hideFilter(document.getElementById('filter-div'))" id="filter-toggle-button" class="inline-flex items-center justify-left w-auto text-purple-900 font-bold py-2 px-4 rounded hover:bg-purple-200 transition-colors">
               Filtros
@@ -106,28 +106,18 @@
             </div>
           </div>
           
-          <button type="button" onclick="filterApply(document.getElementById('name_query'), document.getElementById('card_type'), document.getElementById('monster_type'), document.getElementById('wantCardList'), false)" class="mt-3 px-4 py-2 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+          <button type="button" onclick="filterApply(document.getElementById('name_query'), document.getElementById('card_type'), document.getElementById('monster_type'), false, true)" class="mt-3 px-4 py-2 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
             Aplicar filtros
           </button>
           
-          <button type="button" onclick="filterApply(document.getElementById('name_query'), document.getElementById('card_type'), document.getElementById('monster_type'), document.getElementById('wantCardList'), true)" id="clear-filters-btn" class="mt-3 ml-2 px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+          <button type="button" onclick="filterApply(document.getElementById('name_query'), document.getElementById('card_type'), document.getElementById('monster_type'), true, true)" id="clear-filters-btn" class="mt-3 ml-2 px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
             Limpar filtros
           </button>
         </div>
       </div>
-        <!-- TODAS AS CARTAS -->
-        <div id="wantCardList" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4" style="margin: 5px;">
-          {% for card in cards %}
-            {{ card.name|json_script }}
-            <label id="{{ card.name }}_want" class="flex items-start p-4 border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 cursor-pointer w-full"  onclick="select_card(this, document.getElementById('selectedWantedCards'))">
-              <div class="ml-3">
-                <img style="margin-left: auto; margin-right: auto;" class="card-img w-full h-auto object-cover" src="https://images.ygoprodeck.com/images/cards/89631139.jpg" alt="{{ card.name }}">
-                <strong style="text-align: center;" class="block text-gray-900 font-medium">{{ card.name }}</strong>
-                <span style="text-align: center; align-items: flex-end;" class="block text-gray-500 text-sm">{{ card.card_type.value }}{% if card.monster_type %} - {{ card.monster_type.value }}{% endif %}</span>
-              </div>
-            </label>
-            {% endfor %}
-          </div>
+      <div id="wantedCardList" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4" style="margin: 5px;">
+    {% include "select_cards_wanted.html" %}
+      </div>
         </div>
       </div>
     </div>
@@ -156,7 +146,7 @@
 
       <div style="margin-top: 2rem;"><h2>Escolha as cartas oferecidas:</h2></div>
       <div style="overflow: hidden; border-radius: 10px; height:500px;">
-        <div style="width:fit-content; height:100%; overflow-y:scroll; overflow-x: hidden; background-color:rgb(192 132 252);">
+        <div style="width:100%; height:100%; overflow-y:scroll; overflow-x: hidden; background-color:rgb(192 132 252);">
           <div style="margin: 5px;">
             <button type="button" onclick="hideFilter(document.getElementById('filter-div-offer'))" id="filter-toggle-button" class="inline-flex items-center justify-left w-auto text-purple-900 font-bold py-2 px-4 rounded hover:bg-purple-200 transition-colors">
               Filtros
@@ -229,27 +219,18 @@
             </div>
           </div>
           
-          <button type="button" onclick="filterApply(document.getElementById('name_query_offer'), document.getElementById('card_type_offer'), document.getElementById('monster_type_offer'), document.getElementById('offerCardList'), false)" class="mt-3 px-4 py-2 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+          <button type="button" onclick="filterApply(document.getElementById('name_query_offer'), document.getElementById('card_type_offer'), document.getElementById('monster_type_offer'), false, false)" class="mt-3 px-4 py-2 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
             Aplicar filtros
           </button>
           
-          <button type="button" onclick="filterApply(document.getElementById('name_query_offer'), document.getElementById('card_type_offer'), document.getElementById('monster_type_offer'), document.getElementById('offerCardList'), true)" id="clear-filters-btn-offer" class="mt-3 ml-2 px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+          <button type="button" onclick="filterApply(document.getElementById('name_query_offer'), document.getElementById('card_type_offer'), document.getElementById('monster_type_offer'), true, false)" id="clear-filters-btn-offer" class="mt-3 ml-2 px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
             Limpar filtros
           </button>
         </div>
       </div>
-          <!-- CARTAS DO USUARIO -->
-          <div id="offerCardList" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4" style="margin: 5px;">
-            {% for card in user_cards %}
-            <label id="{{ card.name }}_offer" class="flex items-start p-4 border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 cursor-pointer w-full" onclick="select_card(this, document.getElementById('selectedOfferedCards'))">
-              <div class="ml-3">
-                <img style="margin-left: auto; margin-right: auto;" class="card-img w-full h-auto object-cover" src="https://images.ygoprodeck.com/images/cards/89631139.jpg" alt="{{ card.name }}">
-                <strong style="text-align: center;" class="block text-gray-900 font-medium">{{ card.name }}</strong>
-                <span style="text-align: center; align-items: flex-end;" class="block text-gray-500 text-sm">{{ card.card_type }}{% if card.monster_type %} - {{ card.monster_type }}{% endif %}</span>
-              </div>
-            </label>
-            {% endfor %}
-          </div>
+      <div id="offerCardList" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4" style="margin: 5px;">
+    {% include "select_cards_offer.html" %}
+      </div>
         </div>
       </div>
     </div>

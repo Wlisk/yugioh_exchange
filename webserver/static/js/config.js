@@ -302,15 +302,36 @@ function hideFilter(div) {
   div.style.display = div.style.display == 'none' ? div.style.display = 'block' : div.style.display = 'none';
 }
 
-function filterApply(card_name_field, card_type_field, monster_type_field, divCardList, isClear) {
-  console.debug(card_name_field.value);
-  console.debug(card_type_field.options[card_type_field.selectedIndex].value);
-  console.debug(monster_type_field.options[monster_type_field.selectedIndex].value);
-  divCardList.innerHTML += card_name_field.value + card_type_field.options[card_type_field.selectedIndex].value + monster_type_field.options[monster_type_field.selectedIndex].value;
-  
+function filterApply(card_name_field, card_type_field, monster_type_field, isClear, isLeft) {
+  filterActiveL = JSON.parse(document.getElementById("filterActiveL").textContent);
+  if (filterActiveL == "") filterActiveL = "||"
+  filterActiveR = JSON.parse(document.getElementById("filterActiveR").textContent);
+  if (filterActiveR == "") filterActiveR = "||"
+  filters = "||"
+  if (isClear) {
+    // Setar os campos de pesquisa para valor padrão
+    card_name_field.value = ""
+    card_type_field.selectedIndex = 0
+    monster_type_field.selectedIndex = 0
+  } else {
+    filters = card_name_field.value + "|" + card_type_field.options[card_type_field.selectedIndex].value + "|" + monster_type_field.options[monster_type_field.selectedIndex].value;
+  }
+  if (isLeft) {
+    htmx.ajax('GET', '/select/' + filters + "/" + "true", { target: '#wantedCardList', swap: 'innerHTML' });
+  } else {
+    htmx.ajax('GET', '/select/' + filters + "/" + "false" , { target: '#offerCardList', swap: 'innerHTML' });
+  }
 }
 
-function select_card(card_element, card_element_list) {
+//Função que adiciona ou remove cartas das listas de cartas que deseja trocar
+function select_card(card_element, isLeft) {
+  const wantedList = document.getElementById('selectedWantedCards');
+  const offeredList =  document.getElementById('selectedOfferedCards');
+  if (isLeft) {
+    card_element_list = wantedList;
+  } else {
+    card_element_list = offeredList;
+  }
   //Se for um clone, só remove ele da lista
   if (card_element.id.slice(-6) == "_clone" ) {
     card_element.remove();
@@ -318,16 +339,17 @@ function select_card(card_element, card_element_list) {
   } else {
     //Se a cor de fundo não for verde, não foi selecionado ainda
     if ((card_element.style.backgroundColor == "")) {
-
+      
       //Ajustar o tamanho do clone pra não ficar muito grande
       var clone = card_element.cloneNode(true)
       clone.id = card_element.id + "_clone"
+      clone.classList.remove(card_element.id)
       clone.style.width = "25%"
       clone.style.marginLeft = "0.75rem"
       clone.style.marginTop = "0.5rem"
       clone.style.marginBottom = "0.5rem"
       clone.style.minWidth = "25%"
-      clone.childNodes[1].childNodes[1].style.width = "50px"
+      clone.childNodes[1].childNodes[1].style.width = "50px"  //Largura da carta
       card_element_list.appendChild(clone)  //Adicionar clone a lista
       card_element.style.backgroundColor = "rgba(0,255,0,0.5)"
     } else {
@@ -335,4 +357,42 @@ function select_card(card_element, card_element_list) {
       document.getElementById(card_element.id + "_clone").remove();
     }
   }
+  list = "";
+  for (i = 3; i < wantedList.childNodes.length; i++) {
+    list += JSON.stringify(wantedList.childNodes[i].id)
+  }
+  for (i = 3; i < offeredList.childNodes.length; i++) {
+    list += JSON.stringify(offeredList.childNodes[i].id)
+  }
+
+  console.log(list)
+  localStorage.setItem("offerList", list)
 }
+
+function reloadColor(card) {
+  id = card + "_clone"
+  if (document.getElementById(id) != null) {
+    console.log(card);
+    document.getElementById(card).style.backgroundColor = "rgba(0,255,0,0.5)"
+  }
+}
+
+// Quando aplica um filtro, as cartas selecionadas continuarão com a cor
+document.getElementById("offerCardList").addEventListener('DOMNodeInserted', function( event ) {
+  // Se não tiver um tempo, a função executa antes da carta aparecer e não muda a cor 
+  setTimeout(() => {    
+    if (event.target.nodeName == "LABEL") {
+      reloadColor(event.target.id);    
+    }
+  }, 100);
+});
+
+// Quando aplica um filtro, as cartas selecionadas continuarão com a cor
+document.getElementById("wantedCardList").addEventListener('DOMNodeInserted', function( event ) {
+  // Se não tiver um tempo, a função executa antes da carta aparecer e não muda a cor 
+  setTimeout(() => {    
+    if (event.target.nodeName == "LABEL") {
+      reloadColor(event.target.id);    
+    }
+  }, 200);
+});
