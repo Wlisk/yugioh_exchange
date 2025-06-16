@@ -357,3 +357,44 @@ function validSelection(event) {
 }
 */
 
+////////////////////////////////////////////////////////////////////////////////////////////
+//funções para select_cards.html
+
+function hideFilter(div) {
+  div.style.display = div.style.display == 'none' ? div.style.display = 'block' : div.style.display = 'none';
+}
+
+function filterApply(card_name_field, card_type_field, monster_type_field, divCardList, isClear) {
+  console.debug(card_name_field.value);
+  console.debug(card_type_field.options[card_type_field.selectedIndex].value);
+  console.debug(monster_type_field.options[monster_type_field.selectedIndex].value);
+  divCardList.innerHTML += card_name_field.value + card_type_field.options[card_type_field.selectedIndex].value + monster_type_field.options[monster_type_field.selectedIndex].value;
+  
+}
+
+function select_card(card_element, card_element_list) {
+  //Se for um clone, só remove ele da lista
+  if (card_element.id.slice(-6) == "_clone" ) {
+    card_element.remove();
+    document.getElementById(card_element.id.slice(0,-6)).style.backgroundColor = ""
+  } else {
+    //Se a cor de fundo não for verde, não foi selecionado ainda
+    if ((card_element.style.backgroundColor == "")) {
+
+      //Ajustar o tamanho do clone pra não ficar muito grande
+      var clone = card_element.cloneNode(true)
+      clone.id = card_element.id + "_clone"
+      clone.style.width = "25%"
+      clone.style.marginLeft = "0.75rem"
+      clone.style.marginTop = "0.5rem"
+      clone.style.marginBottom = "0.5rem"
+      clone.style.minWidth = "25%"
+      clone.childNodes[1].childNodes[1].style.width = "50px"
+      card_element_list.appendChild(clone)  //Adicionar clone a lista
+      card_element.style.backgroundColor = "rgba(0,255,0,0.5)"
+    } else {
+      card_element.style.backgroundColor = ""
+      document.getElementById(card_element.id + "_clone").remove();
+    }
+  }
+}
