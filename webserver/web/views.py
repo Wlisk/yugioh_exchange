@@ -24,47 +24,90 @@ def home(request):
 
 #########################################################################################
 def select(request):
-  result = card_operations.select_card()
+  user_id = request.COOKIES.get('user_id', '1') 
+  cardsOnLeft = requests.get(f'{URL}/cards/').json()
+  cardsOnRight = requests.get(f'{URL}/user/{user_id}/cards').json()
+  userCards = requests.get(f'{URL}/user/{user_id}/cards').json()
+
 
   template = 'select_cards.html' if request.htmx else 'base.html'
-  context = {'cards': result} if not request.htmx else {'cards': result}
+  context = {'cardsLeft': cardsOnLeft, 'cardsRight': cardsOnRight, 'userCards': userCards, 'filters': "||"}
   if not request.htmx:
     context['page'] = 'select'
   return render(request, template, context)
 
-#########################################################################################
-def make_offer(request):
-  user_cards = card_operations.select_card()
-  cards_wants = []
-
-  if request.method == 'POST':
-    try:
-      json_cards = json.loads(request.body)
-      ncards = json_cards['cards']
-    except json.JSONDecodeError:
-      ncards = request.POST.get('selected_cards', '[]')
-
-    if isinstance(ncards, list):
-      cards_wants = [card for card in user_cards if str(card.id) in ncards]
-
+def select_filter(request, filter = "||", isSideLeft = False):
+  user_id = request.COOKIES.get('user_id', '1') 
+  cards = ""
+  template = ""
+  context = {}
+  if (isSideLeft == "true"):
+    cards = requests.get(f'{URL}/cards/{filter}').json()
+    template = 'select_cards_wanted.html' if request.htmx else 'base.html'
+    context = {'cardsLeft': cards, 'filters': filter}
   else:
-    selected_names_str = request.COOKIES.get('selected_card_names', '[]')
-    selected_names = json.loads(selected_names_str)
+    cards = requests.get(f'{URL}/user/{user_id}/cards/{filter}').json()
+    template = 'select_cards_offer.html' if request.htmx else 'base.html'
+    context = {'cardsRight': cards, 'filters': filter}
 
-    for name in selected_names:
-      cards = list(card_operations.select_card(name=name))
-      if cards:
-        cards_wants.append(cards[0])
-
-  template = 'make_offer.html' if request.htmx else 'base.html'
-  context = {
-    'cards_want': cards_wants,
-    'user_cards': user_cards
-  }
   if not request.htmx:
-    context['page'] = 'make_offer'
-
+    context['page'] = 'select_filter'
   return render(request, template, context)
+
+def make_offer(request, cardsWanted, cardsOffered):
+  user_id = request.COOKIES.get('user_id', '1') 
+  stringCardsWanted = cardsWanted[:-3].split("-|-")
+  stringCardsOffered = cardsOffered[:-3].split("-|-")
+  listCardsWanted = []
+  listCardsOffered = []
+  for card in stringCardsWanted:
+    card_attributes = card.split("|")
+    if (card_attributes[2] == ""):
+      card_attributes[2] = None
+    listCardsWanted.append(card_operations.select_card(name=card_attributes[0], card_type=card_attributes[1], monster_type=card_attributes[2]))
+  
+  for card in stringCardsOffered:
+    card_attributes = card.split("|")
+    if (card_attributes[2] == ""):
+      card_attributes[2] = None
+    listCardsOffered.append(card_operations.select_card(name=card_attributes[0], card_type=card_attributes[1], monster_type=card_attributes[2]))
+
+  offer_operations.create_offer(user_id=user_id, cards_given=listCardsOffered, cards_wanted=listCardsWanted)
+  return render(request, template_name="select_cards.html", status=204)
+
+#########################################################################################
+# def make_offer(request):
+#   user_cards = card_operations.select_card()
+#   cards_wants = []
+
+#   if request.method == 'POST':
+#     try:
+#       json_cards = json.loads(request.body)
+#       ncards = json_cards['cards']
+#     except json.JSONDecodeError:
+#       ncards = request.POST.get('selected_cards', '[]')
+
+#     if isinstance(ncards, list):
+#       cards_wants = [card for card in user_cards if str(card.id) in ncards]
+
+#   else:
+#     selected_names_str = request.COOKIES.get('selected_card_names', '[]')
+#     selected_names = json.loads(selected_names_str)
+
+#     for name in selected_names:
+#       cards = list(card_operations.select_card(name=name))
+#       if cards:
+#         cards_wants.append(cards[0])
+
+#   template = 'make_offer.html' if request.htmx else 'base.html'
+#   context = {
+#     'cards_want': cards_wants,
+#     'user_cards': user_cards
+#   }
+#   if not request.htmx:
+#     context['page'] = 'make_offer'
+
+#   return render(request, template, context)
 
 #########################################################################################
 def exchanges(request):
@@ -73,12 +116,39 @@ def exchanges(request):
   return render(request, template, context)
 
 #########################################################################################
-def card_list(request):
-  response = requests.get(f"{URL}/{PATHS['list']}")
-  cards: list[YugiohCardRead] = response.json()
+def card_list(request, list_type='all'):
+  user_id = request.COOKIES.get('user_id', '1') 
+  response = requests.get(f'{URL}/user/{user_id}/cards')
+  user_cards: list[YugiohCardRead] = response.json()
 
-  template = 'card_list.html' if request.htmx else 'base.html'
-  context = {'cards': cards}
+  if list_type == 'all':
+    response = requests.get(f'{URL}{PATHS["list"]}')
+    base_cards: list[YugiohCardRead] = response.json()
+  elif list_type == 'user_cards':
+    base_cards = user_cards
+  #elif list_type == 'wishlist':
+
+  filtered_cards = search_cards(request, base_cards)
+
+  title_map = {
+    'all': "Lista de Todas as Cartas",
+    'user_cards': "Minhas Cartas",
+    'wishlist': "Minha Lista de Desejos",
+  }
+  page_title = title_map.get(list_type, "Lista de Cartas")
+
+  is_filter_request = request.GET.get('source') == 'filter_form'
+
+  if is_filter_request:
+    template = '_card_grid.html' if request.htmx else 'base.html'
+  else:
+    template = 'card_list.html' if request.htmx else 'base.html'
+  
+  context = {
+    'cards': filtered_cards,
+    'user_cards': user_cards,
+    'page_title': page_title,
+  }
   if not request.htmx:
     context['page'] = 'card_list'
 
@@ -124,7 +194,7 @@ def offers(request):
 
   template = 'offers.html' if request.htmx else 'base.html'
   context = {
-    'cards': cards,
+    'user_cards': cards,
     'offers': offers,
     'user_id': user_id
   }
@@ -196,3 +266,30 @@ def respond_offer(request):
       content=json.dumps({"status": "error", "message": "Server error"}),
       content_type="application/json"
     )
+
+#########################################################################################
+def search_cards(request, base_cards):
+  name_query = request.GET.get('name_query', '').strip()
+  card_type_str = request.GET.get('card_type', '')
+  monster_type_str = request.GET.get('monster_type', '')
+
+  card_type_enum = None
+  if card_type_str:
+    card_type_enum = CardType(card_type_str)
+
+  monster_type_enum = None
+  if monster_type_str:
+    monster_type_enum = MonsterType(monster_type_str)
+
+  filtered_cards = base_cards
+
+  if name_query:
+    filtered_cards = [card for card in filtered_cards if name_query.lower() in card.get('name', '').lower()]
+
+  if card_type_enum:
+    filtered_cards = [card for card in filtered_cards if card.get('card_type') == card_type_enum]
+  
+  if monster_type_enum:
+    filtered_cards = [card for card in filtered_cards if card.get('monster_type') == monster_type_enum]
+  
+  return filtered_cards
