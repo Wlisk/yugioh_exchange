@@ -298,7 +298,8 @@ function validSelection(event) {
 ////////////////////////////////////////////////////////////////////////////////////////////
 //funções para select_cards.html
 
-function hideFilter(div) {
+function hideFilter(div, arrow) {
+  arrow.classList.toggle("rotate-180");
   div.style.display = div.style.display == 'none' ? div.style.display = 'block' : div.style.display = 'none';
 }
 
@@ -314,12 +315,13 @@ function filterApply(card_name_field, card_type_field, monster_type_field, isCle
     card_type_field.selectedIndex = 0
     monster_type_field.selectedIndex = 0
   } else {
-    filters = card_name_field.value + "|" + card_type_field.options[card_type_field.selectedIndex].value + "|" + monster_type_field.options[monster_type_field.selectedIndex].value;
+    filters = encodeURI(card_name_field.value) + "|" + card_type_field.options[card_type_field.selectedIndex].value + "|" + monster_type_field.options[monster_type_field.selectedIndex].value;
   }
   if (isLeft) {
-    htmx.ajax('GET', '/select/' + filters + "/" + "true", { target: '#wantedCardList', swap: 'innerHTML' });
+    //Foi preciso colocar esse timeout porque a função ativa antes das cartas aparecerem
+    htmx.ajax('GET', '/select/' + filters + "/" + "true", { target: '#wantedCardList', swap: 'innerHTML' }).then(setTimeout(() => reloadColor(document.getElementById("wantedCardList")), 200));
   } else {
-    htmx.ajax('GET', '/select/' + filters + "/" + "false" , { target: '#offerCardList', swap: 'innerHTML' });
+    htmx.ajax('GET', '/select/' + filters + "/" + "false" , { target: '#offerCardList', swap: 'innerHTML' }).then(setTimeout(() => reloadColor(document.getElementById("offerCardList")), 200));
   }
 }
 
@@ -343,7 +345,6 @@ function select_card(card_element, isLeft) {
       //Ajustar o tamanho do clone pra não ficar muito grande
       var clone = card_element.cloneNode(true)
       clone.id = card_element.id + "_clone"
-      clone.classList.remove(card_element.id)
       clone.style.width = "25%"
       clone.style.marginLeft = "0.75rem"
       clone.style.marginTop = "0.5rem"
@@ -357,42 +358,62 @@ function select_card(card_element, isLeft) {
       document.getElementById(card_element.id + "_clone").remove();
     }
   }
-  list = "";
-  for (i = 3; i < wantedList.childNodes.length; i++) {
-    list += JSON.stringify(wantedList.childNodes[i].id)
-  }
-  for (i = 3; i < offeredList.childNodes.length; i++) {
-    list += JSON.stringify(offeredList.childNodes[i].id)
-  }
-
-  console.log(list)
-  localStorage.setItem("offerList", list)
-}
-
-function reloadColor(card) {
-  id = card + "_clone"
-  if (document.getElementById(id) != null) {
-    console.log(card);
-    document.getElementById(card).style.backgroundColor = "rgba(0,255,0,0.5)"
+  if (card_element_list.children.length === 2) {
+    card_element_list.children[0].hidden = false;
+  } else {
+    card_element_list.children[0].hidden = true;
+    card_element_list.children[1].hidden = true;
   }
 }
 
-// Quando aplica um filtro, as cartas selecionadas continuarão com a cor
-document.getElementById("offerCardList").addEventListener('DOMNodeInserted', function( event ) {
-  // Se não tiver um tempo, a função executa antes da carta aparecer e não muda a cor 
-  setTimeout(() => {    
-    if (event.target.nodeName == "LABEL") {
-      reloadColor(event.target.id);    
+function reloadColor(cardList) {
+  for (i = 1; i < cardList.children.length; i++) {
+    id = cardList.children[i].id + "_clone"
+    if (document.getElementById(id) != null) {
+      console.log(cardList.children[i]);
+      cardList.children[i].style.backgroundColor = "rgba(0,255,0,0.5)"
     }
-  }, 100);
-});
+  }
+}
+function submitOffer() {
+  const wantedList = document.getElementById('selectedWantedCards');
+  const offeredList =  document.getElementById('selectedOfferedCards');
 
-// Quando aplica um filtro, as cartas selecionadas continuarão com a cor
-document.getElementById("wantedCardList").addEventListener('DOMNodeInserted', function( event ) {
-  // Se não tiver um tempo, a função executa antes da carta aparecer e não muda a cor 
-  setTimeout(() => {    
-    if (event.target.nodeName == "LABEL") {
-      reloadColor(event.target.id);    
+  cardsWanted = "";
+  cardsOffered = "";
+  checkrepeated = new Set();
+
+  for (i = 2; i < wantedList.children.length; i++) {
+    cardsWanted += (wantedList.children[i].childNodes[1].childNodes[3].textContent);  //card_name
+    cardsWanted += "|"
+    cardsWanted += (wantedList.children[i].childNodes[1].childNodes[5].textContent);  //card_type
+    cardsWanted += "|"
+    cardsWanted += (wantedList.children[i].childNodes[1].childNodes[7].textContent);  //monster_type
+    cardsWanted += "||"
+    checkrepeated.add(wantedList.children[i].childNodes[1].childNodes[3].textContent);
+  }
+  for (i = 2; i < offeredList.children.length; i++) {
+    cardsOffered += (offeredList.children[i].childNodes[1].childNodes[3].textContent);
+    cardsOffered += "|"
+    cardsOffered += (offeredList.children[i].childNodes[1].childNodes[5].textContent);
+    cardsOffered += "|"
+    cardsOffered += (offeredList.children[i].childNodes[1].childNodes[7].textContent);
+    cardsOffered += "||"
+    if (checkrepeated.has(offeredList.children[i].childNodes[1].childNodes[3].textContent)) {
+      alert("Não pode ter a mesma carta nas duas listas");
+      return 2;
     }
-  }, 200);
-});
+    }
+
+
+  if (cardsWanted === "") {
+    wantedList.children[0].hidden = true;
+    wantedList.children[1].hidden = false;
+  } 
+  if (cardsOffered === "") {
+    offeredList.children[0].hidden = true;
+    offeredList.children[1].hidden = false;
+  }
+  if (cardsOffered === "" || cardsWanted === "") return 1;
+    htmx.ajax('POST', '/make_offer/' + cardsWanted + "/" + cardsOffered , { target: this}).then(() => {alert("Oferta criada com sucesso")}).then(() => {Location.reload});
+}
