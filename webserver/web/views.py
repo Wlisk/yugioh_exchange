@@ -54,21 +54,20 @@ def select_filter(request, filter = "||", isSideLeft = False):
 
 def make_offer(request, cardsWanted, cardsOffered):
   user_id = request.COOKIES.get('user_id', '1') 
-  stringCardsWanted = cardsWanted.split("||")
-  stringCardsOffered = cardsOffered.split("||")
-  stringCardsWanted.pop()
-  stringCardsOffered.pop()
-
+  stringCardsWanted = cardsWanted[:-3].split("-|-")
+  stringCardsOffered = cardsOffered[:-3].split("-|-")
   listCardsWanted = []
   listCardsOffered = []
   for card in stringCardsWanted:
     card_attributes = card.split("|")
-    card_attributes.append(None)
+    if (card_attributes[2] == ""):
+      card_attributes[2] = None
     listCardsWanted.append(card_operations.select_card(name=card_attributes[0], card_type=card_attributes[1], monster_type=card_attributes[2]))
   
   for card in stringCardsOffered:
     card_attributes = card.split("|")
-    card_attributes.append(None)
+    if (card_attributes[2] == ""):
+      card_attributes[2] = None
     listCardsOffered.append(card_operations.select_card(name=card_attributes[0], card_type=card_attributes[1], monster_type=card_attributes[2]))
 
   offer_operations.create_offer(user_id=user_id, cards_given=listCardsOffered, cards_wanted=listCardsWanted)

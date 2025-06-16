@@ -389,7 +389,7 @@ function submitOffer() {
     cardsWanted += (wantedList.children[i].childNodes[1].childNodes[5].textContent);  //card_type
     cardsWanted += "|"
     cardsWanted += (wantedList.children[i].childNodes[1].childNodes[7].textContent);  //monster_type
-    cardsWanted += "||"
+    cardsWanted += "-|-"
     checkrepeated.add(wantedList.children[i].childNodes[1].childNodes[3].textContent);
   }
   for (i = 2; i < offeredList.children.length; i++) {
@@ -398,7 +398,7 @@ function submitOffer() {
     cardsOffered += (offeredList.children[i].childNodes[1].childNodes[5].textContent);
     cardsOffered += "|"
     cardsOffered += (offeredList.children[i].childNodes[1].childNodes[7].textContent);
-    cardsOffered += "||"
+    cardsOffered += "-|-"
     if (checkrepeated.has(offeredList.children[i].childNodes[1].childNodes[3].textContent)) {
       alert("Não pode ter a mesma carta nas duas listas");
       return 2;
@@ -415,5 +415,5 @@ function submitOffer() {
     offeredList.children[1].hidden = false;
   }
   if (cardsOffered === "" || cardsWanted === "") return 1;
-    htmx.ajax('POST', '/make_offer/' + cardsWanted + "/" + cardsOffered , { target: this}).then(() => {alert("Oferta criada com sucesso")}).then(() => {Location.reload});
+    response = htmx.ajax('POST', '/make_offer/' + cardsWanted + "/" + cardsOffered , { target: this}).then(() => {alert("Oferta criada com sucesso")}, () => {alert("Erro ao criar a oferta")}).then(() => {console.log(response)});
 }
