@@ -1,4 +1,54 @@
 /////////////////////////////////////////////////////////////////////////////////////////
+function validatePasswordsOnInput() {
+  // Pega os elementos do HTML pelos seus IDs
+  const passwordInput = document.getElementById('password');
+  const passwordConfirmInput = document.getElementById('passwordConfirm');
+  const messageDiv = document.getElementById('password-match-message');
+  const submitButton = document.getElementById('submit-button');
+
+  // Se algum dos elementos não existir na página, não faz nada
+  if (!passwordInput || !passwordConfirmInput || !messageDiv || !submitButton) {
+    return;
+  }
+
+  // Função que será executada toda vez que o usuário digitar
+  function checkPasswords() {
+    const password = passwordInput.value;
+    const passwordConfirm = passwordConfirmInput.value;
+
+    // Não mostra mensagem se o campo de confirmação estiver vazio
+    if (passwordConfirm === '') {
+      messageDiv.textContent = '';
+      submitButton.disabled = true; // Desabilita o botão se a confirmação estiver vazia
+      submitButton.className = 'w-full px-4 py-3 font-bold text-white bg-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors'; // Adiciona classe de botão desabilitado
+      return;
+    }
+
+    // Se as senhas conferem
+    if (password === passwordConfirm) {
+      messageDiv.textContent = '';
+      submitButton.disabled = false; // Habilita o botão para envio
+      submitButton.className = 'w-full px-4 py-3 font-bold text-white bg-purple-900 rounded-md hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors'; // Adiciona classe de botão habilitado
+    } 
+    // Se as senhas não conferem
+    else {
+      messageDiv.textContent = 'As senhas não conferem.';
+      messageDiv.style.color = 'red';
+      submitButton.disabled = true; // Desabilita o botão
+      submitButton.className = 'w-full px-4 py-3 font-bold text-white bg-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors'; // Adiciona classe de botão desabilitado
+    }
+  }
+
+  // Adiciona "escutadores" de evento. A função checkPasswords será chamada
+  // toda vez que o usuário digitar algo nos campos de senha.
+  passwordInput.addEventListener('input', checkPasswords);
+  passwordConfirmInput.addEventListener('input', checkPasswords);
+
+  // Desabilita o botão inicialmente para forçar a confirmação
+  submitButton.disabled = true; 
+  submitButton.className = 'w-full px-4 py-3 font-bold text-white bg-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors';
+}
+
 function cardListDropdownMenu() {
   const dropdownButton = document.getElementById('dropdown-button');
   const dropdownMenu = document.getElementById('dropdown-menu');
@@ -245,6 +295,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   initializePersistentComponents();
   initializePageContent();
+
+  validatePasswordsOnInput();
 
   document.body.addEventListener('htmx:afterSwap', initializePageContent);
 

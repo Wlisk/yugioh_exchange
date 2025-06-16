@@ -25,7 +25,10 @@
   hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'
   class="bg-gray-100 font-sans leading-normal tracking-normal">
 
-  <nav class="text-center py-4 bg-purple-900">
+  <nav class="flex items-center px-8 py-4 bg-purple-900">
+    <div class="flex-1">
+    </div>
+
     <div class="space-x-4">
       <a 
         href="{% url 'home' %}" 
@@ -46,8 +49,7 @@
           </button>
         </div>
       
-        <div id="dropdown-menu" class="origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 
-                    hidden z-10">
+        <div id="dropdown-menu" class="origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
           <div class="py-1">
             <a 
               href="{% url 'card_list_filtered' list_type='all' %}" 
@@ -97,6 +99,16 @@
         hx-push-url="true"
         class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
       >Histórico</a>
+    </div>
+
+    <div class="flex-1 text-right">
+      <a
+      href="{% url 'logout' %}"
+      hx-get="{% url 'logout' %}"
+      hx-target="body"
+      hx-push-url="true"
+      class="self-end text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
+    >Sair</a> 
     </div>
   </nav>
 

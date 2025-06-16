@@ -2,8 +2,9 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 import requests
 import json
+from models.user import User
 from models.yugioh_card import YugiohCardRead, CardType, MonsterType
-from db.main import card_operations, offer_operations, exchange_operations
+from db.main import card_operations, user_operations, offer_operations, exchange_operations
 
 HOST = '127.0.0.1'
 PORT = 8001
@@ -22,6 +23,49 @@ def home(request):
   context = {'page': 'home'} if not request.htmx else {}
   return render(request, template, context)
 
+#########################################################################################
+def create_account(request):
+  if request.method == 'POST':
+    user_name = request.POST.get('name','')
+    password = request.POST.get('password','')
+    password_confirm = request.POST.get('passwordConfirm','')
+
+    if password != password_confirm:
+      return render(request, 'create_account.html', {'error': 'As senhas não conferem.'})
+    else:
+      existing_users = user_operations.get_user(name=user_name)
+      if existing_users:
+        return render(request, 'create_account.html', {'error': 'Usuário já existe.'})
+      else: 
+        #criar hash da senha
+        user_operations.create_user(name=user_name, password=password)
+        return redirect('login')
+  else:
+    return render(request, 'create_account.html')
+
+#########################################################################################
+def login_account(request):
+  if request.method == 'POST':
+    user_name = request.POST.get('name', '')
+    password = request.POST.get('password', '')
+    existing_users = user_operations.get_user(name=user_name)
+    if not existing_users:
+      return render(request, 'login.html', {'error': 'Usuário não encontrado.'})
+    elif existing_users[0].password != password:
+      return render(request, 'login.html', {'error': 'Senha incorreta.'})
+    else:
+      user = existing_users[0]
+      response = redirect('offers')
+      response.set_cookie('user_id', user.id, max_age=3600*24*7)
+      return response
+  else:
+     return render(request, 'login.html')
+ 
+##########################################################################################
+def logout_account(request):
+  response = redirect('login')
+  response.delete_cookie('user_id')
+  return response
 #########################################################################################
 def select(request):
   result = card_operations.select_card()
