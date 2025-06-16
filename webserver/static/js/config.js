@@ -370,7 +370,6 @@ function reloadColor(cardList) {
   for (i = 1; i < cardList.children.length; i++) {
     id = cardList.children[i].id + "_clone"
     if (document.getElementById(id) != null) {
-      console.log(cardList.children[i]);
       cardList.children[i].style.backgroundColor = "rgba(0,255,0,0.5)"
     }
   }
@@ -379,9 +378,26 @@ function submitOffer() {
   const wantedList = document.getElementById('selectedWantedCards');
   const offeredList =  document.getElementById('selectedOfferedCards');
 
+  user_cards = JSON.parse(document.getElementById("user-cards").text);
+  user_cards_name = [];
+
+  if (wantedList.children.length === 2) {
+    wantedList.children[0].hidden = true;
+    wantedList.children[1].hidden = false;
+  } 
+  if (offeredList.children.length === 2) {
+    offeredList.children[0].hidden = true;
+    offeredList.children[1].hidden = false;
+  }
+  if ((offeredList.children.length === 2) || (wantedList.children.length === 2)) return;
+
+  for (i of user_cards) {
+    user_cards_name.push(i.name);
+  }
+
   cardsWanted = "";
   cardsOffered = "";
-  checkrepeated = new Set();
+
 
   for (i = 2; i < wantedList.children.length; i++) {
     cardsWanted += (wantedList.children[i].childNodes[1].childNodes[3].textContent);  //card_name
@@ -390,8 +406,14 @@ function submitOffer() {
     cardsWanted += "|"
     cardsWanted += (wantedList.children[i].childNodes[1].childNodes[7].textContent);  //monster_type
     cardsWanted += "-|-"
-    checkrepeated.add(wantedList.children[i].childNodes[1].childNodes[3].textContent);
+
+    if (user_cards_name.includes(wantedList.children[i].childNodes[1].childNodes[3].textContent)) {
+      alert("Não pode pedir uma carta que já possui");
+      return;
+    };
   }
+
+
   for (i = 2; i < offeredList.children.length; i++) {
     cardsOffered += (offeredList.children[i].childNodes[1].childNodes[3].textContent);
     cardsOffered += "|"
@@ -399,21 +421,6 @@ function submitOffer() {
     cardsOffered += "|"
     cardsOffered += (offeredList.children[i].childNodes[1].childNodes[7].textContent);
     cardsOffered += "-|-"
-    if (checkrepeated.has(offeredList.children[i].childNodes[1].childNodes[3].textContent)) {
-      alert("Não pode ter a mesma carta nas duas listas");
-      return 2;
-    }
-    }
-
-
-  if (cardsWanted === "") {
-    wantedList.children[0].hidden = true;
-    wantedList.children[1].hidden = false;
-  } 
-  if (cardsOffered === "") {
-    offeredList.children[0].hidden = true;
-    offeredList.children[1].hidden = false;
   }
-  if (cardsOffered === "" || cardsWanted === "") return 1;
-    response = htmx.ajax('POST', '/make_offer/' + cardsWanted + "/" + cardsOffered , { target: this}).then(() => {alert("Oferta criada com sucesso")}, () => {alert("Erro ao criar a oferta")}).then(() => {console.log(response)});
+  htmx.ajax('POST', '/make_offer/' + cardsWanted + "/" + cardsOffered , { target: this}).then(() => {alert("Oferta criada com sucesso")}, () => {alert("Erro ao criar a oferta")}).then(() => {console.log("ok")});
 }

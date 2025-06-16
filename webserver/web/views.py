@@ -26,10 +26,12 @@ def home(request):
 def select(request):
   user_id = request.COOKIES.get('user_id', '1') 
   cardsOnLeft = requests.get(f'{URL}/cards/').json()
-  cardsOnRight = requests.get(f'{URL}/user/{user_id}/cards/').json()
+  cardsOnRight = requests.get(f'{URL}/user/{user_id}/cards').json()
+  userCards = requests.get(f'{URL}/user/{user_id}/cards').json()
+
 
   template = 'select_cards.html' if request.htmx else 'base.html'
-  context = {'cardsLeft': cardsOnLeft, 'cardsRight': cardsOnRight, 'filters': "||"}
+  context = {'cardsLeft': cardsOnLeft, 'cardsRight': cardsOnRight, 'userCards': userCards, 'filters': "||"}
   if not request.htmx:
     context['page'] = 'select'
   return render(request, template, context)
@@ -71,7 +73,7 @@ def make_offer(request, cardsWanted, cardsOffered):
     listCardsOffered.append(card_operations.select_card(name=card_attributes[0], card_type=card_attributes[1], monster_type=card_attributes[2]))
 
   offer_operations.create_offer(user_id=user_id, cards_given=listCardsOffered, cards_wanted=listCardsWanted)
-  return render(request, template_name="select_cards.html" , status=204)
+  return render(request, template_name="select_cards.html", status=204)
 
 #########################################################################################
 # def make_offer(request):
