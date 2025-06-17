@@ -2,7 +2,7 @@ from typing import Any, Generator
 from sqlmodel import Sequence, create_engine, SQLModel, Session, select, or_
 from sqlalchemy import text
 from models.yugioh_card import YugiohCard, CardType, MonsterType
-from models.offer import Exchange, Offer#, OfferCardsGiven, OfferCardsWants
+from models.offer import Exchange, Offer, OfferCardsGiven, OfferCardsWants
 from models.user import User
 
 DB_FILENAME = "yugioh.db"
@@ -55,7 +55,14 @@ class user_operations:
 class offer_operations:
   def create_offer(user_id:int, cards_given:list[YugiohCard], cards_wanted:list[YugiohCard]) -> None:
     with Session(ENGINE) as session:
-      session.add(Offer(user_id=user_id, cards_given=cards_given, cards_wants=cards_wanted))
+      offer = Offer(user_id=user_id)
+      session.add(offer)
+      session.commit()
+      session.refresh(offer)
+      for card in cards_given:
+        session.add(OfferCardsGiven(offer_id=offer.id, card_id=card[0].id))
+      for card in cards_wanted:
+        session.add(OfferCardsWants(offer_id=offer.id, card_id=card[0].id))
       session.commit()
 
   def get_offer_from_id(id:int) -> Sequence[Offer]:
