@@ -1,17 +1,37 @@
 /////////////////////////////////////////////////////////////////////////////////////////
+function passwordVisibility(inputId, toggleButtonId, eyeOnId, eyeOffId) {
+  const passwordInput = document.getElementById(inputId);
+  const toggleButton = document.getElementById(toggleButtonId);
+  const eyeOnIcon = document.getElementById(eyeOnId);
+  const eyeOffIcon = document.getElementById(eyeOffId);
+
+  if (!passwordInput || !toggleButton || !eyeOnIcon || !eyeOffIcon) {
+    return;
+  }
+
+  toggleButton.addEventListener('click', () => {
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      eyeOnIcon.classList.remove('hidden');
+      eyeOffIcon.classList.add('hidden');
+    } else {
+      passwordInput.type = 'password';
+      eyeOnIcon.classList.add('hidden');
+      eyeOffIcon.classList.remove('hidden');
+    }
+  });
+}
+
 function validatePasswordsOnInput() {
-  // Pega os elementos do HTML pelos seus IDs
   const passwordInput = document.getElementById('password');
   const passwordConfirmInput = document.getElementById('passwordConfirm');
   const messageDiv = document.getElementById('password-match-message');
   const submitButton = document.getElementById('submit-button');
 
-  // Se algum dos elementos não existir na página, não faz nada
   if (!passwordInput || !passwordConfirmInput || !messageDiv || !submitButton) {
     return;
   }
 
-  // Função que será executada toda vez que o usuário digitar
   function checkPasswords() {
     const password = passwordInput.value;
     const passwordConfirm = passwordConfirmInput.value;
@@ -39,12 +59,9 @@ function validatePasswordsOnInput() {
     }
   }
 
-  // Adiciona "escutadores" de evento. A função checkPasswords será chamada
-  // toda vez que o usuário digitar algo nos campos de senha.
   passwordInput.addEventListener('input', checkPasswords);
   passwordConfirmInput.addEventListener('input', checkPasswords);
 
-  // Desabilita o botão inicialmente para forçar a confirmação
   submitButton.disabled = true; 
   submitButton.className = 'w-full px-4 py-3 font-bold text-white bg-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors';
 }
@@ -265,6 +282,19 @@ function check_offer_status(evt) {
 /////////////////////////////////////////////////////////////////////////////////////////
 function initializePersistentComponents() {
   cardListDropdownMenu();
+  passwordVisibility(
+    'password', 
+    'togglePassword', 
+    'eye-on-icon', 
+    'eye-off-icon'
+  );
+  
+  passwordVisibility(
+    'passwordConfirm', 
+    'togglePasswordConfirm', 
+    'eye-on-icon-confirm', 
+    'eye-off-icon-confirm'
+  );
 }
 
 function initializePageContent() {
