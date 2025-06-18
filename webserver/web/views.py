@@ -1,10 +1,12 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.views.decorators.cache import never_cache
 import requests
 import json
 from models.user import User
 from models.yugioh_card import YugiohCardRead, CardType, MonsterType
 from db.main import card_operations, user_operations, offer_operations, exchange_operations
+from .decorators import user_login_required
 
 HOST = '127.0.0.1'
 PORT = 8001
@@ -16,12 +18,6 @@ PATHS = {
   'list': '/cards',
   'offers': '/offers',
 }
-
-#########################################################################################
-def home(request):
-  template = 'home_screen.html' if request.htmx else 'base.html'
-  context = {'page': 'home'} if not request.htmx else {}
-  return render(request, template, context)
 
 #########################################################################################
 def create_account(request):
@@ -44,6 +40,7 @@ def create_account(request):
     return render(request, 'create_account.html')
 
 #########################################################################################
+@never_cache
 def login_account(request):
   if request.method == 'POST':
     user_name = request.POST.get('name', '')
@@ -63,10 +60,14 @@ def login_account(request):
  
 ##########################################################################################
 def logout_account(request):
-  response = redirect('login')
+  response = HttpResponse()
   response.delete_cookie('user_id')
+  response['HX-REFRESH'] = 'true' 
+  print("Cookie 'user_id' removido, enviando instrução de refresh.")
   return response
 #########################################################################################
+@never_cache
+@user_login_required
 def select(request):
   user_id = request.COOKIES.get('user_id', '1') 
   cardsOnLeft = requests.get(f'{URL}/cards/').json()
@@ -154,12 +155,16 @@ def make_offer(request, cardsWanted, cardsOffered):
 #   return render(request, template, context)
 
 #########################################################################################
+@never_cache
+@user_login_required
 def exchanges(request):
   template = 'exchanges.html' if request.htmx else 'base.html'
   context = {} if request.htmx else {'page': 'exchanges'}
   return render(request, template, context)
 
 #########################################################################################
+@never_cache
+@user_login_required
 def card_list(request, list_type='all'):
   user_id = request.COOKIES.get('user_id', '1') 
   response = requests.get(f'{URL}/user/{user_id}/cards')
@@ -213,6 +218,8 @@ def set_user(request):
   return response
 
 #########################################################################################
+@never_cache
+@user_login_required
 def offers(request):
   user_id = request.COOKIES.get('user_id', '1') # default to one
 

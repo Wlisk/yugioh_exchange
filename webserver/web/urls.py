@@ -2,9 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-  path('', views.home, name='home'),
+  path('', views.login_account, name='login'),
   path('create_account/', views.create_account, name='create_account'),
-  path('login/', views.login_account, name='login'),
   path('logout/', views.logout_account, name='logout'),
   path('select/', views.select, name='select'),
   path('select/<str:filter>/<str:isSideLeft>/', views.select_filter, name='select_filter'),

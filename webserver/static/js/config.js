@@ -262,21 +262,6 @@ function check_offer_status(evt) {
     htmx.ajax('GET', '/offers/', { target: '#main-content', swap: 'innerHTML' });
   });
 }
-
-function setUserIdCookie() {
-  const userIdInput = document.getElementById('user-id');
-  const userId = userIdInput.value || '1';
-
-  // Set the cookie: name=value; expires=...
-  const expirationDays = 7;
-  const date = new Date();
-  date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000));
-  const expires = "expires=" + date.toUTCString();
-
-  document.cookie = `user_id=${userId}; ${expires}; path=/`;
-
-  alert(`User ID set to ${userId}`);
-}
 /////////////////////////////////////////////////////////////////////////////////////////
 function initializePersistentComponents() {
   cardListDropdownMenu();

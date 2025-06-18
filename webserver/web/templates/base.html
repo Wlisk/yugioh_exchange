@@ -30,13 +30,6 @@
     </div>
 
     <div class="space-x-4">
-      <a 
-        href="{% url 'home' %}" 
-        hx-get="{% url 'home' %}" 
-        hx-target="#main-content" 
-        hx-push-url="true"
-        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
-      >Início</a>
 
       <div class="relative inline-block text-left">
   
@@ -113,9 +106,7 @@
   </nav>
 
   <main id="main-content" class="container mx-auto px-4 py-8">
-    {% if page == 'home' %}
-      {% include 'home_screen.html' %}
-    {% elif page == 'card_list' %}
+    {% if page == 'card_list' %}
       {% include 'card_list.html' %}
     {% elif page == 'offers' %}
       {% include 'offers.html' %}
