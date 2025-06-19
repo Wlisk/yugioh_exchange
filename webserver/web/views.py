@@ -33,7 +33,6 @@ def create_account(request):
       if existing_users:
         return render(request, 'create_account.html', {'error': 'Usuário já existe.'})
       else: 
-        #criar hash da senha
         user_operations.create_user(name=user_name, password=password)
         return redirect('login')
   else:
@@ -158,8 +157,28 @@ def make_offer(request, cardsWanted, cardsOffered):
 @never_cache
 @user_login_required
 def exchanges(request):
+  user_id = request.COOKIES.get('user_id', '1')
+  user_exchanges = exchange_operations.get_exchange(user_id=int(user_id))
+
+  user_accepted_offers = []
+  if user_exchanges:
+    for exchange in user_exchanges:
+      offer_result = offer_operations.get_offer_from_id(exchange.offer_id)
+      if offer_result:
+        user_accepted_offers.append(offer_result[0])
+
+  combined_data = []
+  if len(user_exchanges) == len(user_accepted_offers):
+    combined_data = list(zip(user_exchanges, user_accepted_offers))
+
+  # A função get_offer_from_id retorna várias tuplas então tive que adaptar no template
+  # O atributo date de Exchange é uma string por isso não aparece no template (com os filtros de data)
+
   template = 'exchanges.html' if request.htmx else 'base.html'
-  context = {} if request.htmx else {'page': 'exchanges'}
+  context = {
+    'combined_data': combined_data
+  } if request.htmx else {'page': 'exchanges'}
+
   return render(request, template, context)
 
 #########################################################################################
@@ -223,9 +242,6 @@ def set_user(request):
 def offers(request):
   user_id = request.COOKIES.get('user_id', '1') # default to one
 
-  response = requests.get(f'{URL}/user/{user_id}/cards')
-  cards: list[YugiohCardRead] = response.json()
-
   # Get offers for the current user
   offers_response = requests.get(
     f"{URL}/{PATHS['offers']}",
@@ -235,20 +251,23 @@ def offers(request):
   offers = []
   if offers_response.status_code == 200:
     raw_offers = offers_response.json()
+    filtered_offers = []
     # Transform the offers to include only necessary owner info
-    offers = [{
-      'offer_id': offer['offer']['id'],
-      'owner': {
-        'id': offer['owner']['id'],
-        'name': offer['owner']['name']
-      },
-      'cards_given': offer['cards_given'],
-      'cards_wanted': offer['cards_wanted']
-    } for offer in raw_offers]
+    # and filter out offers made by the current user
+    for offer in raw_offers:
+      if str(offer['owner']['id']) != user_id:
+        formatted_offer = {
+          'offer_id': offer['offer']['id'],
+          'owner': offer['owner'],
+          'cards_given': offer['cards_given'],
+          'cards_wanted': offer['cards_wanted']
+        }
+        filtered_offers.append(formatted_offer)
+
+    offers = filtered_offers
 
   template = 'offers.html' if request.htmx else 'base.html'
   context = {
-    'user_cards': cards,
     'offers': offers,
     'user_id': user_id
   }
