@@ -1,31 +1,39 @@
+<div class="text-center pt-12 mx-auto">
+  <h1 class="text-4xl md:text-5xl font-bold text-purple-900 mb-6">
+    Trocar Cartas
+  </h1>
+</div>
+
+<hr class="border-t border-gray-200 my-6">
+
 <div style="float: left; width: 40%;">
-  <h2 style="text-align: center; font-size: 3rem; color: rgb(88 28 135); font-weight: 700;"> 
+  <h2 class="text-center text-5xl mb-4 text-purple-900 font-bold"> 
     Quer
   </h2>
 
-  <div style="overflow: hidden; border-radius: 10px; height: 250px;">
+  <div class="overflow-hidden rounded-md border-2 border-purple-900 h-[250px]">
     
     <!-- DIV com a lista de cartas que quer -->
-    <div id="selectedWantedCards" style="height: 100%; width: 100%; background-color:rgb(192 132 252); overflow-x: auto; overflow-y: hidden;  display: inline-flex;">
-      <p id="textWantedCards" style="font-size: larger; font-weight: 1000; text-align: center; margin-left: 40%; margin-right: 40%; margin-top: auto; margin-bottom: auto;">Selecione abaixo as cartas que você deseja receber</p>
-      <p id="errorWantedCards" style="font-size: larger; font-weight: 1000; text-align: center; margin-left: 40%; margin-right: 40%; margin-top: auto; margin-bottom: auto; color: red;" hidden="true">Selecione pelo menos uma carta abaixo</p>
+    <div id="selectedWantedCards" class="h-full w-full bg-purple-200/60 overflow-x-auto overflow-y-hidden inline-flex">
+      <p id="textWantedCards" class="text-xl text-center text-black my-auto mx-auto shrink-0 px-4">Selecione abaixo as cartas que você deseja receber</p>
+      <p id="errorWantedCards" class="text-xl text-center text-red-600 my-auto mx-auto shrink-0 px-4" hidden="true">Selecione pelo menos uma carta abaixo</p>
     </div>
   </div>
 
-  <div style="margin-top: 2rem;"><h2>Escolha as cartas desejadas:</h2></div>
-  <div style="overflow: hidden; border-radius: 10px;">
-    <div style=" width:100%; height:500px; overflow-y:auto; background-color:rgb(192 132 252);">
+  <div class="mt-6"><h2>Escolha as cartas desejadas:</h2></div>
+  <div class="overflow-hidden rounded-md border-2 border-purple-900">
+    <div class="w-full h-[500px] overflow-y-auto bg-white rounded-lg shadow-lg shadow-gray-500 border border-gray-200">
       <div style="margin: 5px;">
-        <button type="button" onclick="hideFilter(document.getElementById('filter-div'), document.getElementById('filter-arrow-icon'))" id="filter-toggle-button" class="inline-flex items-center justify-left w-auto text-purple-900 font-bold py-2 px-4 rounded hover:bg-purple-200 transition-colors">
+        <button type="button" onclick="hideFilter(document.getElementById('filter-div'), document.getElementById('filter-arrow-icon'))" id="filter-toggle-button" class="inline-flex items-center justify-left w-auto text-purple-900 font-bold mb-2 py-2 px-4 rounded hover:bg-purple-200 transition-colors">
           Filtros
           <svg id="filter-arrow-icon" class="self-end ml-2 h-5 w-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
           </svg>
         </button>
-        <div id="filter-div" style="display: none;">
+        <div id="filter-div" style="display: none;" class="bg-gray-100 px-4 py-2 rounded-md shadow-md shadow-gray-500/50 border-1 border-gray-600">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label for="name_query" class="block text-sm font-medium text-gray-700">Nome da Carta</label>
+              <label for="name_query" class="block text-sm font-medium text-gray-900">Nome da Carta</label>
               <input 
                 type="text" 
                 name="name_query" 
@@ -35,7 +43,7 @@
               >
             </div>
             <div>
-              <label for="card_type" class="block text-sm font-medium text-gray-700">Tipo de Carta</label>
+              <label for="card_type" class="block text-sm font-medium text-gray-900">Tipo de Carta</label>
               <select 
                 name="card_type" 
                 id="card_type" 
@@ -48,7 +56,7 @@
               </select>
             </div>
             <div>
-              <label for="monster_type" class="block text-sm font-medium text-gray-700">Tipo de Monstro</label>
+              <label for="monster_type" class="block text-sm font-medium text-gray-900">Tipo de Monstro</label>
               <select 
                 name="monster_type" 
                 id="monster_type"
@@ -91,7 +99,7 @@
           </button>
         </div>
       </div>
-      <div id="wantedCardList" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4" style="margin: 5px;">
+      <div id="wantedCardList" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4 m-5">
         {% include "select_cards_wanted.html" %}
       </div>
     </div>
@@ -99,33 +107,33 @@
 </div>
 
 <div style="float: right; width: 40%;">
-  <h2 style="text-align: center; font-size: 3rem; color: rgb(88 28 135); font-weight: 700;"> 
+  <h2 class="text-center text-5xl mb-4 text-purple-900 font-bold"> 
     Oferece
   </h2>
 
-  <div style="overflow: hidden; border-radius: 10px; height: 250px;">
+  <div class="overflow-hidden rounded-md border-2 border-purple-900 h-[250px]">
     
     <!-- DIV com a lista de cartas que oferece -->
-    <div id="selectedOfferedCards" style="height: 100%; width: 100%; background-color:rgb(192 132 252); overflow-x: auto; overflow-y: hidden;  display: inline-flex;">
-      <p id="textOfferedCards" style="font-size: larger; font-weight: 1000; text-align: center; margin-left: 40%; margin-right: 40%; margin-top: auto; margin-bottom: auto;">Selecione abaixo as cartas que você pretende trocar</p>
-      <p id="errorOfferedCards" style="font-size: larger; font-weight: 1000; text-align: center; margin-left: 40%; margin-right: 40%; margin-top: auto; margin-bottom: auto; color: red;" hidden="true">Selecione pelo menos uma carta abaixo</p>
+    <div id="selectedOfferedCards" class="h-full w-full bg-purple-200/60 overflow-x-auto overflow-y-hidden inline-flex">
+      <p id="textOfferedCards" class="text-xl text-center text-black my-auto mx-auto shrink-0 px-4">Selecione abaixo as cartas que você pretende trocar</p>
+      <p id="errorOfferedCards" class="text-xl text-center text-red-600 my-auto mx-auto shrink-0 px-4" hidden="true">Selecione pelo menos uma carta abaixo</p>
     </div>
   </div>
 
-  <div style="margin-top: 2rem;"><h2>Escolha as cartas que você oferece:</h2></div>
-  <div style="overflow: hidden; border-radius: 10px; height:500px;">
-    <div style="width:100%; height:100%; overflow-y:auto; overflow-x: hidden; background-color:rgb(192 132 252);">
+  <div class="mt-6"><h2>Escolha as cartas que você oferece:</h2></div>
+  <div class="h-[500px] overflow-hidden rounded-md border-2 border-purple-900">
+    <div class="w-full h-full overflow-y-auto bg-white rounded-lg shadow-lg shadow-gray-500 border border-gray-200">
       <div style="margin: 5px;">
-        <button type="button" onclick="hideFilter(document.getElementById('filter-div-offer'), document.getElementById('filter-arrow-icon-offer'))" id="filter-toggle-button" class="inline-flex items-center justify-left w-auto text-purple-900 font-bold py-2 px-4 rounded hover:bg-purple-200 transition-colors">
+        <button type="button" onclick="hideFilter(document.getElementById('filter-div-offer'), document.getElementById('filter-arrow-icon-offer'))" id="filter-toggle-button" class="inline-flex items-center justify-left w-auto text-purple-900 font-bold mb-2 py-2 px-4 rounded hover:bg-purple-200 transition-colors">
           Filtros
           <svg id="filter-arrow-icon-offer" class="self-end ml-2 h-5 w-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
           </svg>
         </button>
-        <div id="filter-div-offer" style="display: none;">
+        <div id="filter-div-offer" style="display: none;" class="bg-gray-100 px-4 py-2 rounded-md shadow-md shadow-gray-500/50 border-1 border-gray-600">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label for="name_query_offer" class="block text-sm font-medium text-gray-700">Nome da Carta</label>
+              <label for="name_query_offer" class="block text-sm font-medium text-gray-900">Nome da Carta</label>
               <input 
                 type="text" 
                 name="name_query_offer" 
@@ -135,7 +143,7 @@
               >
             </div>
             <div>
-              <label for="card_type_offer" class="block text-sm font-medium text-gray-700">Tipo de Carta</label>
+              <label for="card_type_offer" class="block text-sm font-medium text-gray-900">Tipo de Carta</label>
               <select 
                 name="card_type_offer" 
                 id="card_type_offer" 
@@ -148,7 +156,7 @@
               </select>
             </div>
             <div>
-              <label for="monster_type_offer" class="block text-sm font-medium text-gray-700">Tipo de Monstro</label>
+              <label for="monster_type_offer" class="block text-sm font-medium text-gray-900">Tipo de Monstro</label>
               <select 
                 name="monster_type_offer" 
                 id="monster_type_offer"
@@ -191,21 +199,15 @@
           </button>
         </div>
       </div>
-      <div id="offerCardList" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4" style="margin: 5px;">
+      <div id="offerCardList" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4 m-5">
         {% include "select_cards_offer.html" %}
       </div>
     </div>
   </div>
 </div>
-
-<div class="text-center pt-12 mx-auto">
-  <h1 class="text-4xl md:text-5xl font-bold text-purple-900 mb-6" style="margin-top: 2em;">
-    Trocar cartas
-  </h1>
-</div>
     
 <div style="text-align: center;">
-  <button id="continueButton" type="submit" onclick="submitOffer()" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+  <button id="continueButton" type="submit" onclick="submitOffer()" class="px-6 py-3 bg-emerald-500 text-white hover:bg-emerald-600 font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-600">
     Fazer Oferta
   </button>
 </div>
