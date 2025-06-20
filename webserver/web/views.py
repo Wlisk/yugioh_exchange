@@ -158,25 +158,23 @@ def make_offer(request, cardsWanted, cardsOffered):
 @user_login_required
 def exchanges(request):
   user_id = request.COOKIES.get('user_id', '1')
-  user_exchanges = exchange_operations.get_exchange(user_id=int(user_id))
-
-  user_accepted_offers = []
-  if user_exchanges:
-    for exchange in user_exchanges:
-      offer_result = offer_operations.get_offer_from_id(exchange.offer_id)
-      if offer_result:
-        user_accepted_offers.append(offer_result[0])
-
-  combined_data = []
-  if len(user_exchanges) == len(user_accepted_offers):
-    combined_data = list(zip(user_exchanges, user_accepted_offers))
-
-  # A função get_offer_from_id retorna várias tuplas então tive que adaptar no template
-  # O atributo date de Exchange é uma string por isso não aparece no template (com os filtros de data)
+  api_url = f"{URL}/exchanges"
+  params = {'user_id': user_id}
+  exchanges_data = []
+  try:
+    response = requests.get(api_url, params=params)
+    if response.status_code == 200:
+      exchanges_data = response.json()
+    else:
+      error_message = f"Erro ao buscar trocas. Código: {response.status_code}"
+      print(error_message)
+  except requests.exceptions.RequestException as e:
+      error_message = f"Não foi possível conectar à API: {e}"
+      print(error_message)
 
   template = 'exchanges.html' if request.htmx else 'base.html'
   context = {
-    'combined_data': combined_data
+    'exchanges': exchanges_data
   } if request.htmx else {'page': 'exchanges'}
 
   return render(request, template, context)
@@ -247,6 +245,15 @@ def offers(request):
     f"{URL}/{PATHS['offers']}",
     params={'user_id': user_id}
   )
+
+  # Get user cards for the current user
+  user_cards_response = requests.get(
+    f"{URL}/user/{user_id}/cards"
+  )
+
+  user_cards = []
+  if user_cards_response.status_code == 200:
+    user_cards = user_cards_response.json()
   
   offers = []
   if offers_response.status_code == 200:
@@ -269,6 +276,7 @@ def offers(request):
   template = 'offers.html' if request.htmx else 'base.html'
   context = {
     'offers': offers,
+    'user_cards': user_cards,
     'user_id': user_id
   }
   

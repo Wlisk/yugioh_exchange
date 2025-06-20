@@ -95,7 +95,7 @@ def create_sample_data() -> None:
       {"user_id": users[2].id, "card_id": cards[2].id},  # Red-Eyes
       {"user_id": users[2].id, "card_id": cards[4].id},  # Summoned Skull
       {"user_id": users[2].id, "card_id": cards[6].id},  # Mirror Force
-      {"user_id": users[2].id, "card_id": cards[3].id}
+      {"user_id": users[2].id, "card_id": cards[3].id}   # Exodia
     ]
     for user_card in USER_CARDS:
       session.add(UserCard(**user_card))
@@ -112,9 +112,9 @@ def create_sample_data() -> None:
     session.commit()
     session.refresh(offer2)
 
-    session.add(OfferCardsGiven(offer_id=offer1.id, card_id=CARDS[0].id))
+    session.add(OfferCardsGiven(offer_id=offer1.id, card_id=CARDS[1].id))
     session.add(OfferCardsWants(offer_id=offer1.id, card_id=CARDS[3].id))
 
-    session.add(OfferCardsGiven(offer_id=offer2.id, card_id=CARDS[2].id))
+    session.add(OfferCardsGiven(offer_id=offer2.id, card_id=CARDS[7].id))
     session.add(OfferCardsWants(offer_id=offer2.id, card_id=CARDS[1].id))
     session.commit()
