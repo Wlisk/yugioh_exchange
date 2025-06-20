@@ -285,6 +285,53 @@ def offers(request):
 
   return render(request, template, context)
 
+#########################################################################################]
+@never_cache
+@user_login_required
+def my_offers(request):
+  user_id_str = request.COOKIES.get('user_id', '1')
+  user_id = int(user_id_str)
+    
+  my_offers_list = []
+  error_message = None
+
+  try:
+    exchanges_response = requests.get(f"{URL}/exchanges")
+    exchanges_response.raise_for_status() 
+    all_exchanges = exchanges_response.json()
+
+    for exchange_data in all_exchanges:
+      if exchange_data['offering_user']['id'] == user_id:
+        my_offers_list.append({
+            "status": "Aceita",
+            "data": exchange_data
+        })
+
+    open_offers_response = requests.get(f"{URL}/offers")
+    open_offers_response.raise_for_status()
+    all_open_offers = open_offers_response.json()
+        
+    for offer_data in all_open_offers:
+      if offer_data['owner']['id'] == user_id:
+        my_offers_list.append({
+            "status": "Em Aberto",
+            "data": offer_data
+        })
+  except requests.exceptions.RequestException as e:
+    error_message = f"Não foi possível conectar à API: {e}"
+    print(error_message)
+
+  print(my_offers_list)
+
+  template = 'my_offers.html' if request.htmx else 'base.html'
+  context = { 
+    'processed_offers': my_offers_list,
+    'user_id': user_id,
+  }
+  if not request.htmx:
+    context['page'] = 'my_offers'
+  return render(request, template, context)
+
 #########################################################################################
 def respond_offer(request):
   if request.method != 'POST':

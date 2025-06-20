@@ -1,0 +1,67 @@
+<div class="text-center pt-12 mx-auto">
+  <h1 class="text-4xl md:text-5xl font-bold text-purple-900 mb-6">
+    Minhas Ofertas
+  </h1>
+</div>
+<hr class="border-t border-gray-200 my-6">
+
+<div class="mb-8">
+    {% if processed_offers %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {% for item in processed_offers %}
+          <div class="p-4 bg-white rounded-lg shadow-md border border-gray-200 flex flex-col">
+            
+            {% if item.status == "Aceita" %}
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-xl text-gray-800">Oferta #{{ item.data.offer.id }}</h3>
+                <span class="px-3 py-1 text-sm font-semibold text-green-800 bg-green-100 rounded-full">Aceita</span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow">
+                <div>
+                  <h4 class="font-semibold text-purple-800 mb-2">Você ofereceu:</h4>
+                  {% for card in item.data.cards_given %}<p class="text-sm text-gray-700">- {{ card.name }}</p>{% endfor %}
+                </div>
+                <div>
+                  <h4 class="font-semibold text-purple-800 mb-2">Você pediu:</h4>
+                  {% for card in item.data.cards_wanted %}<p class="text-sm text-gray-700">- {{ card.name }}</p>{% endfor %}
+                </div>
+              </div>
+
+              <div class="text-center mt-4 pt-3 border-t">
+                <p class="text-sm text-gray-700">
+                  ✅ Aceita por <strong>{{ item.data.accepting_user.name }}</strong> em <strong>{{ item.data.exchange.date }}</strong>
+                </p>
+              </div>
+
+            {% else %}
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-xl text-gray-800">Oferta #{{ item.data.offer.id }}</h3>
+                <span class="px-3 py-1 text-sm font-semibold text-yellow-800 bg-yellow-100 rounded-full">Em Aberto</span>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow">
+                <div>
+                  <h4 class="font-semibold text-purple-800 mb-2">Você oferece:</h4>
+                  {% for card in item.data.cards_given %}<p class="text-sm text-gray-700">- {{ card.name }}</p>{% endfor %}
+                </div>
+                <div>
+                  <h4 class="font-semibold text-purple-800 mb-2">Você pede:</h4>
+                  {% for card in item.data.cards_wanted %}<p class="text-sm text-gray-700">- {{ card.name }}</p>{% endfor %}
+                </div>
+              </div>
+
+              <div class="text-center mt-4 pt-3 border-t">
+                <p class="text-sm text-gray-500">Aguardando alguém aceitar sua oferta.</p>
+              </div>
+            {% endif %}
+
+          </div>
+          {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-gray-500 text-center py-8">Você ainda não criou nenhuma oferta.</p>
+    {% endif %}
+  </div>
+</div>

@@ -151,7 +151,6 @@ def list_available_offers(
 
   return results
 
-
 ###############################################################################
 @router.get("/offers/accepted/{user_id}", response_model=list[dict])
 def list_accepted_offers(user_id: int, session: SessionDep):
@@ -328,8 +327,7 @@ def list_all_exchanges(
   # Optional user filter
   if user_id:
     query = query.where(
-      (Exchange.user_accepted == user_id) |
-      (Offer.user_id == user_id)
+      (Exchange.user_accepted == user_id)
     ).join(Offer, Exchange.offer_id == Offer.id)
   
   exchanges = session.exec(query).all()
