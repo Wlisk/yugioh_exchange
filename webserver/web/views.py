@@ -39,6 +39,12 @@ def create_account(request):
   else:
     return render(request, 'create_account.html')
 
+
+#########################################################################################
+@never_cache
+def home(request):
+  return render(request, 'base.html')
+
 #########################################################################################
 @never_cache
 def login_account(request):
