@@ -27,15 +27,14 @@ def create_account(request):
     password_confirm = request.POST.get('passwordConfirm','')
 
     if password != password_confirm:
-      return render(request, 'create_account.html', {'error': 'As senhas não conferem.'})
+      return render(request, 'base.html', {"page": "create_account", 'error': 'As senhas não conferem.'})
     else:
       existing_users = user_operations.get_user(name=user_name)
       if existing_users:
-        return render(request, 'create_account.html', {'error': 'Usuário já existe.'})
-      else: 
-        #criar hash da senha
+        return render(request, 'base.html', {"page": "create_account", 'error': 'Usuário já existe.'})
+      else:
         user_operations.create_user(name=user_name, password=password)
-        return redirect('login')
+        return render(request, 'base.html', {"page": "login"})
   elif request.htmx:
     return render(request, 'create_account.html')
   else:
@@ -61,9 +60,9 @@ def login_account(request):
     password = request.POST.get('password', '')
     existing_users = user_operations.get_user(name=user_name)
     if not existing_users:
-      return render(request, 'login.html', {'error': 'Usuário não encontrado.'})
+      return render(request, 'base.html', {"page": "login", 'error': 'Usuário não encontrado.'})
     elif existing_users[0].password != password:
-      return render(request, 'login.html', {'error': 'Senha incorreta.'})
+      return render(request, 'base.html', {"page": "login", 'error': 'Senha incorreta.'})
     else:
       user = existing_users[0]
       response = redirect('offers')

@@ -1,30 +1,21 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <title>Yu-Gi-World - Criar conta</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<div class="flex items-center" style="flex-direction: column">
 
-  <script src="{% static 'js/htmx.min.js' %}" defer></script>
-  <script src="{% static 'js/config.js' %}" defer></script>
-  <script src="{% static 'js/tailwind.min.js' %}" defer></script>
-  <script src="{% static 'js/json.ext.min.js' %}" defer></script>
-  
-</head>
-
-<body class="bg-gray-100 font-sans">
-
-  <div class="flex items-center justify-center min-h-screen">
+    <div class="text-center mx-auto" style="margin-bottom: 32pt">
+        <h1 class="text-4xl md:text-5xl font-bold text-purple-900 mb-6">
+            Bem-vindo ao Yu-Gi-World!
+        </h1>
+        <p class="text-center text-lg text-gray-700 max-w-2xl mx-auto">
+            Um site de troca de cartas de Yu-Gi-Oh.
+        </p>
+    </div>    
     
     <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
-      
       <div>
         <h1 class="text-3xl font-bold text-center text-purple-900">
           Criar Conta
         </h1>
       </div>
-
+    
       <form class="space-y-6" action="#" method="POST">
         {% csrf_token %} 
         <div>
@@ -39,7 +30,7 @@
             class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
           >
         </div>
-
+    
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">
             Senha
@@ -63,7 +54,7 @@
             </button>
           </div>
         </div>
-
+    
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">
             Confirmar Senha
@@ -81,11 +72,11 @@
             </button>
           </div>
         </div>
-
+    
         <div id="password-match-message" class="text-red-600 text-sm">
           <p>{{ error }}</p>
         </div>
-
+    
         <div>
           <button 
             id="submit-button"
@@ -96,19 +87,18 @@
           </button>
         </div>
       </form>
-
+    
       <hr class="border-t border-gray-200">
-
+    
       <p class="text-sm text-center text-gray-600">
         Já tem uma conta?
-        <a href="/" class="font-medium text-purple-600 hover:text-purple-800">
+        <a 
+                href="{% url 'login' %}"
+                hx-target="#main-content"
+                hx-push-url="true"
+                class="font-medium text-purple-600 hover:text-purple-800">
           Entrar
         </a>
       </p>
-
     </div>
-  </div>
-
-</body>
-
-</html>
+</div>
