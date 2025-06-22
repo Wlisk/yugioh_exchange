@@ -305,3 +305,132 @@ function validSelection(event) {
 }
 */
 
+////////////////////////////////////////////////////////////////////////////////////////////
+//funções para select_cards.html
+
+function hideFilter(div, arrow) {
+  arrow.classList.toggle("rotate-180");
+  div.style.display = div.style.display == 'none' ? div.style.display = 'block' : div.style.display = 'none';
+}
+
+function filterApply(card_name_field, card_type_field, monster_type_field, isClear, isLeft) {
+  filterActiveL = JSON.parse(document.getElementById("filterActiveL").textContent);
+  if (filterActiveL == "") filterActiveL = "||"
+  filterActiveR = JSON.parse(document.getElementById("filterActiveR").textContent);
+  if (filterActiveR == "") filterActiveR = "||"
+  filters = "||"
+  if (isClear) {
+    // Setar os campos de pesquisa para valor padrão
+    card_name_field.value = ""
+    card_type_field.selectedIndex = 0
+    monster_type_field.selectedIndex = 0
+  } else {
+    filters = encodeURI(card_name_field.value) + "|" + card_type_field.options[card_type_field.selectedIndex].value + "|" + monster_type_field.options[monster_type_field.selectedIndex].value;
+  }
+  if (isLeft) {
+    //Foi preciso colocar esse timeout porque a função ativa antes das cartas aparecerem
+    htmx.ajax('GET', '/select/' + filters + "/" + "true", { target: '#wantedCardList', swap: 'innerHTML' }).then(setTimeout(() => reloadColor(document.getElementById("wantedCardList")), 200));
+  } else {
+    htmx.ajax('GET', '/select/' + filters + "/" + "false" , { target: '#offerCardList', swap: 'innerHTML' }).then(setTimeout(() => reloadColor(document.getElementById("offerCardList")), 200));
+  }
+}
+
+//Função que adiciona ou remove cartas das listas de cartas que deseja trocar
+function select_card(card_element, isLeft) {
+  const wantedList = document.getElementById('selectedWantedCards');
+  const offeredList =  document.getElementById('selectedOfferedCards');
+  if (isLeft) {
+    card_element_list = wantedList;
+  } else {
+    card_element_list = offeredList;
+  }
+  //Se for um clone, só remove ele da lista
+  if (card_element.id.slice(-6) == "_clone" ) {
+    card_element.remove();
+    document.getElementById(card_element.id.slice(0,-6)).style.backgroundColor = ""
+  } else {
+    //Se a cor de fundo não for verde, não foi selecionado ainda
+    if ((card_element.style.backgroundColor == "")) {
+      
+      //Ajustar o tamanho do clone pra não ficar muito grande
+      var clone = card_element.cloneNode(true)
+      clone.id = card_element.id + "_clone"
+      clone.style.width = "25%"
+      clone.style.marginLeft = "0.75rem"
+      clone.style.marginTop = "0.5rem"
+      clone.style.marginBottom = "0.5rem"
+      clone.style.minWidth = "25%"
+      clone.childNodes[1].childNodes[1].style.width = "50px"  //Largura da carta
+      card_element_list.appendChild(clone)  //Adicionar clone a lista
+      card_element.style.backgroundColor = "rgba(0,255,0,0.5)"
+    } else {
+      card_element.style.backgroundColor = ""
+      document.getElementById(card_element.id + "_clone").remove();
+    }
+  }
+  if (card_element_list.children.length === 2) {
+    card_element_list.children[0].hidden = false;
+  } else {
+    card_element_list.children[0].hidden = true;
+    card_element_list.children[1].hidden = true;
+  }
+}
+
+function reloadColor(cardList) {
+  for (i = 1; i < cardList.children.length; i++) {
+    id = cardList.children[i].id + "_clone"
+    if (document.getElementById(id) != null) {
+      cardList.children[i].style.backgroundColor = "rgba(0,255,0,0.5)"
+    }
+  }
+}
+function submitOffer() {
+  const wantedList = document.getElementById('selectedWantedCards');
+  const offeredList =  document.getElementById('selectedOfferedCards');
+
+  user_cards = JSON.parse(document.getElementById("user-cards").text);
+  user_cards_name = [];
+
+  if (wantedList.children.length === 2) {
+    wantedList.children[0].hidden = true;
+    wantedList.children[1].hidden = false;
+  } 
+  if (offeredList.children.length === 2) {
+    offeredList.children[0].hidden = true;
+    offeredList.children[1].hidden = false;
+  }
+  if ((offeredList.children.length === 2) || (wantedList.children.length === 2)) return;
+
+  for (i of user_cards) {
+    user_cards_name.push(i.name);
+  }
+
+  cardsWanted = "";
+  cardsOffered = "";
+
+
+  for (i = 2; i < wantedList.children.length; i++) {
+    cardsWanted += (wantedList.children[i].childNodes[1].childNodes[3].textContent);  //card_name
+    cardsWanted += "|"
+    cardsWanted += (wantedList.children[i].childNodes[1].childNodes[5].textContent);  //card_type
+    cardsWanted += "|"
+    cardsWanted += (wantedList.children[i].childNodes[1].childNodes[7].textContent);  //monster_type
+    cardsWanted += "-|-"
+
+    if (user_cards_name.includes(wantedList.children[i].childNodes[1].childNodes[3].textContent)) {
+      alert("Não pode pedir uma carta que já possui");
+      return;
+    };
+  }
+
+
+  for (i = 2; i < offeredList.children.length; i++) {
+    cardsOffered += (offeredList.children[i].childNodes[1].childNodes[3].textContent);
+    cardsOffered += "|"
+    cardsOffered += (offeredList.children[i].childNodes[1].childNodes[5].textContent);
+    cardsOffered += "|"
+    cardsOffered += (offeredList.children[i].childNodes[1].childNodes[7].textContent);
+    cardsOffered += "-|-"
+  }
+  htmx.ajax('POST', '/make_offer/' + cardsWanted + "/" + cardsOffered , { target: this}).then(() => {alert("Oferta criada com sucesso")}, () => {alert("Erro ao criar a oferta")}).then(() => {console.log("ok")});
+}

@@ -4,7 +4,8 @@ from . import views
 urlpatterns = [
   path('', views.home, name='home'),
   path('select/', views.select, name='select'),
-  path('make_offer/', views.make_offer, name='make_exchange'),
+  path('select/<str:filter>/<str:isSideLeft>/', views.select_filter, name='select_filter'),
+  path('make_offer/<str:cardsWanted>/<str:cardsOffered>', views.make_offer, name='make_offer'),
   path('exchanges/', views.exchanges, name='exchanges'),
   path('card_list/<str:list_type>/', views.card_list, name='card_list_filtered'),
   path('card_list/', views.card_list, {'list_type':'all'}, name='card_list'),

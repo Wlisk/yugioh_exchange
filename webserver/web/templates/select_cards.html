@@ -1,97 +1,214 @@
+<div style="float: left; width: 40%;">
+  <h2 style="text-align: center; font-size: 3rem; color: rgb(88 28 135); font-weight: 700;"> 
+    Quer
+  </h2>
 
-  <div class="text-center pt-12 mx-auto">
-    <h1 class="text-4xl md:text-5xl font-bold text-purple-900 mb-6">
-      Select cards
-    </h1>
+  <div style="overflow: hidden; border-radius: 10px; height: 250px;">
+    
+    <!-- DIV com a lista de cartas que quer -->
+    <div id="selectedWantedCards" style="height: 100%; width: 100%; background-color:rgb(192 132 252); overflow-x: auto; overflow-y: hidden;  display: inline-flex;">
+      <p id="textWantedCards" style="font-size: larger; font-weight: 1000; text-align: center; margin-left: 40%; margin-right: 40%; margin-top: auto; margin-bottom: auto;">Selecione abaixo as cartas que você deseja receber</p>
+      <p id="errorWantedCards" style="font-size: larger; font-weight: 1000; text-align: center; margin-left: 40%; margin-right: 40%; margin-top: auto; margin-bottom: auto; color: red;" hidden="true">Selecione pelo menos uma carta abaixo</p>
+    </div>
   </div>
-  <hr class="border-t border-gray-200 my-6">
 
-  <form method="GET" action=""
-    class="mb-8">
-    <div class="flex flex-wrap items-center gap-4 mb-4">
-      <div class="flex items-center">
-        <select id="filterType" name="filter_type" onchange="toggleFields()" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-          <option value="name" {% if filter_type == 'name' %}selected{% endif %}>Name</option>
-          <option value="card_type" {% if filter_type == 'card_type' %}selected{% endif %}>Card Type</option>
-          <option value="monster_type" {% if filter_type == 'monster_type' %}selected{% endif %}>Monster Type</option>
-        </select> 
+  <div style="margin-top: 2rem;"><h2>Escolha as cartas desejadas:</h2></div>
+  <div style="overflow: hidden; border-radius: 10px;">
+    <div style=" width:100%; height:500px; overflow-y:auto; background-color:rgb(192 132 252);">
+      <div style="margin: 5px;">
+        <button type="button" onclick="hideFilter(document.getElementById('filter-div'), document.getElementById('filter-arrow-icon'))" id="filter-toggle-button" class="inline-flex items-center justify-left w-auto text-purple-900 font-bold py-2 px-4 rounded hover:bg-purple-200 transition-colors">
+          Filtros
+          <svg id="filter-arrow-icon" class="self-end ml-2 h-5 w-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+        <div id="filter-div" style="display: none;">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label for="name_query" class="block text-sm font-medium text-gray-700">Nome da Carta</label>
+              <input 
+                type="text" 
+                name="name_query" 
+                id="name_query"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                placeholder="Ex: Dark Magician"
+              >
+            </div>
+            <div>
+              <label for="card_type" class="block text-sm font-medium text-gray-700">Tipo de Carta</label>
+              <select 
+                name="card_type" 
+                id="card_type" 
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+              >
+              <option value="">Todos os Tipos</option>
+              <option value="Spell">Spell</option>
+              <option value="Monster">Monster</option>
+              <option value="Trap">Trap</option>
+              </select>
+            </div>
+            <div>
+              <label for="monster_type" class="block text-sm font-medium text-gray-700">Tipo de Monstro</label>
+              <select 
+                name="monster_type" 
+                id="monster_type"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+              >
+                <option value="">Todos os Monstros</option>
+                <option value="Aqua">Aqua</option>
+                <option value="Beast">Beast</option>
+                <option value="Beast-Warrior">Beast Warrior</option>
+                <option value="Creator God">Creator God</option>
+                <option value="Cyberse">Cyberse</option>
+                <option value="Dinosaur">Dinosaur</option>
+                <option value="Divine-Beast">Divine Beast</option>
+                <option value="Dragon">Dragon</option>
+                <option value="Fairy">Fairy</option>
+                <option value="Fiend">Fiend</option>
+                <option value="Fish">Fish</option>
+                <option value="Insect">Insect</option>
+                <option value="Machine">Machine</option>
+                <option value="Plant">Plant</option>
+                <option value="Psychic">Psychic</option>
+                <option value="Pyro">Pyro</option>
+                <option value="Reptile">Reptile</option>
+                <option value="Rock">Rock</option>
+                <option value="Sea Serpent">Sea Serpent</option>
+                <option value="Spellcaster">Spellcaster</option>
+                <option value="Thunder">Thunder</option>
+                <option value="Warrior">Warrior</option>
+                <option value="Winged Beast">Winged Beast</option>
+                <option value="Wyrm">Wyrm</option>
+                <option value="Zombie">Zombie</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" onclick="filterApply(document.getElementById('name_query'), document.getElementById('card_type'), document.getElementById('monster_type'), false, true)" class="mt-3 px-4 py-2 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+            Aplicar filtros
+          </button>
+          <button type="button" onclick="filterApply(document.getElementById('name_query'), document.getElementById('card_type'), document.getElementById('monster_type'), true, true)" id="clear-filters-btn" class="mt-3 ml-2 px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+            Limpar filtros
+          </button>
+        </div>
+      </div>
+      <div id="wantedCardList" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4" style="margin: 5px;">
+        {% include "select_cards_wanted.html" %}
       </div>
     </div>
+  </div>
+</div>
 
-    <div id="nameField" class="hidden">
-      <input id="searchField" type="text" name="q" placeholder="Search..." value="{{ query }}" class="ml-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+<div style="float: right; width: 40%;">
+  <h2 style="text-align: center; font-size: 3rem; color: rgb(88 28 135); font-weight: 700;"> 
+    Oferece
+  </h2>
+
+  <div style="overflow: hidden; border-radius: 10px; height: 250px;">
+    
+    <!-- DIV com a lista de cartas que oferece -->
+    <div id="selectedOfferedCards" style="height: 100%; width: 100%; background-color:rgb(192 132 252); overflow-x: auto; overflow-y: hidden;  display: inline-flex;">
+      <p id="textOfferedCards" style="font-size: larger; font-weight: 1000; text-align: center; margin-left: 40%; margin-right: 40%; margin-top: auto; margin-bottom: auto;">Selecione abaixo as cartas que você pretende trocar</p>
+      <p id="errorOfferedCards" style="font-size: larger; font-weight: 1000; text-align: center; margin-left: 40%; margin-right: 40%; margin-top: auto; margin-bottom: auto; color: red;" hidden="true">Selecione pelo menos uma carta abaixo</p>
     </div>
+  </div>
 
-    <div id="cardTypeField" class="hidden">
-      <select name="card_type_select" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-        <option value="monster">Monster</option>
-        <option value="spell">Spell</option>
-        <option value="trap">Trap</option>
-      </select>
-    </div>
-
-    <div id="monsterTypeField" class="hidden">
-      <select name="monster_type_select" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-        <option value="aqua">Aqua</option>
-        <option value="beast">Beast</option>
-        <option value="beast_warrior">Beast-Warrior</option>
-        <option value="creator_god">Creator God</option>
-        <option value="cyberse">Cyberse</option>
-        <option value="dinosaur">Dinosaur</option>
-        <option value="divine_beast">Divine-Beast</option>
-        <option value="dragon">Dragon</option>
-        <option value="fairy">Fairy</option>
-        <option value="fiend">Fiend</option>
-        <option value="fish">Fish</option>
-        <option value="insect">Insect</option>
-        <option value="machine">Machine</option>
-        <option value="plant">Plant</option>
-        <option value="psychic">Psychic</option>
-        <option value="pyro">Pyro</option>
-        <option value="reptile">Reptile</option>
-        <option value="rock">Rock</option>
-        <option value="sea_serpent">Sea Serpent</option>
-        <option value="spellcaster">Spellcaster</option>
-        <option value="thunder">Thunder</option>
-        <option value="warrior">Warrior</option>
-        <option value="winged_beast">Winged Beast</option>
-        <option value="wyrm">Wyrm</option>
-        <option value="zombie">Zombie</option>
-      </select>
-    </div>
-
-    <button id="searchButton" type="submit" class="px-4 py-2 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
-      Search
-    </button>
-  </form>
-
-  <form 
-    id="selectForm" 
-    hx-post="/make_offer/"
-    hx-target="#main-content"
-    hx-swap="innerHTML"
-    hx-ext="json-enc"
-    class="space-y-4"
-    hx-vals="js:{ cards: Array.from(document.querySelectorAll('input[name=cards]:checked')).map(cb => cb.value) }">
-    <!-- no need for csrf_token as it is already on the body tag of base.html -->
-    <div id="errorMessage" class="text-red-600 font-semibold mb-2"></div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {% for card in cards %}
-        <label class="flex items-start p-4 border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 cursor-pointer w-full">
-          <input type="checkbox" name="cards" value="{{ card.id }}" class="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-
-          <div class="ml-3">
-            <strong class="block text-gray-900 font-medium">{{ card.name }}</strong>
-            <span class="block text-gray-500 text-sm">{{ card.card_type.value }}{% if card.monster_type %} - {{ card.monster_type.value }}{% endif %}</span>
+  <div style="margin-top: 2rem;"><h2>Escolha as cartas que você oferece:</h2></div>
+  <div style="overflow: hidden; border-radius: 10px; height:500px;">
+    <div style="width:100%; height:100%; overflow-y:auto; overflow-x: hidden; background-color:rgb(192 132 252);">
+      <div style="margin: 5px;">
+        <button type="button" onclick="hideFilter(document.getElementById('filter-div-offer'), document.getElementById('filter-arrow-icon-offer'))" id="filter-toggle-button" class="inline-flex items-center justify-left w-auto text-purple-900 font-bold py-2 px-4 rounded hover:bg-purple-200 transition-colors">
+          Filtros
+          <svg id="filter-arrow-icon-offer" class="self-end ml-2 h-5 w-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+        <div id="filter-div-offer" style="display: none;">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label for="name_query_offer" class="block text-sm font-medium text-gray-700">Nome da Carta</label>
+              <input 
+                type="text" 
+                name="name_query_offer" 
+                id="name_query_offer"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                placeholder="Ex: Dark Magician"
+              >
+            </div>
+            <div>
+              <label for="card_type_offer" class="block text-sm font-medium text-gray-700">Tipo de Carta</label>
+              <select 
+                name="card_type_offer" 
+                id="card_type_offer" 
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+              >
+                <option value="">Todos os Tipos</option>
+                <option value="Spell">Spell</option>
+                <option value="Monster">Monster</option>
+                <option value="Trap">Trap</option>
+              </select>
+            </div>
+            <div>
+              <label for="monster_type_offer" class="block text-sm font-medium text-gray-700">Tipo de Monstro</label>
+              <select 
+                name="monster_type_offer" 
+                id="monster_type_offer"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+              >
+                <option value="">Todos os Monstros</option>
+                <option value="Aqua">Aqua</option>
+                <option value="Beast">Beast</option>
+                <option value="Beast-Warrior">Beast Warrior</option>
+                <option value="Creator God">Creator God</option>
+                <option value="Cyberse">Cyberse</option>
+                <option value="Dinosaur">Dinosaur</option>
+                <option value="Divine-Beast">Divine Beast</option>
+                <option value="Dragon">Dragon</option>
+                <option value="Fairy">Fairy</option>
+                <option value="Fiend">Fiend</option>
+                <option value="Fish">Fish</option>
+                <option value="Insect">Insect</option>
+                <option value="Machine">Machine</option>
+                <option value="Plant">Plant</option>
+                <option value="Psychic">Psychic</option>
+                <option value="Pyro">Pyro</option>
+                <option value="Reptile">Reptile</option>
+                <option value="Rock">Rock</option>
+                <option value="Sea Serpent">Sea Serpent</option>
+                <option value="Spellcaster">Spellcaster</option>
+                <option value="Thunder">Thunder</option>
+                <option value="Warrior">Warrior</option>
+                <option value="Winged Beast">Winged Beast</option>
+                <option value="Wyrm">Wyrm</option>
+                <option value="Zombie">Zombie</option>
+              </select>
+            </div>
           </div>
-        </label>
-      {% endfor %}
+          <button type="button" onclick="filterApply(document.getElementById('name_query_offer'), document.getElementById('card_type_offer'), document.getElementById('monster_type_offer'), false, false)" class="mt-3 px-4 py-2 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+            Aplicar filtros
+          </button>
+          <button type="button" onclick="filterApply(document.getElementById('name_query_offer'), document.getElementById('card_type_offer'), document.getElementById('monster_type_offer'), true, false)" id="clear-filters-btn-offer" class="mt-3 ml-2 px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+            Limpar filtros
+          </button>
+        </div>
+      </div>
+      <div id="offerCardList" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4" style="margin: 5px;">
+        {% include "select_cards_offer.html" %}
+      </div>
     </div>
-    <br>
+  </div>
+</div>
 
-    <div class="text-center mt-8">
-      <button id="continueButton" type="submit" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-        Continue
-      </button>
-    </div>
-  </form>
+<div class="text-center pt-12 mx-auto">
+  <h1 class="text-4xl md:text-5xl font-bold text-purple-900 mb-6" style="margin-top: 2em;">
+    Trocar cartas
+  </h1>
+</div>
+    
+<div style="text-align: center;">
+  <button id="continueButton" type="submit" onclick="submitOffer()" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+    Fazer Oferta
+  </button>
+</div>
+<div style="clear: both;" class="text-center mt-8"></div>
+
+{{ userCards|json_script:"user-cards" }}
