@@ -117,8 +117,12 @@
       {% include 'select_cards.html' %}
     {% elif page == 'exchanges' %}
       {% include 'exchanges.html' %}
+    {% elif page == 'create_account' %}
+      {% include 'create_account.html' %}
+    {% elif page == 'login' %}
+      {% include 'login.html' %}
     {% else %}
-        {% include 'home.html' %}
+      {% include 'home.html' %}
     {% endif %}
   </main>
 

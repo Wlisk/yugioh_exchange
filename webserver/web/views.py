@@ -36,8 +36,10 @@ def create_account(request):
         #criar hash da senha
         user_operations.create_user(name=user_name, password=password)
         return redirect('login')
-  else:
+  elif request.htmx:
     return render(request, 'create_account.html')
+  else:
+    return render(request, 'base.html', context={"page": "create_account"})
 
 
 #########################################################################################
@@ -67,8 +69,10 @@ def login_account(request):
       response = redirect('offers')
       response.set_cookie('user_id', user.id, max_age=3600*24*7)
       return response
+  elif request.htmx:
+    return render(request, 'login.html')
   else:
-     return render(request, 'login.html')
+     return render(request, 'base.html', context={"page": "login"})
  
 ##########################################################################################
 def logout_account(request):
