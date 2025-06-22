@@ -155,20 +155,20 @@ function cardViewSwitcher() {
   });
 }
 
-function filterFieldToggle() {
-  const toggleButton = document.getElementById('filter-toggle-button');
-  const filterForm = document.getElementById('filter-form');
-  const arrowIcon = document.getElementById('filter-arrow-icon');
+// function filterFieldToggle() {
+//   const toggleButton = document.getElementById('filter-toggle-button');
+//   const filterForm = document.getElementById('filter-form');
+//   const arrowIcon = document.getElementById('filter-arrow-icon');
 
-  if (!toggleButton || !filterForm || !arrowIcon) {
-      return;
-  }
+//   if (!toggleButton || !filterForm || !arrowIcon) {
+//       return;
+//   }
 
-  toggleButton.addEventListener('click', () => {
-      filterForm.classList.toggle('hidden');
-      arrowIcon.classList.toggle('rotate-180');
-  });
-}
+//   toggleButton.addEventListener('click', () => {
+//       filterForm.classList.toggle('hidden');
+//       arrowIcon.classList.toggle('rotate-180');
+//   });
+// }
 
 function clearFilters() {
   const clearButton = document.getElementById('clear-filters-btn');
@@ -300,7 +300,7 @@ function initializePersistentComponents() {
 function initializePageContent() {
   cardViewSwitcher();
   clearFilters();
-  filterFieldToggle();
+  //filterFieldToggle();
   loadMarks();
   searchCardsByInput();
   toggleFields();
