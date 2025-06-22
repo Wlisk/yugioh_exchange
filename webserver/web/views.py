@@ -45,7 +45,7 @@ def create_account(request):
 def home(request):
   if request.htmx:
     return render(request, 'home.html')
-  
+
   return render(request, 'base.html')
 
 def icon(request):

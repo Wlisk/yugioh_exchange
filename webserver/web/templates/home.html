@@ -1,4 +1,36 @@
-<div class="flex-container text-center font-bold">
-    <h1>Yu-Gi-World!</h1>
-    <h2>Bem-Vindo</h2>
+<div>
+    <div class="text-center pt-12 mx-auto">
+        <h1 class="text-4xl md:text-5xl font-bold text-purple-900 mb-6">
+            Bem-vindo ao Yu-Gi-World!
+        </h1>
+        <p class="text-center text-lg text-gray-700 max-w-2xl mx-auto">
+            Um site de troca de cartas de Yu-Gi-Oh.
+        </p>
+    </div>
+    
+    <br>
+
+    <div class="text-center">
+        <a
+                href="{% url 'login' %}"
+                hx-get="{% url 'login' %}"
+                hx-target="#main-content"
+                hx-push-url="true"
+                class="px-4 py-3 font-bold text-white bg-purple-900 rounded-md hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
+                style="margin-right: 10px"
+        >
+            Fazer Login
+        </a>
+        
+        <a
+                href="{% url 'create_account' %}"
+                hx-get="{% url 'create_account' %}"
+                hx-target="#main-content"
+                hx-push-url="true"
+                class="px-4 py-3 font-bold text-white bg-purple-900 rounded-md hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
+                style="margin-left: 10px"
+        >
+            Criar Conta
+        </a>
+    </div>
 </div>
