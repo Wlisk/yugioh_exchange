@@ -16,7 +16,7 @@ function passwordVisibility(inputId, toggleButtonId, eyeOnId, eyeOffId) {
       eyeOffIcon.classList.add('hidden');
     } else {
       passwordInput.type = 'password';
-      eyeOnIcon.classList.add('hidden');
+      eyeOnIcon.classList.add('hidden')
       eyeOffIcon.classList.remove('hidden');
     }
   });
@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
   
   // Por algum motivo, remover essa linha de código faz com que aceitar ou esconder uma oferta fique carregando infinitamente
   // Não consegui descobrir porque isso acontece
-  document.getElementById("filterType").addEventListener("change", toggleFields);
+  document.getElementById("filterType")?.addEventListener("change", toggleFields);
 
   window.addEventListener('popstate', function (event) {
     if (event.state && event.state.htmx) {
