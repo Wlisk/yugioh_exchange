@@ -3,7 +3,7 @@ from sqlmodel import Sequence, create_engine, SQLModel, Session, select, or_
 from sqlalchemy import text
 from models.yugioh_card import YugiohCard, CardType, MonsterType
 from models.offer import Exchange, Offer, OfferCardsGiven, OfferCardsWants
-from models.user import User
+from models.user import User, UserCard, UserWishlist
 
 DB_FILENAME = "yugioh.db"
 DB_URL = f"sqlite:///{DB_FILENAME}"
@@ -50,7 +50,36 @@ class user_operations:
       statement = select(User).where(User.name.like('%' + name + '%'))
       results = session.exec(statement, execution_options={"prebuffer_rows": True}).all()
       return results
+    
+  def add_card_wishlist(user_id: int, card_id: int) -> None:
+    with Session(ENGINE) as session:
+      session.add(UserWishlist(user_id=user_id,card_id=card_id))
+      session.commit()
 
+  def get_user_wishlist(user_id: int) -> Sequence[YugiohCard]:
+    with Session(ENGINE) as session:
+      wishlist_id = session.exec(select(UserWishlist.card_id).where(UserWishlist.user_id == user_id)).all()
+      statement = select(YugiohCard).where(YugiohCard.id.in_(wishlist_id))
+      results = session.exec(statement).all()
+      return results
+    
+  def add_user_card(user_id: int, card_id: int) -> None:
+    with Session(ENGINE) as session:
+      session.add(UserCard(user_id=user_id,card_id=card_id))
+      session.commit()
+
+  def get_row_wishlist(user_id: int, card_id: int) -> UserWishlist:
+    with Session(ENGINE) as session:
+      statement = select(UserWishlist).where(UserWishlist.card_id == card_id, UserWishlist.user_id == user_id)
+      result = session.exec(statement).one()
+      return result
+
+  def get_row_user_card(user_id: int, card_id: int) -> UserWishlist:
+    with Session(ENGINE) as session:
+      statement = select(UserCard).where(UserCard.card_id == card_id, UserCard.user_id == user_id)
+      result = session.exec(statement).one()
+      return result
+    
 #########################################################################################
 class offer_operations:
   def create_offer(user_id:int, cards_given:list[YugiohCard], cards_wanted:list[YugiohCard]) -> None:
