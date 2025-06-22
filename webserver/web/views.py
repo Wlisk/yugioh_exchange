@@ -45,6 +45,9 @@ def create_account(request):
 def home(request):
   return render(request, 'base.html')
 
+def icon(request):
+  return redirect("static/favicon.png", permanent=True)
+
 #########################################################################################
 @never_cache
 def login_account(request):
