@@ -304,6 +304,8 @@ def offers(request):
   user_cards = []
   if user_cards_response.status_code == 200:
     user_cards = user_cards_response.json()
+
+  user_card_ids = [card['id'] for card in user_cards]
   
   offers = []
   if offers_response.status_code == 200:
@@ -326,7 +328,7 @@ def offers(request):
   template = 'offers.html' if request.htmx else 'base.html'
   context = {
     'offers': offers,
-    'user_cards': user_cards,
+    'user_card_ids': user_card_ids,
     'user_id': user_id
   }
   
