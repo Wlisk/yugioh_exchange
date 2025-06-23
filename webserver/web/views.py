@@ -115,24 +115,18 @@ def select_filter(request, filter = "||", isSideLeft = False):
     context['page'] = 'select_filter'
   return render(request, template, context)
 
-def make_offer(request, cardsWanted, cardsOffered):
-  user_id = request.COOKIES.get('user_id', '1') 
-  stringCardsWanted = cardsWanted[:-3].split("-|-")
-  stringCardsOffered = cardsOffered[:-3].split("-|-")
-  listCardsWanted = []
-  listCardsOffered = []
-  for card in stringCardsWanted:
-    card_attributes = card.split("|")
-    if (card_attributes[2] == ""):
-      card_attributes[2] = None
-    listCardsWanted.append(card_operations.select_card(name=card_attributes[0], card_type=card_attributes[1], monster_type=card_attributes[2]))
-  
-  for card in stringCardsOffered:
-    card_attributes = card.split("|")
-    if (card_attributes[2] == ""):
-      card_attributes[2] = None
-    listCardsOffered.append(card_operations.select_card(name=card_attributes[0], card_type=card_attributes[1], monster_type=card_attributes[2]))
+def make_offer(request, body):
+  try:
+    user_id = request.COOKIES.get('user_id')
+    data = json.loads(body)
+    cardsWanted = data.get("cardsWanted")
+    cardsOffered = data.get("cardsOffered")
+  except Exception as E:
+    print(E)
+    return render(request, template_name="select_cards.html", status=400)
 
+  listCardsWanted = [card_operations.select_card(name=card_name, return_one=True) for card_name in cardsWanted]
+  listCardsOffered = [card_operations.select_card(name=card_name, return_one=True) for card_name in cardsOffered]
   offer_operations.create_offer(user_id=user_id, cards_given=listCardsOffered, cards_wanted=listCardsWanted)
   return render(request, template_name="select_cards.html", status=204)
 
@@ -396,7 +390,7 @@ def respond_offer(request):
   try:
     offer_id = int(request.POST.get('offer_id'))
     accepted = request.POST.get('accepted') == 'true'
-    user_id = request.COOKIES.get('user_id', '1')
+    user_id = request.COOKIES.get('user_id')
   except (ValueError, TypeError):
     return HttpResponse(status=400)
 

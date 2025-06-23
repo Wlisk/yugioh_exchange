@@ -35,7 +35,7 @@ class MonsterType(str, enum.Enum):
 
 # Base class
 class YugiohCardBase(SQLModel):
-  name: str = Field(index=True)
+  name: str = Field(index=True, unique=True)
   card_type: CardType = Field(sa_column=Column(Enum(CardType)))
   monster_type: MonsterType | None = Field(default=None, sa_column=Column(Enum(MonsterType)))
   image_url: str = Field(default="https://images.ygoprodeck.com/images/assets/CardBack.jpg")

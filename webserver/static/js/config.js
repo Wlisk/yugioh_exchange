@@ -463,9 +463,10 @@ function reloadColor(cardList) {
     }
   }
 }
+
 function submitOffer() {
   const wantedList = document.getElementById('selectedWantedCards');
-  const offeredList =  document.getElementById('selectedOfferedCards');
+  const offeredList = document.getElementById('selectedOfferedCards');
 
   user_cards = JSON.parse(document.getElementById("user-cards").text);
   user_cards_name = [];
@@ -473,7 +474,7 @@ function submitOffer() {
   if (wantedList.children.length === 2) {
     wantedList.children[0].hidden = true;
     wantedList.children[1].hidden = false;
-  } 
+  }
   if (offeredList.children.length === 2) {
     offeredList.children[0].hidden = true;
     offeredList.children[1].hidden = false;
@@ -484,34 +485,37 @@ function submitOffer() {
     user_cards_name.push(i.name);
   }
 
-  cardsWanted = "";
-  cardsOffered = "";
-
+  let cardsWanted = [];
+  let cardsOffered = [];
 
   for (i = 2; i < wantedList.children.length; i++) {
-    cardsWanted += (wantedList.children[i].childNodes[1].childNodes[3].textContent);  //card_name
-    cardsWanted += "|"
-    cardsWanted += (wantedList.children[i].childNodes[1].childNodes[5].textContent);  //card_type
-    cardsWanted += "|"
-    cardsWanted += (wantedList.children[i].childNodes[1].childNodes[7].textContent);  //monster_type
-    cardsWanted += "-|-"
+    let card_name = wantedList.children[i].childNodes[1].childNodes[3].textContent;
+    cardsWanted.push(card_name)
 
-    if (user_cards_name.includes(wantedList.children[i].childNodes[1].childNodes[3].textContent)) {
+    if (user_cards_name.includes(card_name)) {
       alert("Não pode pedir uma carta que já possui");
       return;
-    };
+    }
   }
-
 
   for (i = 2; i < offeredList.children.length; i++) {
-    cardsOffered += (offeredList.children[i].childNodes[1].childNodes[3].textContent);
-    cardsOffered += "|"
-    cardsOffered += (offeredList.children[i].childNodes[1].childNodes[5].textContent);
-    cardsOffered += "|"
-    cardsOffered += (offeredList.children[i].childNodes[1].childNodes[7].textContent);
-    cardsOffered += "-|-"
+    let card_name = offeredList.children[i].childNodes[1].childNodes[3].textContent;
+    cardsOffered.push(card_name)
   }
-  htmx.ajax('POST', '/make_offer/' + cardsWanted + "/" + cardsOffered , { target: this}).then(() => {alert("Oferta criada com sucesso")}, () => {alert("Erro ao criar a oferta")}).then(() => {console.log("ok")});
+
+  let body = JSON.stringify({
+    'cardsWanted': cardsWanted,
+    'cardsOffered': cardsOffered
+  });
+
+  htmx.ajax(
+      "POST",
+      "/make_offer/" + body,
+      {target: this}
+  ).then(
+      () => {alert("Oferta criada com sucesso")},
+      () => {alert("Erro ao criar a oferta")}
+  )
 }
 
 ///////////////////////////////////////////////////////////

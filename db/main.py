@@ -1,6 +1,8 @@
-from typing import Any, Generator
+from typing import Any, Generator, Sequence
 from sqlmodel import Sequence, create_engine, SQLModel, Session, select, or_
 from sqlalchemy import text
+
+from models import YugiohCard
 from models.yugioh_card import YugiohCard, CardType, MonsterType
 from models.offer import Exchange, Offer, OfferCardsGiven, OfferCardsWants
 from models.user import User, UserCard, UserWishlist
@@ -27,7 +29,7 @@ class card_operations:
       session.add(YugiohCard(name=name, card_type=card_type, monster_type=monster_type))
       session.commit()
 
-  def select_card(name: str = "", card_type: CardType = None, monster_type: MonsterType = None) -> Sequence[YugiohCard]:
+  def select_card(name: str = "", card_type: CardType = None, monster_type: MonsterType = None, return_one: bool = False) -> YugiohCard | Sequence[YugiohCard]:
     with Session(ENGINE) as session:
       # Seleciona todas as linhas da database que possuem o parâmetro passado, se tiver parâmetro
       statement = select(YugiohCard)\
@@ -35,8 +37,11 @@ class card_operations:
         .where(or_(YugiohCard.card_type == card_type, card_type == None))\
         .where(or_(YugiohCard.monster_type == monster_type, monster_type == None))
       
-      results = session.exec(statement, execution_options={"prebuffer_rows": True}).all()
-      return results
+      results = session.exec(statement, execution_options={"prebuffer_rows": True})
+      if return_one:
+        return results.one()
+      else:
+        return results.all()
 
 #########################################################################################
 class user_operations:
@@ -89,9 +94,9 @@ class offer_operations:
       session.commit()
       session.refresh(offer)
       for card in cards_given:
-        session.add(OfferCardsGiven(offer_id=offer.id, card_id=card[0].id))
+        session.add(OfferCardsGiven(offer_id=offer.id, card_id=card.id))
       for card in cards_wanted:
-        session.add(OfferCardsWants(offer_id=offer.id, card_id=card[0].id))
+        session.add(OfferCardsWants(offer_id=offer.id, card_id=card.id))
       session.commit()
 
   def get_offer_from_id(id:int) -> Sequence[Offer]:
@@ -117,4 +122,3 @@ class exchange_operations:
         or_(Exchange.user_accepted == user_id, user_id == None)).where(or_(Exchange.offer_id == offer_id, offer_id == None))
       results = session.exec(statement, execution_options={"prebuffer_rows": True}).all()
       return results
-    
