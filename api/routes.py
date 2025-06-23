@@ -3,9 +3,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, delete, select
 
+from api.errors import CardNotFoundException
 from models.offer import Exchange, Offer, OfferCardsGiven, OfferCardsWants, OfferRejections
 from models.user import User, UserCard
-from models.yugioh_card import YugiohCard, YugiohCardRead, \
+from models.yugioh_card import CardType, MonsterType, YugiohCard, YugiohCardRead, \
   YugiohCardCreate, YugiohCardUpdate
 from db.main import card_operations, get_session
 from api.utils import check_card
@@ -15,7 +16,7 @@ SessionDep = Annotated[Session, Depends(get_session)]
 
 ###############################################################################
 @router.get("/cards", response_model=list[YugiohCardRead])
-async def get_cards(session: SessionDep):
+async def get_cards_all(session: SessionDep):
   """Get all Yu-gi-oh cards"""
   db_cards = session.exec(select(YugiohCard)).all()
   return db_cards
@@ -47,7 +48,8 @@ def update_card(
 ):
   """Update an Yu-gi-oh card based on its id"""
   db_card = session.get(YugiohCard, card_id)
-  check_card(db_card, card_id)
+  if db_card is None:
+    raise CardNotFoundException(card_id)
 
   # converts the requisiton card obj to a dict
   card_data = card.model_dump(exclude_unset=True)
@@ -95,7 +97,8 @@ def list_available_offers(
     ).all()
 
     if rejected_offers:
-      query = query.where(Offer.id.not_in(rejected_offers))
+      sql_not_in = Offer.id.not_in(rejected_offers) # type: ignore
+      query = query.where(sql_not_in)
   
   offers = session.exec(query).all()
   
@@ -103,18 +106,22 @@ def list_available_offers(
   for offer in offers:
     # Get owner info
     owner = session.get(User, offer.user_id)
+    if owner is None:
+      raise Exception(f'Owner not found for offer id {offer.user_id}')
     
     # Get cards being offered
     cards_given = session.exec(
       select(YugiohCard)
-      .join(OfferCardsGiven, YugiohCard.id == OfferCardsGiven.card_id)
+      .join(OfferCardsGiven)
+      .where(OfferCardsGiven.card_id == YugiohCard.id)
       .where(OfferCardsGiven.offer_id == offer.id)
     ).all()
     
     # Get cards wanted
     cards_wanted = session.exec(
       select(YugiohCard)
-      .join(OfferCardsWants, YugiohCard.id == OfferCardsWants.card_id)
+      .join(OfferCardsWants)
+      .where(OfferCardsWants.card_id == YugiohCard.id)
       .where(OfferCardsWants.offer_id == offer.id)
     ).all()
     
@@ -163,6 +170,9 @@ def list_accepted_offers(user_id: int, session: SessionDep):
   results = []
   for offer in offers:
     owner = session.get(User, offer.user_id)
+    if owner is None:
+      raise Exception(f'Owner not found for offer id {offer.user_id}')
+
     results.append({
       "offer": offer,
       "owner": {
@@ -202,14 +212,15 @@ def respond_to_offer(
   offering_user = session.get(User, offer.user_id)
   responding_user = session.get(User, user_id)
   
-  if not offering_user or not responding_user:
+  if offering_user is None or responding_user is None:
     raise HTTPException(status_code=404, detail="User not found")
   
   if accepted:
     # First get all cards the offer wants
     cards_wanted = session.exec(
       select(YugiohCard)
-      .join(OfferCardsWants, YugiohCard.id == OfferCardsWants.card_id)
+      .join(OfferCardsWants)
+      .where(OfferCardsWants.card_id == YugiohCard.id)
       .where(OfferCardsWants.offer_id == offer_id)
     ).all()
 
@@ -241,23 +252,39 @@ def respond_to_offer(
     # Transfer cards from offering user to accepting user
     for card in offer.cards_given:
       # Remove from offering user
-      session.exec(
-        delete(UserCard)
+      user_cards = session.exec(
+        select(UserCard)
         .where(UserCard.user_id == offer.user_id)
         .where(UserCard.card_id == card.id)
-      )
-      # Add to accepting user
+      ).all()
+    
+      # Remove selected cards from the offering user
+      for user_card in user_cards:
+        session.delete(user_card)
+      
+      if card.id is None:
+        raise Exception('Card not found')
+      
+      # Add the offering card to the user
       session.add(UserCard(user_id=user_id, card_id=card.id))
 
     # Transfer wanted cards from accepting user to offering user
     for card in offer.cards_wants:
       # Remove from accepting user
-      session.exec(
-        delete(UserCard)
+      user_cards = session.exec(
+        select(UserCard)
         .where(UserCard.user_id == user_id)
         .where(UserCard.card_id == card.id)
-      )
-      # Add to offering user
+      ).all()
+      
+      # Remove selected cards from the accepting user
+      for user_card in user_cards:
+        session.delete(user_card)
+      
+      if card.id is None or offer.user_id is None:
+        raise Exception('Error due to user or card id not found')
+      
+      # Add the accepting cards to the offering user
       session.add(UserCard(user_id=offer.user_id, card_id=card.id))
     
     session.commit()
@@ -295,9 +322,10 @@ def get_user_cards(
     return []
 
   # Get the full card details for these cards
+  sql_in = YugiohCard.id.in_(user_card_ids) # type: ignore
   user_cards = session.exec(
     select(YugiohCard)
-    .where(YugiohCard.id.in_(user_card_ids))
+    .where(sql_in)
   ).all()
 
   return user_cards
@@ -330,7 +358,7 @@ def list_all_exchanges(
     query = query.where(
       (Exchange.user_accepted == user_id) |
       (Offer.user_id == user_id)
-    ).join(Offer, Exchange.offer_id == Offer.id)
+    ).join(Offer).where(Exchange.offer_id == Offer.id)
   
   exchanges = session.exec(query).all()
   
@@ -338,21 +366,29 @@ def list_all_exchanges(
   for exchange in exchanges:
     # Get related offer
     offer = session.get(Offer, exchange.offer_id)
+
+    if offer is None:
+      raise Exception('Offer not found')
     
     # Get user info
     offering_user = session.get(User, offer.user_id)
     accepting_user = session.get(User, exchange.user_accepted)
+
+    if offering_user is None or accepting_user is None:
+      raise Exception('Accepting user or Offering user not found')
     
     # Get cards involved
     cards_given = session.exec(
       select(YugiohCard)
-      .join(OfferCardsGiven, YugiohCard.id == OfferCardsGiven.card_id)
+      .join(OfferCardsGiven)
+      .where(OfferCardsGiven.card_id == YugiohCard.id)
       .where(OfferCardsGiven.offer_id == offer.id)
     ).all()
     
     cards_wanted = session.exec(
       select(YugiohCard)
-      .join(OfferCardsWants, YugiohCard.id == OfferCardsWants.card_id)
+      .join(OfferCardsWants)
+      .where(OfferCardsWants.card_id == YugiohCard.id)
       .where(OfferCardsWants.offer_id == offer.id)
     ).all()
     
@@ -399,19 +435,23 @@ def list_all_exchanges(
 
 ###############################################################################
 @router.get("/cards/{filters}", response_model=list[YugiohCardRead])
-def get_cards(filters: str, session: SessionDep):
+def get_cards_filtered(filters: str, session: SessionDep):
   """Get some Yu-gi-oh cards"""
   name, card_type, monster_type = filters.split("|")
   if (card_type == ""):
     card_type = None
   if (monster_type == ""):
     monster_type = None
+
+  card_type = CardType.get_type_by_str(card_type)
+  monster_type = MonsterType.get_type_by_str(monster_type)
+
   db_cards = card_operations.select_card(name=name, card_type=card_type, monster_type=monster_type)
   return db_cards
 
 ###############################################################################
 @router.get("/user/{user_id}/cards/{filters}", response_model=list[YugiohCardRead])
-def get_user_cards(
+def get_user_cards_filtered(
   user_id: int,
   filters: str,
   session: SessionDep,
@@ -431,13 +471,17 @@ def get_user_cards(
     card_type = None
   if (monster_type == ""):
     monster_type = None
+
+  card_type = CardType.get_type_by_str(card_type)
+  monster_type = MonsterType.get_type_by_str(monster_type)
   # Get filtered cards
   filtered_cards = card_operations.select_card(name=name, card_type=card_type, monster_type=monster_type)
 
   # Get the full card details for user cards
+  sql_in_id = YugiohCard.id.in_(user_card_ids) # type: ignore
   user_cards = session.exec(
     select(YugiohCard)
-    .where(YugiohCard.id.in_(user_card_ids))
+    .where(sql_in_id)
   ).all()
 
   filtered_user_cards = [card for card in user_cards if card in filtered_cards]

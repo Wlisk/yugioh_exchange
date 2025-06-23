@@ -84,18 +84,28 @@ def create_sample_data() -> None:
     users = session.exec(select(User)).all()
     cards = session.exec(select(YugiohCard)).all()
 
+    # verified user ids
+    user_ids: list[int] = []
+    for i, user in enumerate(users):
+      user_ids.append(user.id if user.id is not None else i)
+
+    # verified card ids
+    card_ids: list[int] = []
+    for i, card in enumerate(cards):
+      card_ids.append(card.id if card.id is not None else i)
+
     USER_CARDS = [
-      {"user_id": users[0].id, "card_id": cards[1].id},  # Dark Magician
-      {"user_id": users[0].id, "card_id": cards[2].id},  # Exodia
-      {"user_id": users[0].id, "card_id": cards[5].id},  # Pot of Greed
-      {"user_id": users[0].id, "card_id": cards[9].id},  # Solemn Judgment
-      {"user_id": users[1].id, "card_id": cards[0].id},  # Blue-Eyes
-      {"user_id": users[1].id, "card_id": cards[7].id},  # Black Luster Soldier
-      {"user_id": users[1].id, "card_id": cards[8].id},  # Harpie's Feather Duster
-      {"user_id": users[2].id, "card_id": cards[2].id},  # Red-Eyes
-      {"user_id": users[2].id, "card_id": cards[4].id},  # Summoned Skull
-      {"user_id": users[2].id, "card_id": cards[6].id},  # Mirror Force
-      {"user_id": users[2].id, "card_id": cards[3].id}
+      {"user_id": user_ids[0], "card_id": card_ids[1]},  # Dark Magician
+      {"user_id": user_ids[0], "card_id": card_ids[2]},  # Exodia
+      {"user_id": user_ids[0], "card_id": card_ids[5]},  # Pot of Greed
+      {"user_id": user_ids[0], "card_id": card_ids[9]},  # Solemn Judgment
+      {"user_id": user_ids[1], "card_id": card_ids[0]},  # Blue-Eyes
+      {"user_id": user_ids[1], "card_id": card_ids[7]},  # Black Luster Soldier
+      {"user_id": user_ids[1], "card_id": card_ids[8]},  # Harpie's Feather Duster
+      {"user_id": user_ids[2], "card_id": card_ids[2]},  # Red-Eyes
+      {"user_id": user_ids[2], "card_id": card_ids[4]},  # Summoned Skull
+      {"user_id": user_ids[2], "card_id": card_ids[6]},  # Mirror Force
+      {"user_id": user_ids[2], "card_id": card_ids[3]}
     ]
     for user_card in USER_CARDS:
       session.add(UserCard(**user_card))

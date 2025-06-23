@@ -1,4 +1,5 @@
 from sqlmodel import Relationship, SQLModel, Field
+
 from models.yugioh_card import YugiohCard
 
 class UserCard(SQLModel, table=True):

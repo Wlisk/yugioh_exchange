@@ -6,6 +6,19 @@ class CardType(str, enum.Enum):
   MONSTER = "Monster"
   TRAP = "Trap"
 
+  @staticmethod
+  def get_type_by_str(type: str | None) -> 'CardType':
+    type = type.lower().strip() if type is not None else ''
+    result: CardType
+
+    match type:
+      case 'spell':   result = CardType.SPELL
+      case 'trap':    result = CardType.TRAP
+      case 'monster': result = CardType.MONSTER
+      case _:         result = CardType.MONSTER
+    
+    return result
+
 class MonsterType(str, enum.Enum):
   AQUA = "Aqua"
   BEAST = "Beast"
@@ -33,6 +46,41 @@ class MonsterType(str, enum.Enum):
   WYRM = "Wyrm"
   ZOMBIE = "Zombie"
 
+  @staticmethod
+  def get_type_by_str(type: str | None) -> 'MonsterType':
+    type = type.lower().strip() if type is not None else ''
+    result: MonsterType
+
+    match type:
+      case 'aqua':            result = MonsterType.AQUA
+      case 'beast':           result = MonsterType.BEAST
+      case 'beast-warrior':   result = MonsterType.BEAST_WARRIOR
+      case 'creator god':     result = MonsterType.CREATOR_GOD
+      case 'cyberse':         result = MonsterType.CYBERSE
+      case 'dinosaur':        result = MonsterType.DINOSAUR
+      case 'divine-beast':    result = MonsterType.DIVINE_BEAST
+      case 'dragon':          result = MonsterType.DRAGON
+      case 'fairy':           result = MonsterType.FAIRY
+      case 'fiend':           result = MonsterType.FIEND
+      case 'fish':            result = MonsterType.FISH
+      case 'insect':          result = MonsterType.INSECT
+      case 'machine':         result = MonsterType.MACHINE
+      case 'plant':           result = MonsterType.PLANT
+      case 'psychic':         result = MonsterType.PSYCHIC
+      case 'pyro':            result = MonsterType.PYRO
+      case 'reptile':         result = MonsterType.REPTILE
+      case 'rock':            result = MonsterType.ROCK
+      case 'sea serpent':     result = MonsterType.SEA_SERPENT
+      case 'spellcaster':     result = MonsterType.SPELLCASTER
+      case 'thunder':         result = MonsterType.THUNDER
+      case 'warrior':         result = MonsterType.WARRIOR
+      case 'winged beast':    result = MonsterType.WINGED_BEAST
+      case 'wyrm':            result = MonsterType.WYRM
+      case 'zombie':          result = MonsterType.ZOMBIE
+      case _:                 result = MonsterType.SPELLCASTER
+      
+    return result
+
 # Base class
 class YugiohCardBase(SQLModel):
   name: str = Field(index=True)
@@ -56,6 +104,6 @@ class YugiohCardCreate(YugiohCardBase):
 
 # class for updating cards (public model)
 class YugiohCardUpdate(YugiohCardBase):
-  name: str | None = None
-  card_type: CardType | None = None
+  name: str | None = None # type: ignore
+  card_type: CardType | None = None # type: ignore
   monster_type: MonsterType | None = None
