@@ -513,7 +513,10 @@ function submitOffer() {
       "/make_offer/" + body,
       {target: this}
   ).then(
-      () => {alert("Oferta criada com sucesso")},
+      () => {
+        alert("Oferta criada com sucesso!");
+        location.href = "/my_offers";
+      },
       () => {alert("Erro ao criar a oferta")}
   )
 }
