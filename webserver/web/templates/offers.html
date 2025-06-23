@@ -27,19 +27,19 @@
                       {{ given_card.card_type }}
                       {% if given_card.monster_type %}• {{ given_card.monster_type }}{% endif %}
                     </div>
+                    {% if given_card in user_cards %}
+                    <p class="text-red-600 text-sm mt-1">
+                      Você já possui esta carta!
+                    </p>
+                    {% endif %}
                   </div>
-                  {% if given_card in user_cards %}
-                  <h3 class="self-center text-red-600 text-sm mt-1">
-                    Você já possui esta carta!
-                  </h3>
-                  {% endif %}
                 {% endfor %}
               </div>
             </div>
             
             <!-- Cards Wanted Section -->
             <div class="border rounded-lg p-3">
-              <h4 class="font-semibold text-purple-700 mb-2">Procuro:</h4>
+              <h4 class="font-semibold text-purple-700 mb-2">Quero:</h4>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {% for wanted_card in offer.cards_wanted %}
                   <div class="p-2 rounded border-2 {% if wanted_card in user_cards %}border-green-400 bg-green-50{% else %}border-red-400 bg-red-50{% endif %}">

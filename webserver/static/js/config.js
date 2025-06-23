@@ -66,6 +66,33 @@ function validatePasswordsOnInput() {
   submitButton.className = 'w-full px-4 py-3 font-bold text-white bg-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors';
 }
 
+function userDropdownMenu() {
+  const dropdownButton = document.getElementById('user-dropdown-button');
+  const dropdownMenu = document.getElementById('user-dropdown-menu');
+  const arrowIcon = document.getElementById('user-menu-arrow-icon');
+
+  if (!dropdownButton || !dropdownMenu) {
+    return;
+  }
+
+  dropdownButton.addEventListener('click', function(event) {
+    event.stopPropagation();
+    dropdownMenu.classList.toggle('hidden');
+    arrowIcon.classList.toggle('rotate-180');
+  });
+
+  window.addEventListener('click', function(event) {
+    if (!dropdownMenu.classList.contains('hidden')) {
+        dropdownMenu.classList.add('hidden');
+        arrowIcon.classList.remove('rotate-180');
+    }
+  });
+  
+  dropdownMenu.addEventListener('click', function(event) {
+    event.stopPropagation();
+  });
+}
+
 function cardListDropdownMenu() {
   const dropdownButton = document.getElementById('dropdown-button');
   const dropdownMenu = document.getElementById('dropdown-menu');
@@ -281,6 +308,7 @@ function check_offer_status(evt) {
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 function initializePersistentComponents() {
+  userDropdownMenu();
   cardListDropdownMenu();
   passwordVisibility(
     'password', 
@@ -429,7 +457,7 @@ function select_card(card_element, isLeft) {
       clone.style.minWidth = "25%"
       clone.childNodes[1].childNodes[1].style.width = "50px"  //Largura da carta
       card_element_list.appendChild(clone)  //Adicionar clone a lista
-      card_element.style.backgroundColor = "rgba(0,255,0,0.5)"
+      card_element.style.backgroundColor = "rgba(5, 197, 5, 0.66)"
     } else {
       card_element.style.backgroundColor = ""
       document.getElementById(card_element.id + "_clone").remove();

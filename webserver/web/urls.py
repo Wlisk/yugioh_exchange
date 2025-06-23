@@ -18,4 +18,5 @@ urlpatterns = [
   path('set_user/', views.set_user, name='set_user'),
   path('offers/', views.offers, name='offers'),
   path('offers/respond/', views.respond_offer, name='respond_offer'),
+  path('my_offers/', views.my_offers, name='my_offers'),
 ]

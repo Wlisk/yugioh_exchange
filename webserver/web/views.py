@@ -173,8 +173,26 @@ def make_offer(request, cardsWanted, cardsOffered):
 @never_cache
 @user_login_required
 def exchanges(request):
+  user_id = request.COOKIES.get('user_id', '1')
+  api_url = f"{URL}/exchanges"
+  params = {'user_id': user_id}
+  exchanges_data = []
+  try:
+    response = requests.get(api_url, params=params)
+    if response.status_code == 200:
+      exchanges_data = response.json()
+    else:
+      error_message = f"Erro ao buscar trocas. Código: {response.status_code}"
+      print(error_message)
+  except requests.exceptions.RequestException as e:
+      error_message = f"Não foi possível conectar à API: {e}"
+      print(error_message)
+
   template = 'exchanges.html' if request.htmx else 'base.html'
-  context = {} if request.htmx else {'page': 'exchanges'}
+  context = {
+    'exchanges': exchanges_data
+  } if request.htmx else {'page': 'exchanges'}
+
   return render(request, template, context)
 
 #########################################################################################
@@ -277,39 +295,96 @@ def set_user(request):
 def offers(request):
   user_id = request.COOKIES.get('user_id', '1') # default to one
 
-  response = requests.get(f'{URL}/user/{user_id}/cards')
-  cards: list[YugiohCardRead] = response.json()
-
   # Get offers for the current user
   offers_response = requests.get(
     f"{URL}/{PATHS['offers']}",
     params={'user_id': user_id}
   )
+
+  # Get user cards for the current user
+  user_cards_response = requests.get(
+    f"{URL}/user/{user_id}/cards"
+  )
+
+  user_cards = []
+  if user_cards_response.status_code == 200:
+    user_cards = user_cards_response.json()
   
   offers = []
   if offers_response.status_code == 200:
     raw_offers = offers_response.json()
+    filtered_offers = []
     # Transform the offers to include only necessary owner info
-    offers = [{
-      'offer_id': offer['offer']['id'],
-      'owner': {
-        'id': offer['owner']['id'],
-        'name': offer['owner']['name']
-      },
-      'cards_given': offer['cards_given'],
-      'cards_wanted': offer['cards_wanted']
-    } for offer in raw_offers]
+    # and filter out offers made by the current user
+    for offer in raw_offers:
+      if str(offer['owner']['id']) != user_id:
+        formatted_offer = {
+          'offer_id': offer['offer']['id'],
+          'owner': offer['owner'],
+          'cards_given': offer['cards_given'],
+          'cards_wanted': offer['cards_wanted']
+        }
+        filtered_offers.append(formatted_offer)
+
+    offers = filtered_offers
 
   template = 'offers.html' if request.htmx else 'base.html'
   context = {
-    'user_cards': cards,
     'offers': offers,
+    'user_cards': user_cards,
     'user_id': user_id
   }
   
   if not request.htmx:
     context['page'] = 'offers'
 
+  return render(request, template, context)
+
+#########################################################################################]
+@never_cache
+@user_login_required
+def my_offers(request):
+  user_id_str = request.COOKIES.get('user_id', '1')
+  user_id = int(user_id_str)
+    
+  my_offers_list = []
+  error_message = None
+
+  try:
+    exchanges_response = requests.get(f"{URL}/exchanges")
+    exchanges_response.raise_for_status() 
+    all_exchanges = exchanges_response.json()
+
+    for exchange_data in all_exchanges:
+      if exchange_data['offering_user']['id'] == user_id:
+        my_offers_list.append({
+            "status": "Aceita",
+            "data": exchange_data
+        })
+
+    open_offers_response = requests.get(f"{URL}/offers")
+    open_offers_response.raise_for_status()
+    all_open_offers = open_offers_response.json()
+        
+    for offer_data in all_open_offers:
+      if offer_data['owner']['id'] == user_id:
+        my_offers_list.append({
+            "status": "Em Aberto",
+            "data": offer_data
+        })
+  except requests.exceptions.RequestException as e:
+    error_message = f"Não foi possível conectar à API: {e}"
+    print(error_message)
+
+  print(my_offers_list)
+
+  template = 'my_offers.html' if request.htmx else 'base.html'
+  context = { 
+    'processed_offers': my_offers_list,
+    'user_id': user_id,
+  }
+  if not request.htmx:
+    context['page'] = 'my_offers'
   return render(request, template, context)
 
 #########################################################################################

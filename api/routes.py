@@ -151,7 +151,6 @@ def list_available_offers(
 
   return results
 
-
 ###############################################################################
 @router.get("/offers/accepted/{user_id}", response_model=list[dict])
 def list_accepted_offers(user_id: int, session: SessionDep):
@@ -328,14 +327,22 @@ def list_all_exchanges(
   # Optional user filter
   if user_id:
     query = query.where(
-      (Exchange.user_accepted == user_id) |
-      (Offer.user_id == user_id)
+      (Exchange.user_accepted == user_id)
     ).join(Offer, Exchange.offer_id == Offer.id)
   
   exchanges = session.exec(query).all()
   
   results = []
   for exchange in exchanges:
+    # Format the date
+    formatted_date = ""
+    if exchange.date:
+      try:
+        date_obj = datetime.fromisoformat(exchange.date)
+        formatted_date = date_obj.strftime('%d/%m/%Y às %H:%M')
+      except ValueError:
+        formatted_date = "Data Inválida"
+
     # Get related offer
     offer = session.get(Offer, exchange.offer_id)
     
@@ -360,7 +367,7 @@ def list_all_exchanges(
     results.append({
       "exchange": {
         "id": exchange.id,
-        "date": exchange.date,
+        "date": formatted_date,
         "offer_id": exchange.offer_id
       },
       "offer": {
