@@ -519,28 +519,24 @@ function setUserCard(card_id, hasCard, div) {
   if (!hasCard) {
     if(!confirm("Tem certeza que deseja\nremover essa carta da coleção?"))
       return;
-    alertText = "Carta removida da coleção"
     isAdd = "false";
   } else {
     if (!confirm("Tem certeza que deseja\nadicionar essa carta na coleção?"))
       return;
-    alertText = "Carta adicionada na coleção."
     isAdd = "true";
   }
-  htmx.ajax('POST', "user_cards/" + card_id + "/" +  isAdd, { target: div}).then(() => {alert(alertText)}, () => {alert("Erro ao adicionar a carta")}).then(() => {console.log("ok")});
+  htmx.ajax('POST', "user_cards/" + card_id + "/" +  isAdd, { target: div});
 }
 
 function setUserWishlist(card_id, hasCard, div) {
   if (!hasCard) {
     if(!confirm("Tem certeza que deseja\nremover essa carta da lista de desejos?"))
       return;
-    alertText = "Carta removida da lista de desejos"
     isAdd = "false";
   } else {
     if (!confirm("Tem certeza que deseja\nadicionar essa carta na lista de desejos?"))
       return;
-    alertText = "Carta adicionada na lista de desejos"
     isAdd = "true";
   }
-  htmx.ajax('POST', "wishlist/" + card_id + "/" +  isAdd, { target: div}).then(() => {alert(alertText)}, () => {alert("Erro ao adicionar a carta")}).then(() => {console.log("ok")});
+  htmx.ajax('POST', "wishlist/" + card_id + "/" +  isAdd, { target: div});
 }
