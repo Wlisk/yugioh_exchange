@@ -121,9 +121,10 @@ def card_list(request, list_type='all'):
   response = requests.get(f'{URL}/user/{user_id}/cards')
   user_cards: list[YugiohCardRead] = response.json()
 
+  base_cards: list[YugiohCardRead] = []
   if list_type == 'all':
     response = requests.get(f'{URL}{PATHS["list"]}')
-    base_cards: list[YugiohCardRead] = response.json()
+    base_cards = response.json()
   elif list_type == 'user_cards':
     base_cards = user_cards
   #elif list_type == 'wishlist':
@@ -163,9 +164,13 @@ def set_user(request):
     return HttpResponse(status=400)
 
   user_id = request.POST.get('user_id')
-  response = HttpResponse(status=200)
-  response.set_cookie('user_id', user_id, max_age=3600*24*7)
-  response.content = json.dumps({'user_id': user_id})
+  if not user_id:
+    return HttpResponse('User ID must be passed', status=400)
+
+  response_data = json.dumps({'user_id': user_id})
+  response = HttpResponse(response_data, content_type='application/json', status=200)
+  live_7_days = 3600 * 24 * 7
+  response.set_cookie('user_id', user_id, max_age=live_7_days)
   return response
 
 #########################################################################################
@@ -210,14 +215,20 @@ def offers(request):
 #########################################################################################
 def respond_offer(request):
   if request.method != 'POST':
-    return HttpResponse(status=400)
+    return HttpResponse(request.method, status=405)
 
   try:
-    offer_id = int(request.POST.get('offer_id'))
-    accepted = request.POST.get('accepted') == 'true'
+    if request.content_type == 'application/json':
+      data = json.loads(request.body)
+      offer_id = int(data.get('offer_id'))
+      accepted = data.get('accepted') == 'true'
+    else:
+      offer_id = int(request.POST.get('offer_id'))
+      accepted = request.POST.get('accepted') == 'true'
+
     user_id = request.COOKIES.get('user_id', '1')
-  except (ValueError, TypeError):
-    return HttpResponse(status=400)
+  except (ValueError, TypeError, json.JSONDecodeError):
+    return HttpResponse('Request error', status=400)
 
   # Make API call to respond to offer
   response = requests.post(
