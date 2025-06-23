@@ -10,6 +10,7 @@
 
     <br>
 
+    {% if 'user_id' not in request.COOKIES %}
     <div class="text-center">
         <a
                 href="{% url 'login' %}"
@@ -33,4 +34,5 @@
             Criar Conta
         </a>
     </div>
+    {% endif %}
 </div>
