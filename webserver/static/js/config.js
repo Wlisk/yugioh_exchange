@@ -275,27 +275,62 @@ function toggleFields() {
 }
 
 function check_offer_status(evt) {
+  console.log('HTMX Response Event:', evt);
+  
+  // Check if this is a response to the offer endpoint
   if (evt.detail.elt.getAttribute('hx-post') === '/offers/respond/') {
-    const response = JSON.parse(evt.detail.xhr.responseText);
+    console.log('Response Status:', evt.detail.xhr.status);
+    console.log('Response Text:', evt.detail.xhr.responseText);
     
-    if (response.status === 'ok') {
-      // Show success message and refresh offers
-      htmx.trigger('#main-content', 'refreshOffers');
-      alert('Oferta aceita!');
-    } else if (response.status === 'refused') {
-      // Show refusal message and refresh offers
-      htmx.trigger('#main-content', 'refreshOffers');
-      alert('Oferta escondida!');
-    } else if (response.status === 'user_has_no_card') {
-      alert('Você não possui todas as cartas necessárias para aceitar a troca');
+    // Hide the loading indicator and show button text
+    const button = evt.detail.elt;
+    const buttonText = button.querySelector('.button-text');
+    const indicator = button.querySelector('.htmx-indicator');
+    
+    if (buttonText) buttonText.style.display = 'inline';
+    if (indicator) indicator.style.display = 'none';
+    
+    if (evt.detail.xhr.status === 200) {
+      try {
+        const response = JSON.parse(evt.detail.xhr.responseText);
+        console.log('Parsed Response:', response);
+        
+        if (response.status === 'ok') {
+          // Remove the entire offer card from the DOM
+          const offerElement = evt.detail.elt.closest('[id^="offer-"]');
+          if (offerElement) {
+            offerElement.style.transition = 'opacity 0.5s ease-out';
+            offerElement.style.opacity = '0';
+            setTimeout(() => {
+              offerElement.remove();
+            }, 500);
+          }
+          alert('Oferta aceita com sucesso!');
+        } else if (response.status === 'refused') {
+          // Remove the entire offer card from the DOM
+          const offerElement = evt.detail.elt.closest('[id^="offer-"]');
+          if (offerElement) {
+            offerElement.style.transition = 'opacity 0.5s ease-out';
+            offerElement.style.opacity = '0';
+            setTimeout(() => {
+              offerElement.remove();
+            }, 500);
+          }
+          alert('Oferta rejeitada com sucesso!');
+        } else if (response.status === 'user_has_no_card') {
+          alert('Você não possui todas as cartas necessárias para aceitar esta oferta!');
+        } else {
+          alert('Erro: ' + (response.message || 'Erro desconhecido'));
+        }
+      } catch (e) {
+        console.error('Error parsing response:', e);
+        alert('Erro ao processar resposta do servidor');
+      }
     } else {
-      alert(esponse.message || 'Erro desconhecido');
+      // Handle HTTP error status codes
+      alert('Erro do servidor: ' + evt.detail.xhr.status);
     }
   }
-
-  document.body.addEventListener('refreshOffers', function() {
-    htmx.ajax('GET', '/offers/', { target: '#main-content', swap: 'innerHTML' });
-  });
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 function initializePersistentComponents() {
@@ -325,10 +360,31 @@ function initializePageContent() {
   toggleFields();
 }
 /////////////////////////////////////////////////////////////////////////////////////////
+
+// Add this at the top of your config.js file
+function getCsrfToken() {
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  if (meta) {
+    return meta.getAttribute('content');
+  }
+  
+  // Fallback to cookie method
+  const cookies = document.cookie.split(';');
+  for (let cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'csrftoken') {
+      return value;
+    }
+  }
+  
+  return null;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
 
   initializePersistentComponents();
   initializePageContent();
+  document.body.removeEventListener('htmx:afterRequest', check_offer_status);
 
   validatePasswordsOnInput();
 
@@ -338,10 +394,16 @@ document.addEventListener('DOMContentLoaded', function () {
     if (event.detail.elt.id === 'filter-form') {
         event.detail.parameters['view_mode'] = currentViewMode;
     }
+
+    const csrfToken = getCsrfToken();
+    if (csrfToken) {
+      event.detail.headers['X-CSRFToken'] = csrfToken;
+    }
   });
   
   // Por algum motivo, remover essa linha de código faz com que aceitar ou esconder uma oferta fique carregando infinitamente
   // Não consegui descobrir porque isso acontece
+  // TODO: descobrir o porque desta linha estar dando problema
   document.getElementById("filterType")?.addEventListener("change", toggleFields);
 
   window.addEventListener('popstate', function (event) {
@@ -353,12 +415,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  document.body.addEventListener('htmx:afterRequest', (event) => {
-    check_offer_status(event);
+  document.body.addEventListener('htmx:beforeRequest', (event) => {
+    //runSpinner('main-content');
+    if (event.detail.requestConfig.url === '/set_user/') {
+      window.location.reload();
+    }
   });
+
+  document.body.addEventListener('htmx:afterRequest', check_offer_status);
 
   document.body.addEventListener('refreshOffers', () => {
     htmx.ajax('GET', '/offers/', { target: '#main-content', swap: 'innerHTML' });
+  });
+
+  // Add error handling for HTMX requests
+  document.body.addEventListener('htmx:responseError', (event) => {
+    console.error('HTMX Response Error:', event.detail);
+    alert('Erro de conexão com o servidor. Verifique sua conexão com a internet.');
+  });
+
+  document.body.addEventListener('htmx:sendError', (event) => {
+    console.error('HTMX Send Error:', event.detail);
+    alert('Erro ao enviar requisição. Verifique sua conexão com a internet.');
   });
 });
 ///////////////////////////////////////////////////////////////////////////////////////////
