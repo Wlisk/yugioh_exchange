@@ -66,9 +66,14 @@ def login_account(request):
       return render(request, 'base.html', {"page": "login", 'error': 'Senha incorreta.'})
     else:
       user = existing_users[0]
+
+      if user is None or user.id is None:
+        return HttpResponse('User not found', 404)
+      saved_for_7_days = 3600 * 24 * 7
+
       response = redirect('offers')
-      response.set_cookie('user_id', user.id, max_age=3600*24*7)
-      response.set_cookie('user_name', user.name, max_age=3600*24*7)
+      response.set_cookie('user_id', str(user.id), max_age=saved_for_7_days)
+      response.set_cookie('user_name', user.name, max_age=saved_for_7_days)
       return response
   elif request.htmx:
     return render(request, 'login.html')
@@ -128,6 +133,7 @@ def make_offer(request, body):
 
   listCardsWanted = card_operations.select_cards_by_name(cardsWanted)
   listCardsOffered = card_operations.select_cards_by_name(cardsOffered)
+  
   offer_operations.create_offer(user_id=user_id, cards_given=listCardsOffered, cards_wanted=listCardsWanted)
   return render(request, template_name="select_cards.html", status=204)
 

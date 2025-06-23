@@ -31,7 +31,7 @@ class card_operations:
       session.commit()
 
   @staticmethod
-  def select_card(name: str = "", card_type: CardType = None, monster_type: MonsterType = None, return_one: bool = False) -> YugiohCard | Sequence[YugiohCard]:
+  def select_card(name: str = "", card_type: CardType | None = None, monster_type: MonsterType | None = None, return_one: bool = False):
     with Session(ENGINE) as session:
       # Seleciona todas as linhas da database que possuem o parâmetro passado, se tiver parâmetro
       sql_like_name = YugiohCard.name.like(f'%{name}%') # type: ignore
@@ -41,13 +41,22 @@ class card_operations:
         .where(or_(YugiohCard.monster_type == monster_type, monster_type == None))
       
       results = session.exec(statement, execution_options={"prebuffer_rows": True})
+      cards: list[YugiohCard]
       if return_one:
-        return results.one()
+        cards =  [results.one()]
       else:
-        return results.all()
+        cards = list(results.all())
+      return cards
 
-  def select_cards_by_name(names: list[str]) -> Sequence[YugiohCard]:
-    return [card_operations.select_card(name=card_name, return_one=True) for card_name in names]
+  # TODO: check for errors
+  @staticmethod
+  def select_cards_by_name(names: list[str]) -> list[YugiohCard]:
+    result: list[YugiohCard] = []
+    for card_name in names:
+      selected_cards = card_operations.select_card(name=card_name, return_one=True)
+      result.extend(selected_cards)
+
+    return result
 
 #########################################################################################
 class user_operations:
@@ -64,31 +73,37 @@ class user_operations:
       statement = select(User).where(sql_like_name)
       results = session.exec(statement, execution_options={"prebuffer_rows": True}).all()
       return results
-    
+  
+  @staticmethod
   def add_card_wishlist(user_id: int, card_id: int) -> None:
     with Session(ENGINE) as session:
       session.add(UserWishlist(user_id=user_id,card_id=card_id))
       session.commit()
 
-  def get_user_wishlist(user_id: int) -> Sequence[YugiohCard]:
+  @staticmethod
+  def get_user_wishlist(user_id: int):
     with Session(ENGINE) as session:
       wishlist_id = session.exec(select(UserWishlist.card_id).where(UserWishlist.user_id == user_id)).all()
-      statement = select(YugiohCard).where(YugiohCard.id.in_(wishlist_id))
+      sql_in = YugiohCard.id.in_(wishlist_id) # type: ignore
+      statement = select(YugiohCard).where(sql_in)
       results = session.exec(statement).all()
       return results
     
+  @staticmethod
   def add_user_card(user_id: int, card_id: int) -> None:
     with Session(ENGINE) as session:
       session.add(UserCard(user_id=user_id,card_id=card_id))
       session.commit()
 
+  @staticmethod
   def get_row_wishlist(user_id: int, card_id: int) -> UserWishlist:
     with Session(ENGINE) as session:
       statement = select(UserWishlist).where(UserWishlist.card_id == card_id, UserWishlist.user_id == user_id)
       result = session.exec(statement).one()
       return result
 
-  def get_row_user_card(user_id: int, card_id: int) -> UserWishlist:
+  @staticmethod
+  def get_row_user_card(user_id: int, card_id: int) -> UserCard:
     with Session(ENGINE) as session:
       statement = select(UserCard).where(UserCard.card_id == card_id, UserCard.user_id == user_id)
       result = session.exec(statement).one()
