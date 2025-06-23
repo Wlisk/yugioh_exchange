@@ -281,15 +281,15 @@ function check_offer_status(evt) {
     if (response.status === 'ok') {
       // Show success message and refresh offers
       htmx.trigger('#main-content', 'refreshOffers');
-      alert('Offer accepted successfully!');
+      alert('Oferta aceita!');
     } else if (response.status === 'refused') {
       // Show refusal message and refresh offers
       htmx.trigger('#main-content', 'refreshOffers');
-      alert('Offer rejected successfully!');
+      alert('Oferta escondida!');
     } else if (response.status === 'user_has_no_card') {
-      alert('You do not have all the required cards to accept this offer!');
+      alert('Você não possui todas as cartas necessárias para aceitar a troca');
     } else {
-      alert('Error: ' + (response.message || 'Unknown error occurred'));
+      alert(esponse.message || 'Erro desconhecido');
     }
   }
 
