@@ -67,6 +67,7 @@ def login_account(request):
       user = existing_users[0]
       response = redirect('offers')
       response.set_cookie('user_id', user.id, max_age=3600*24*7)
+      response.set_cookie('user_name', user.name, max_age=3600*24*7)
       return response
   elif request.htmx:
     return render(request, 'login.html')
