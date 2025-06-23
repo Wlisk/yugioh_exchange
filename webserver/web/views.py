@@ -8,6 +8,7 @@ from models.yugioh_card import YugiohCardRead, CardType, MonsterType
 from db.main import card_operations, user_operations, offer_operations, exchange_operations
 from .decorators import user_login_required
 
+# domain:port
 HOST = '127.0.0.1'
 PORT = 8001
 
