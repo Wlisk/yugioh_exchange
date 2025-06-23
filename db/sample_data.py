@@ -9,36 +9,42 @@ CARDS = [
         name="Blue-Eyes White Dragon",
         card_type=CardType.MONSTER,
         monster_type=MonsterType.DRAGON,
+        image_url="https://images.ygoprodeck.com/images/cards/89631139.jpg",
     ),
     YugiohCard(
         name="Dark Magician",
         card_type=CardType.MONSTER,
         monster_type=MonsterType.SPELLCASTER,
+        image_url="https://images.ygoprodeck.com/images/cards/46986414.jpg",
     ),
     YugiohCard(
         name="Red-Eyes Black Dragon",
         card_type=CardType.MONSTER,
         monster_type=MonsterType.DRAGON,
+        image_url="https://images.ygoprodeck.com/images/cards/74677422.jpg",
     ),
     YugiohCard(
         name="Exodia the Forbidden One",
         card_type=CardType.MONSTER,
         monster_type=MonsterType.SPELLCASTER,
+        image_url="https://images.ygoprodeck.com/images/cards/33396948.jpg",
     ),
     YugiohCard(
         name="Summoned Skull",
         card_type=CardType.MONSTER,
         monster_type=MonsterType.FIEND,
+        image_url="https://images.ygoprodeck.com/images/cards/70781052.jpg",
     ),
-    YugiohCard(name="Pot of Greed", card_type=CardType.SPELL),
-    YugiohCard(name="Mirror Force", card_type=CardType.TRAP),
+    YugiohCard(name="Pot of Greed", card_type=CardType.SPELL, image_url="https://images.ygoprodeck.com/images/cards/55144522.jpg"),
+    YugiohCard(name="Mirror Force", card_type=CardType.TRAP, image_url="https://images.ygoprodeck.com/images/cards/44095762.jpg"),
     YugiohCard(
         name="Black Luster Soldier",
         card_type=CardType.MONSTER,
         monster_type=MonsterType.WARRIOR,
+        image_url="https://images.ygoprodeck.com/images/cards/5405694.jpg",
     ),
-    YugiohCard(name="Harpie's Feather Duster", card_type=CardType.SPELL),
-    YugiohCard(name="Solemn Judgment", card_type=CardType.TRAP),
+    YugiohCard(name="Harpie's Feather Duster", card_type=CardType.SPELL, image_url="https://images.ygoprodeck.com/images/cards/18144507.jpg"),
+    YugiohCard(name="Solemn Judgment", card_type=CardType.TRAP, image_url="https://images.ygoprodeck.com/images/cards/41420027.jpg"),
 ]
 
 USERS = [

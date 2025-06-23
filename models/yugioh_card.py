@@ -38,6 +38,7 @@ class YugiohCardBase(SQLModel):
   name: str = Field(index=True)
   card_type: CardType = Field(sa_column=Column(Enum(CardType)))
   monster_type: MonsterType | None = Field(default=None, sa_column=Column(Enum(MonsterType)))
+  image_url: str = Field(default="https://images.ygoprodeck.com/images/assets/CardBack.jpg")
 
 # Table class for DB operations (private model)
 # Tabela da carta, possui atributos nome, tipo da carta e tipo do monstro
@@ -45,6 +46,7 @@ class YugiohCard(YugiohCardBase, table=True):
   id: int | None = Field(default=None, primary_key=True)
   card_type: CardType = Field(index=True)
   monster_type: MonsterType | None = Field(default=None, index=True)
+  image_url: str = Field(default="https://images.ygoprodeck.com/images/assets/CardBack.jpg")
 
 # class for http responses (public model)
 class YugiohCardRead(YugiohCardBase):

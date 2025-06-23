@@ -2,7 +2,7 @@
   {% for card in cards %}
   <div class="card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-[0px_4px_8px_0px_rgba(0,_0,_0,_0.8)] transition-shadow duration-300 cursor-pointer {% if view_mode == 'list' %}flex items-center{% endif %}">
 
-    <img class="card-img object-cover {% if view_mode == 'list' %}w-40 h-auto{% else %}w-full h-auto{% endif %}" src="https://images.ygoprodeck.com/images/cards/89631139.jpg" alt="{{ card.name }}">
+    <img class="card-img object-cover {% if view_mode == 'list' %}w-40 h-auto{% else %}w-full h-auto{% endif %}" src="{{ card.image_url }}" alt="{{ card.name }}">
 
     <div class="card-details p-4 {% if view_mode == 'list' %}text-left{% else %}text-center bg-purple-400 {% endif %}">
       <h3 class="font-bold truncate text-lg">{{ card.name }}</h3>
