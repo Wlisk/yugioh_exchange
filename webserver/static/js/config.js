@@ -274,15 +274,6 @@ function toggleFields() {
   }
 }
 
-function runSpinner(id) {
-  document.getElementById(id).innerHTML = `
-    <div class="loading">
-      <div class="spinner"></div>
-      <div class="loading-text">Loading...</div>
-    </div>
-  `;
-}
-
 function check_offer_status(evt) {
   if (evt.detail.elt.getAttribute('hx-post') === '/offers/respond/') {
     const response = JSON.parse(evt.detail.xhr.responseText);
@@ -359,13 +350,6 @@ document.addEventListener('DOMContentLoaded', function () {
         target: '#main-content',
         swap: 'innerHTML'
       });
-    }
-  });
-
-  document.body.addEventListener('htmx:beforeRequest', (event) => {
-    runSpinner('main-content');
-    if (event.detail.requestConfig.url === '/set_user/') {
-      window.location.reload();
     }
   });
 
