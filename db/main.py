@@ -43,6 +43,9 @@ class card_operations:
       else:
         return results.all()
 
+  def select_cards_by_name(names: list[str]) -> Sequence[YugiohCard]:
+    return [card_operations.select_card(name=card_name, return_one=True) for card_name in names]
+
 #########################################################################################
 class user_operations:
   def create_user(name: str, password: str) -> None:

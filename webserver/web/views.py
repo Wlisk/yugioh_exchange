@@ -125,8 +125,8 @@ def make_offer(request, body):
     print(E)
     return render(request, template_name="select_cards.html", status=400)
 
-  listCardsWanted = [card_operations.select_card(name=card_name, return_one=True) for card_name in cardsWanted]
-  listCardsOffered = [card_operations.select_card(name=card_name, return_one=True) for card_name in cardsOffered]
+  listCardsWanted = card_operations.select_cards_by_name(cardsWanted)
+  listCardsOffered = card_operations.select_cards_by_name(cardsOffered)
   offer_operations.create_offer(user_id=user_id, cards_given=listCardsOffered, cards_wanted=listCardsWanted)
   return render(request, template_name="select_cards.html", status=204)
 
