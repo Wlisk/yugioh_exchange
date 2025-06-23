@@ -5,11 +5,16 @@
 </div>
 <hr class="border-t border-gray-200 my-6">
 
+<!-- Hidden CSRF form for HTMX requests for the formless buttons -->
+<form id="csrf-form" style="display: none;">
+  {% csrf_token %}
+</form>
+
 <div class="mb-8">
   {% if offers %}
     <div class="grid grid-cols-1 gap-4">
       {% for offer in offers %}
-        <div class="p-4 bg-white rounded-lg shadow">
+        <div id="offer-{{ offer.offer_id }}" class="p-4 bg-white rounded-lg shadow">
           <div class="flex justify-between items-start">
             <h3 class="font-bold text-lg">Oferta #{{ offer.offer_id }}</h3>
             <span class="text-sm text-gray-600">De: {{ offer.owner.name }}</span>
@@ -59,16 +64,32 @@
           <!-- Accept/Hide Buttons -->
           <div class="flex justify-end space-x-2 mt-4">
             <button 
+              type="button" 
               hx-post="{% url 'respond_offer' %}"
-              hx-vals='{"offer_id": "{{ offer.offer_id }}", "accepted": "true"}'
+              hx-include="#csrf-form"
+              hx-vals='{"offer_id": {{ offer.offer_id }}, "accepted": "true"}'
+              hx-swap="none"
               class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
-              Aceitar Oferta
+              <span class="button-text">Aceitar Oferta</span>
+              <div class="htmx-indicator">
+                <div class="spinner inline-block"></div>
+                <span class="ml-2">Processando...</span>
+              </div>
             </button>
+
             <button 
+              type="button"
               hx-post="{% url 'respond_offer' %}"
-              hx-vals='{"offer_id": "{{ offer.offer_id }}", "accepted": "false"}'
+              hx-include="#csrf-form"
+              hx-vals='{"offer_id": {{ offer.offer_id }}, "accepted": "false"}'
+              hx-swap="none"
               class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
-              Esconder Oferta
+              <span class="button-text">Esconder Oferta</span>
+
+              <div class="htmx-indicator">
+                <div class="spinner inline-block"></div>
+                <span class="ml-2">Processando...</span>
+              </div>
             </button>
           </div>
         </div>
