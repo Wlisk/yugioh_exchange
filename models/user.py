@@ -6,6 +6,10 @@ class UserCard(SQLModel, table=True):
     user_id: int = Field(foreign_key="user.id", primary_key=True)
     card_id: int = Field(foreign_key="yugiohcard.id", primary_key=True)
 
+class UserWishlist(SQLModel, table=True):
+    """Association table for user-card ownership"""
+    user_id: int = Field(foreign_key="user.id", primary_key=True)
+    card_id: int = Field(foreign_key="yugiohcard.id", primary_key=True)
 
 class User(SQLModel, table=True):
   """User model, holder of cards"""
@@ -13,3 +17,4 @@ class User(SQLModel, table=True):
   name: str = Field(index=True)
   password: str
   cards: list[YugiohCard] = Relationship(link_model=UserCard)  
+  wishlist_cards: list[YugiohCard] = Relationship(link_model=UserWishlist)  

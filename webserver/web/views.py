@@ -184,13 +184,15 @@ def card_list(request, list_type='all'):
   user_id = request.COOKIES.get('user_id', '1') 
   response = requests.get(f'{URL}/user/{user_id}/cards')
   user_cards: list[YugiohCardRead] = response.json()
+  wishlist_cards = requests.get(f'{URL}/user/{user_id}/wishlist').json()
 
   if list_type == 'all':
     response = requests.get(f'{URL}{PATHS["list"]}')
     base_cards: list[YugiohCardRead] = response.json()
   elif list_type == 'user_cards':
     base_cards = user_cards
-  #elif list_type == 'wishlist':
+  elif list_type == 'wishlist':
+    base_cards = wishlist_cards
 
   filtered_cards = search_cards(request, base_cards)
 
@@ -213,15 +215,52 @@ def card_list(request, list_type='all'):
   context = {
     'cards': filtered_cards,
     'user_cards': user_cards,
+    'wishlist_cards': wishlist_cards,
     'page_title': page_title,
     'view_mode': view_mode,
   }
+
   if not request.htmx:
     context['page'] = 'card_list'
 
   return render(request, template, context)
 
 #########################################################################################
+
+def change_wishlist(request, url, card_id, isAdd):
+  user_id = request.COOKIES.get('user_id', '1') 
+  card = requests.get(f'{URL}/card/{card_id}').json()
+  userCards = requests.get(f'{URL}/user/{user_id}/cards').json()
+  template = '_card_buttons.html'
+
+  if (isAdd == "true"):
+    requests.post(url=f"{URL}/user/{user_id}/wishlist/{card_id}")
+  else:
+    requests.delete(url=f"{URL}/user/{user_id}/wishlist/{card_id}")
+  
+  wishlist_cards = requests.get(f'{URL}/user/{user_id}/wishlist').json() 
+
+  context = {'card': card, 'user_cards': userCards, 'wishlist_cards': wishlist_cards}
+  return render(request, template, context)
+
+def change_user_card(request, url, card_id, isAdd):
+  user_id = request.COOKIES.get('user_id', '1') 
+  card = requests.get(f'{URL}/card/{card_id}').json()
+  wishlist_cards = requests.get(f'{URL}/user/{user_id}/wishlist').json() 
+  template = '_card_buttons.html'
+
+  if (isAdd == "true"):
+    requests.post(url=f"{URL}/user/{user_id}/cards/{card_id}")
+  else:
+    requests.delete(url=f"{URL}/user/{user_id}/cards/{card_id}")
+
+  userCards = requests.get(f'{URL}/user/{user_id}/cards').json()
+  context = {'card': card, 'user_cards': userCards, 'wishlist_cards': wishlist_cards}
+
+  return render(request, template, context)
+
+#########################################################################################
+
 def set_user(request):
   if request.method != 'POST':
     return HttpResponse(status=400)

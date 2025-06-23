@@ -7,7 +7,7 @@ from models.offer import Exchange, Offer, OfferCardsGiven, OfferCardsWants, Offe
 from models.user import User, UserCard
 from models.yugioh_card import YugiohCard, YugiohCardRead, \
   YugiohCardCreate, YugiohCardUpdate
-from db.main import card_operations, get_session
+from db.main import card_operations, user_operations, get_session
 from api.utils import check_card
 
 router = APIRouter()
@@ -443,3 +443,55 @@ def get_user_cards(
   filtered_user_cards = [card for card in user_cards if card in filtered_cards]
 
   return filtered_user_cards
+
+###############################################################################
+@router.get("/user/{user_id}/wishlist", response_model=list[YugiohCardRead])
+def get_wishlist_cards(
+  user_id: int,
+  session: SessionDep,
+):
+  cards = user_operations.get_user_wishlist(user_id)
+  return cards
+
+###############################################################################
+@router.post("/user/{user_id}/wishlist/{card_id}")
+def set_wishlist_card(
+  user_id: int,
+  card_id: int,
+  session: SessionDep,
+):
+  user_operations.add_card_wishlist(user_id=user_id, card_id=card_id)
+
+###############################################################################
+
+@router.delete("/user/{user_id}/wishlist/{card_id}")
+def delete_wishlist_card(
+  user_id: int,
+  card_id: int,
+  session: SessionDep,
+):
+  row = user_operations.get_row_wishlist(user_id, card_id)
+  session.delete(row)
+  session.commit()
+
+###############################################################################
+
+@router.post("/user/{user_id}/cards/{card_id}")
+def add_user_card(
+  user_id: int,
+  card_id:int,
+  session: SessionDep,
+):
+  user_operations.add_user_card(user_id=user_id, card_id=card_id)
+
+###############################################################################
+
+@router.delete("/user/{user_id}/cards/{card_id}")
+def delete_user_card(
+  user_id: int,
+  card_id: int,
+  session: SessionDep,
+):
+  row = user_operations.get_row_user_card(user_id, card_id)
+  session.delete(row)
+  session.commit()

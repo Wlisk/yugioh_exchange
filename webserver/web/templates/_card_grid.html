@@ -9,7 +9,7 @@
       <p class="text-sm mt-1">{{ card.card_type }}{% if card.monster_type %} - {{ card.monster_type }}{% endif %}</p>
     </div>
 
-    <div class="card-buttons w-full py-2 px-4 flex items-center space-x-4 {% if view_mode == 'list' %}justify-end{% else %}justify-center{% endif %}"> 
+    <div id="card_{{card.id}}_div_buttons" class="card-buttons w-full py-2 px-4 flex items-center space-x-4 {% if view_mode == 'list' %}justify-end{% else %}justify-center{% endif %}"> 
       {% include "_card_buttons.html" %}
     </div>
 
