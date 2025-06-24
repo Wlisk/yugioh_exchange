@@ -290,7 +290,7 @@ function check_offer_status(evt) {
     if (buttonText) buttonText.style.display = 'inline';
     if (indicator) indicator.style.display = 'none';
     
-    if (evt.detail.xhr.status === 200) {
+    if (evt.detail.xhr.status) {
       try {
         const response = JSON.parse(evt.detail.xhr.responseText);
         console.log('Parsed Response:', response);
@@ -326,7 +326,8 @@ function check_offer_status(evt) {
         console.error('Error parsing response:', e);
         alert('Erro ao processar resposta do servidor');
       }
-    } else {
+    }
+    else {
       // Handle HTTP error status codes
       alert('Erro do servidor: ' + evt.detail.xhr.status);
     }
@@ -426,12 +427,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.body.addEventListener('refreshOffers', () => {
     htmx.ajax('GET', '/offers/', { target: '#main-content', swap: 'innerHTML' });
-  });
-
-  // Add error handling for HTMX requests
-  document.body.addEventListener('htmx:responseError', (event) => {
-    console.error('HTMX Response Error:', event.detail);
-    alert('Erro de conexão com o servidor. Verifique sua conexão com a internet.');
   });
 
   document.body.addEventListener('htmx:sendError', (event) => {
