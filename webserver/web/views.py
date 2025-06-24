@@ -385,8 +385,6 @@ def my_offers(request):
     error_message = f"Não foi possível conectar à API: {e}"
     print(error_message)
 
-  print(my_offers_list)
-
   template = 'my_offers.html' if request.htmx else 'base.html'
   context = { 
     'processed_offers': my_offers_list,
