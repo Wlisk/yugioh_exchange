@@ -7,11 +7,12 @@ class CardType(str, enum.Enum):
   TRAP = "Trap"
 
   @staticmethod
-  def get_type_by_str(type: str | None) -> 'CardType':
+  def get_type_by_str(type: str | None):
     type = type.lower().strip() if type is not None else ''
     result: CardType
 
     match type:
+      case '':        result = None
       case 'spell':   result = CardType.SPELL
       case 'trap':    result = CardType.TRAP
       case 'monster': result = CardType.MONSTER
@@ -47,11 +48,12 @@ class MonsterType(str, enum.Enum):
   ZOMBIE = "Zombie"
 
   @staticmethod
-  def get_type_by_str(type: str | None) -> 'MonsterType':
+  def get_type_by_str(type: str | None):
     type = type.lower().strip() if type is not None else ''
     result: MonsterType
 
     match type:
+      case '':                result = None
       case 'aqua':            result = MonsterType.AQUA
       case 'beast':           result = MonsterType.BEAST
       case 'beast-warrior':   result = MonsterType.BEAST_WARRIOR

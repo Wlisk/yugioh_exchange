@@ -445,11 +445,6 @@ def list_all_exchanges(
 def get_cards_filtered(filters: str, session: SessionDep):
   """Get some Yu-gi-oh cards"""
   name, card_type, monster_type = filters.split("|")
-  if (card_type == ""):
-    card_type = None
-  if (monster_type == ""):
-    monster_type = None
-
   card_type = CardType.get_type_by_str(card_type)
   monster_type = MonsterType.get_type_by_str(monster_type)
 
@@ -474,13 +469,9 @@ def get_user_cards_filtered(
     return []
 
   name, card_type, monster_type = filters.split("|")
-  if (card_type == ""):
-    card_type = None
-  if (monster_type == ""):
-    monster_type = None
-
   card_type = CardType.get_type_by_str(card_type)
   monster_type = MonsterType.get_type_by_str(monster_type)
+
   # Get filtered cards
   filtered_cards = card_operations.select_card(name=name, card_type=card_type, monster_type=monster_type)
 
