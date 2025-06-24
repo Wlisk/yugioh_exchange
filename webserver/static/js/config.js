@@ -1,4 +1,98 @@
 /////////////////////////////////////////////////////////////////////////////////////////
+function passwordVisibility(inputId, toggleButtonId, eyeOnId, eyeOffId) {
+  const passwordInput = document.getElementById(inputId);
+  const toggleButton = document.getElementById(toggleButtonId);
+  const eyeOnIcon = document.getElementById(eyeOnId);
+  const eyeOffIcon = document.getElementById(eyeOffId);
+
+  if (!passwordInput || !toggleButton || !eyeOnIcon || !eyeOffIcon) {
+    return;
+  }
+
+  toggleButton.addEventListener('click', () => {
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      eyeOnIcon.classList.remove('hidden');
+      eyeOffIcon.classList.add('hidden');
+    } else {
+      passwordInput.type = 'password';
+      eyeOnIcon.classList.add('hidden')
+      eyeOffIcon.classList.remove('hidden');
+    }
+  });
+}
+
+function validatePasswordsOnInput() {
+  const passwordInput = document.getElementById('password');
+  const passwordConfirmInput = document.getElementById('passwordConfirm');
+  const messageDiv = document.getElementById('password-match-message');
+  const submitButton = document.getElementById('submit-button');
+
+  if (!passwordInput || !passwordConfirmInput || !messageDiv || !submitButton) {
+    return;
+  }
+
+  function checkPasswords() {
+    const password = passwordInput.value;
+    const passwordConfirm = passwordConfirmInput.value;
+
+    // Não mostra mensagem se o campo de confirmação estiver vazio
+    if (passwordConfirm === '') {
+      messageDiv.textContent = '';
+      submitButton.disabled = true; // Desabilita o botão se a confirmação estiver vazia
+      submitButton.className = 'w-full px-4 py-3 font-bold text-white bg-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors'; // Adiciona classe de botão desabilitado
+      return;
+    }
+
+    // Se as senhas conferem
+    if (password === passwordConfirm) {
+      messageDiv.textContent = '';
+      submitButton.disabled = false; // Habilita o botão para envio
+      submitButton.className = 'w-full px-4 py-3 font-bold text-white bg-purple-900 rounded-md hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors'; // Adiciona classe de botão habilitado
+    } 
+    // Se as senhas não conferem
+    else {
+      messageDiv.textContent = 'As senhas não conferem.';
+      messageDiv.style.color = 'red';
+      submitButton.disabled = true; // Desabilita o botão
+      submitButton.className = 'w-full px-4 py-3 font-bold text-white bg-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors'; // Adiciona classe de botão desabilitado
+    }
+  }
+
+  passwordInput.addEventListener('input', checkPasswords);
+  passwordConfirmInput.addEventListener('input', checkPasswords);
+
+  submitButton.disabled = true; 
+  submitButton.className = 'w-full px-4 py-3 font-bold text-white bg-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors';
+}
+
+function userDropdownMenu() {
+  const dropdownButton = document.getElementById('user-dropdown-button');
+  const dropdownMenu = document.getElementById('user-dropdown-menu');
+  const arrowIcon = document.getElementById('user-menu-arrow-icon');
+
+  if (!dropdownButton || !dropdownMenu) {
+    return;
+  }
+
+  dropdownButton.addEventListener('click', function(event) {
+    event.stopPropagation();
+    dropdownMenu.classList.toggle('hidden');
+    arrowIcon.classList.toggle('rotate-180');
+  });
+
+  window.addEventListener('click', function(event) {
+    if (!dropdownMenu.classList.contains('hidden')) {
+        dropdownMenu.classList.add('hidden');
+        arrowIcon.classList.remove('rotate-180');
+    }
+  });
+  
+  dropdownMenu.addEventListener('click', function(event) {
+    event.stopPropagation();
+  });
+}
+
 function cardListDropdownMenu() {
   const dropdownButton = document.getElementById('dropdown-button');
   const dropdownMenu = document.getElementById('dropdown-menu');
@@ -88,21 +182,6 @@ function cardViewSwitcher() {
   });
 }
 
-// function filterFieldToggle() {
-//   const toggleButton = document.getElementById('filter-toggle-button');
-//   const filterForm = document.getElementById('filter-form');
-//   const arrowIcon = document.getElementById('filter-arrow-icon');
-
-//   if (!toggleButton || !filterForm || !arrowIcon) {
-//       return;
-//   }
-
-//   toggleButton.addEventListener('click', () => {
-//       filterForm.classList.toggle('hidden');
-//       arrowIcon.classList.toggle('rotate-180');
-//   });
-// }
-
 function clearFilters() {
   const clearButton = document.getElementById('clear-filters-btn');
   const filterForm = document.getElementById('filter-form');
@@ -117,134 +196,109 @@ function clearFilters() {
   });
 }
 
-function loadMarks() {
-  // Restaurar marcações
-  const selected = JSON.parse(localStorage.getItem("selectedCards") || "[]");
-  selected.forEach(id => {
-    const checkbox = document.querySelector(`input[name="cards"][value="${id}"]`);
-    if (checkbox) checkbox.checked = true;
-  });
-
-  // Salvar marcações
-  const checkboxes = document.querySelectorAll('input[name="cards"]') || [];
-  checkboxes.forEach(cb => {
-    cb.addEventListener("change", () => {
-      const selectedIds = Array.from(document.querySelectorAll('input[name="cards"]:checked')).map(cb => cb.value);
-      localStorage.setItem("selectedCards", JSON.stringify(selectedIds));
-    });
-  });
-}
-
-function searchCardsByInput() {
-  const searchInput = document.getElementById("searchField");
-
-  if (searchInput) {
-    searchInput.addEventListener("input", () => {
-      const query = searchInput.value.toLowerCase();
-      const cards = document.querySelectorAll(".card-label");
-
-      cards.forEach(card => {
-        const name = card.textContent.toLowerCase();
-        if (name.includes(query)) {
-          card.style.display = "block";
-        } else {
-          card.style.display = "none";
-        }
-      });
-    });
-  }
-}
-
-function toggleFields() {
-  const filterEl = document.getElementById('filterType');
-
-  if (!filterEl) {
-    return;
-  }
-
-  if (filterEl) {
-    const filterType = filterEl.value;
-    // Esconde todos os campos
-    document.getElementById('nameField').style.display = 'none';
-    document.getElementById('cardTypeField').style.display = 'none';
-    document.getElementById('monsterTypeField').style.display = 'none';
-
-    // Exibe o campo correspondente com base na seleção
-    if (filterType === 'name') {
-      document.getElementById('nameField').style.display = 'block';
-    } else if (filterType === 'card_type') {
-      document.getElementById('cardTypeField').style.display = 'block';
-    } else if (filterType === 'monster_type') {
-      document.getElementById('monsterTypeField').style.display = 'block';
-    }
-  }
-}
-
-function runSpinner(id) {
-  document.getElementById(id).innerHTML = `
-    <div class="loading">
-      <div class="spinner"></div>
-      <div class="loading-text">Loading...</div>
-    </div>
-  `;
-}
-
 function check_offer_status(evt) {
+  console.log('HTMX Response Event:', evt);
+  
+  // Check if this is a response to the offer endpoint
   if (evt.detail.elt.getAttribute('hx-post') === '/offers/respond/') {
-    const response = JSON.parse(evt.detail.xhr.responseText);
+    console.log('Response Status:', evt.detail.xhr.status);
+    console.log('Response Text:', evt.detail.xhr.responseText);
     
-    if (response.status === 'ok') {
-      // Show success message and refresh offers
-      htmx.trigger('#main-content', 'refreshOffers');
-      alert('Offer accepted successfully!');
-    } else if (response.status === 'refused') {
-      // Show refusal message and refresh offers
-      htmx.trigger('#main-content', 'refreshOffers');
-      alert('Offer rejected successfully!');
-    } else if (response.status === 'user_has_no_card') {
-      alert('You do not have all the required cards to accept this offer!');
-    } else {
-      alert('Error: ' + (response.message || 'Unknown error occurred'));
+    // Hide the loading indicator and show button text
+    const button = evt.detail.elt;
+    const buttonText = button.querySelector('.button-text');
+    const indicator = button.querySelector('.htmx-indicator');
+    
+    if (buttonText) buttonText.style.display = 'inline';
+    if (indicator) indicator.style.display = 'none';
+
+    try {
+      const response = JSON.parse(evt.detail.xhr.responseText);
+      console.log('Parsed Response:', response);
+
+      if (response.status === 'ok') {
+        // Remove the entire offer card from the DOM
+        const offerElement = evt.detail.elt.closest('[id^="offer-"]');
+        if (offerElement) {
+          offerElement.style.transition = 'opacity 0.5s ease-out';
+          offerElement.style.opacity = '0';
+          setTimeout(() => {
+            offerElement.remove();
+          }, 500);
+        }
+        alert('Oferta aceita com sucesso!');
+      } else if (response.status === 'refused') {
+        // Remove the entire offer card from the DOM
+        const offerElement = evt.detail.elt.closest('[id^="offer-"]');
+        if (offerElement) {
+          offerElement.style.transition = 'opacity 0.5s ease-out';
+          offerElement.style.opacity = '0';
+          setTimeout(() => {
+            offerElement.remove();
+          }, 500);
+        }
+      } else if (response.status === 'user_has_no_card') {
+        alert('Você não possui todas as cartas necessárias para aceitar esta oferta!');
+      } else {
+        alert(response.message || 'Erro desconhecido');
+      }
+    } catch (e) {
+      console.error('Error parsing response:', e);
+      alert('Erro ao processar resposta do servidor');
     }
   }
-
-  document.body.addEventListener('refreshOffers', function() {
-    htmx.ajax('GET', '/offers/', { target: '#main-content', swap: 'innerHTML' });
-  });
-}
-
-function setUserIdCookie() {
-  const userIdInput = document.getElementById('user-id');
-  const userId = userIdInput.value || '1';
-
-  // Set the cookie: name=value; expires=...
-  const expirationDays = 7;
-  const date = new Date();
-  date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000));
-  const expires = "expires=" + date.toUTCString();
-
-  document.cookie = `user_id=${userId}; ${expires}; path=/`;
-
-  alert(`User ID set to ${userId}`);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 function initializePersistentComponents() {
+  userDropdownMenu();
   cardListDropdownMenu();
+  passwordVisibility(
+    'password', 
+    'togglePassword', 
+    'eye-on-icon', 
+    'eye-off-icon'
+  );
+  
+  passwordVisibility(
+    'passwordConfirm', 
+    'togglePasswordConfirm', 
+    'eye-on-icon-confirm', 
+    'eye-off-icon-confirm'
+  );
 }
 
 function initializePageContent() {
   cardViewSwitcher();
   clearFilters();
-  //filterFieldToggle();
-  loadMarks();
-  searchCardsByInput();
-  toggleFields();
 }
 /////////////////////////////////////////////////////////////////////////////////////////
+
+// Add this at the top of your config.js file
+function getCsrfToken() {
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  if (meta) {
+    return meta.getAttribute('content');
+  }
+  
+  // Fallback to cookie method
+  const cookies = document.cookie.split(';');
+  for (let cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'csrftoken') {
+      return value;
+    }
+  }
+  
+  return null;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
 
   initializePersistentComponents();
   initializePageContent();
+  document.body.removeEventListener('htmx:afterRequest', check_offer_status);
+
+  validatePasswordsOnInput();
 
   document.body.addEventListener('htmx:afterSwap', initializePageContent);
 
@@ -252,11 +306,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (event.detail.elt.id === 'filter-form') {
         event.detail.parameters['view_mode'] = currentViewMode;
     }
+
+    const csrfToken = getCsrfToken();
+    if (csrfToken) {
+      event.detail.headers['X-CSRFToken'] = csrfToken;
+    }
   });
-  
-  // Por algum motivo, remover essa linha de código faz com que aceitar ou esconder uma oferta fique carregando infinitamente
-  // Não consegui descobrir porque isso acontece
-  document.getElementById("filterType").addEventListener("change", toggleFields);
 
   window.addEventListener('popstate', function (event) {
     if (event.state && event.state.htmx) {
@@ -268,43 +323,23 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   document.body.addEventListener('htmx:beforeRequest', (event) => {
-    runSpinner('main-content');
+    //runSpinner('main-content');
     if (event.detail.requestConfig.url === '/set_user/') {
       window.location.reload();
     }
   });
 
-  document.body.addEventListener('htmx:afterRequest', (event) => {
-    check_offer_status(event);
-  });
+  document.body.addEventListener('htmx:afterRequest', check_offer_status);
 
   document.body.addEventListener('refreshOffers', () => {
     htmx.ajax('GET', '/offers/', { target: '#main-content', swap: 'innerHTML' });
   });
+
+  document.body.addEventListener('htmx:sendError', (event) => {
+    console.error('HTMX Send Error:', event.detail);
+    alert('Erro ao enviar requisição. Verifique sua conexão com a internet.');
+  });
 });
-///////////////////////////////////////////////////////////////////////////////////////////
-
-// TODO: validation not working yet
-/*
-// used on post form method of select_cards
-function validSelection(event) {
-  const form = event.target.closest("form");
-  console.log("valid-form", form);
-  if (form && form.id === "selectForm") {
-    console.log("valid-in", form);
-    const checkboxes = document.querySelectorAll('input[name="cards"]:checked');
-    if (checkboxes.length === 0) {
-      console.log("invalid-check", checkboxes);
-      event.preventDefault();
-
-      // Show error message
-      const errorDiv = document.getElementById("errorMessage");
-      if (errorDiv) errorDiv.innerHTML = "Select at least one card.";
-    }
-  }
-}
-*/
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 //funções para select_cards.html
 
@@ -362,7 +397,7 @@ function select_card(card_element, isLeft) {
       clone.style.minWidth = "25%"
       clone.childNodes[1].childNodes[1].style.width = "50px"  //Largura da carta
       card_element_list.appendChild(clone)  //Adicionar clone a lista
-      card_element.style.backgroundColor = "rgba(0,255,0,0.5)"
+      card_element.style.backgroundColor = "rgba(5, 197, 5, 0.66)"
     } else {
       card_element.style.backgroundColor = ""
       document.getElementById(card_element.id + "_clone").remove();
@@ -384,9 +419,10 @@ function reloadColor(cardList) {
     }
   }
 }
+
 function submitOffer() {
   const wantedList = document.getElementById('selectedWantedCards');
-  const offeredList =  document.getElementById('selectedOfferedCards');
+  const offeredList = document.getElementById('selectedOfferedCards');
 
   user_cards = JSON.parse(document.getElementById("user-cards").text);
   user_cards_name = [];
@@ -394,7 +430,7 @@ function submitOffer() {
   if (wantedList.children.length === 2) {
     wantedList.children[0].hidden = true;
     wantedList.children[1].hidden = false;
-  } 
+  }
   if (offeredList.children.length === 2) {
     offeredList.children[0].hidden = true;
     offeredList.children[1].hidden = false;
@@ -405,32 +441,65 @@ function submitOffer() {
     user_cards_name.push(i.name);
   }
 
-  cardsWanted = "";
-  cardsOffered = "";
-
+  let cardsWanted = [];
+  let cardsOffered = [];
 
   for (i = 2; i < wantedList.children.length; i++) {
-    cardsWanted += (wantedList.children[i].childNodes[1].childNodes[3].textContent);  //card_name
-    cardsWanted += "|"
-    cardsWanted += (wantedList.children[i].childNodes[1].childNodes[5].textContent);  //card_type
-    cardsWanted += "|"
-    cardsWanted += (wantedList.children[i].childNodes[1].childNodes[7].textContent);  //monster_type
-    cardsWanted += "-|-"
+    let card_name = wantedList.children[i].childNodes[1].childNodes[3].textContent;
+    cardsWanted.push(card_name)
 
-    if (user_cards_name.includes(wantedList.children[i].childNodes[1].childNodes[3].textContent)) {
+    if (user_cards_name.includes(card_name)) {
       alert("Não pode pedir uma carta que já possui");
       return;
-    };
+    }
   }
-
 
   for (i = 2; i < offeredList.children.length; i++) {
-    cardsOffered += (offeredList.children[i].childNodes[1].childNodes[3].textContent);
-    cardsOffered += "|"
-    cardsOffered += (offeredList.children[i].childNodes[1].childNodes[5].textContent);
-    cardsOffered += "|"
-    cardsOffered += (offeredList.children[i].childNodes[1].childNodes[7].textContent);
-    cardsOffered += "-|-"
+    let card_name = offeredList.children[i].childNodes[1].childNodes[3].textContent;
+    cardsOffered.push(card_name)
   }
-  htmx.ajax('POST', '/make_offer/' + cardsWanted + "/" + cardsOffered , { target: this}).then(() => {alert("Oferta criada com sucesso")}, () => {alert("Erro ao criar a oferta")}).then(() => {console.log("ok")});
+
+  let body = JSON.stringify({
+    'cardsWanted': cardsWanted,
+    'cardsOffered': cardsOffered
+  });
+
+  htmx.ajax(
+      "POST",
+      "/make_offer/" + body,
+      {target: this}
+  ).then(
+      () => {
+        alert("Oferta criada com sucesso!");
+        location.href = "/my_offers";
+      },
+      () => {alert("Erro ao criar a oferta")}
+  )
+}
+
+///////////////////////////////////////////////////////////
+function setUserCard(card_id, hasCard, div) {
+  if (!hasCard) {
+    if(!confirm("Tem certeza que deseja\nremover essa carta da coleção?"))
+      return;
+    isAdd = "false";
+  } else {
+    if (!confirm("Tem certeza que deseja\nadicionar essa carta na coleção?"))
+      return;
+    isAdd = "true";
+  }
+  htmx.ajax('POST', "user_cards/" + card_id + "/" +  isAdd, { target: div});
+}
+
+function setUserWishlist(card_id, hasCard, div) {
+  if (!hasCard) {
+    if(!confirm("Tem certeza que deseja\nremover essa carta da lista de desejos?"))
+      return;
+    isAdd = "false";
+  } else {
+    if (!confirm("Tem certeza que deseja\nadicionar essa carta na lista de desejos?"))
+      return;
+    isAdd = "true";
+  }
+  htmx.ajax('POST', "wishlist/" + card_id + "/" +  isAdd, { target: div});
 }

@@ -5,11 +5,16 @@
 </div>
 <hr class="border-t border-gray-200 my-6">
 
+<!-- Hidden CSRF form for HTMX requests for the formless buttons -->
+<form id="csrf-form" style="display: none;">
+  {% csrf_token %}
+</form>
+
 <div class="mb-8">
   {% if offers %}
     <div class="grid grid-cols-1 gap-4">
       {% for offer in offers %}
-        <div class="p-4 bg-white rounded-lg shadow">
+        <div id="offer-{{ offer.offer_id }}" class="p-4 bg-white rounded-lg shadow">
           <div class="flex justify-between items-start">
             <h3 class="font-bold text-lg">Oferta #{{ offer.offer_id }}</h3>
             <span class="text-sm text-gray-600">De: {{ offer.owner.name }}</span>
@@ -27,22 +32,22 @@
                       {{ given_card.card_type }}
                       {% if given_card.monster_type %}• {{ given_card.monster_type }}{% endif %}
                     </div>
+                    {% if given_card.id in user_card_ids %}
+                    <p class="text-red-600 text-sm mt-1">
+                      Você já possui esta carta!
+                    </p>
+                    {% endif %}
                   </div>
-                  {% if given_card in user_cards %}
-                  <h3 class="self-center text-red-600 text-sm mt-1">
-                    Você já possui esta carta!
-                  </h3>
-                  {% endif %}
                 {% endfor %}
               </div>
             </div>
             
             <!-- Cards Wanted Section -->
             <div class="border rounded-lg p-3">
-              <h4 class="font-semibold text-purple-700 mb-2">Procuro:</h4>
+              <h4 class="font-semibold text-purple-700 mb-2">Quero:</h4>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {% for wanted_card in offer.cards_wanted %}
-                  <div class="p-2 rounded border-2 {% if wanted_card in user_cards %}border-green-400 bg-green-50{% else %}border-red-400 bg-red-50{% endif %}">
+                  <div class="p-2 rounded border-2 {% if wanted_card.id in user_card_ids %}border-green-400 bg-green-50{% else %}border-red-400 bg-red-50{% endif %}">
                     <div class="font-medium">{{ wanted_card.name }}</div>
 
                     <div class="text-sm text-gray-600">
@@ -59,16 +64,38 @@
           <!-- Accept/Hide Buttons -->
           <div class="flex justify-end space-x-2 mt-4">
             <button 
+              type="button"
+              {% if offer.can_accept %}
               hx-post="{% url 'respond_offer' %}"
-              hx-vals='{"offer_id": "{{ offer.offer_id }}", "accepted": "true"}'
-              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
-              Aceitar Oferta
+              hx-include="#csrf-form"
+              hx-vals='{"offer_id": {{ offer.offer_id }}, "accepted": "true"}'
+              hx-swap="none"
+              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+              {% else %}
+              disabled
+              class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+              {% endif %}
+            >
+              <span class="button-text">Aceitar Oferta</span>
+              <div class="htmx-indicator">
+                <div class="spinner inline-block"></div>
+                <span class="ml-2">Processando...</span>
+              </div>
             </button>
+
             <button 
+              type="button"
               hx-post="{% url 'respond_offer' %}"
-              hx-vals='{"offer_id": "{{ offer.offer_id }}", "accepted": "false"}'
+              hx-include="#csrf-form"
+              hx-vals='{"offer_id": {{ offer.offer_id }}, "accepted": "false"}'
+              hx-swap="none"
               class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
-              Esconder Oferta
+              <span class="button-text">Esconder Oferta</span>
+
+              <div class="htmx-indicator">
+                <div class="spinner inline-block"></div>
+                <span class="ml-2">Processando...</span>
+              </div>
             </button>
           </div>
         </div>

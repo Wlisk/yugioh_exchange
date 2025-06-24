@@ -5,6 +5,8 @@
   <title>Yu-Gi-World {% block subtitle %}{% endblock %}</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <link rel="icon" href="{% static 'favicon.png' %}">
 
   <script src="{% static 'js/htmx.min.js' %}" defer></script>
   <script src="{% static 'js/config.js' %}" defer></script>
@@ -18,22 +20,36 @@
     .spinner {
       animation: spin 0.8s linear infinite;
     }
+
+    .htmx-indicator {
+      display: none;
+    }
   </style>
 </head>
 <body 
   hx-boost="true" 
-  hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'
   class="bg-gray-100 font-sans leading-normal tracking-normal">
 
-  <nav class="text-center py-4 bg-purple-900">
+  <nav class="flex items-center px-8 py-4 bg-purple-900">
+    <div class="flex-1">
+    </div>
+
     <div class="space-x-4">
       <a 
-        href="{% url 'home' %}" 
-        hx-get="{% url 'home' %}" 
+        href="{% url 'offers' %}" 
+        hx-get="{% url 'offers' %}" 
         hx-target="#main-content" 
         hx-push-url="true"
         class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
-      >Início</a>
+      >Ofertas</a>
+
+      <a 
+        href="{% url 'select' %}" 
+        hx-get="{% url 'select' %}" 
+        hx-target="#main-content" 
+        hx-push-url="true"
+        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
+      >Fazer oferta</a>
 
       <div class="relative inline-block text-left">
   
@@ -46,8 +62,7 @@
           </button>
         </div>
       
-        <div id="dropdown-menu" class="origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 
-                    hidden z-10">
+        <div id="dropdown-menu" class="origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
           <div class="py-1">
             <a 
               href="{% url 'card_list_filtered' list_type='all' %}" 
@@ -75,22 +90,6 @@
       </div>
 
       <a 
-        href="{% url 'offers' %}" 
-        hx-get="{% url 'offers' %}" 
-        hx-target="#main-content" 
-        hx-push-url="true"
-        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
-      >Ofertas</a>
-
-      <a 
-        href="{% url 'select' %}" 
-        hx-get="{% url 'select' %}" 
-        hx-target="#main-content" 
-        hx-push-url="true"
-        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
-      >Fazer oferta</a>
-
-      <a 
         href="{% url 'exchanges' %}" 
         hx-get="{% url 'exchanges' %}" 
         hx-target="#main-content" 
@@ -98,12 +97,37 @@
         class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
       >Histórico</a>
     </div>
+
+    <div class="flex-1 text-right">
+      {% if 'user_id' in request.COOKIES %}
+      <div class="relative inline-block text-left">
+        <div>
+          <button type="button" id="user-dropdown-button" class="inline-flex items-center justify-center w-full text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors">
+            {{ request.COOKIES.user_name }}
+            <svg id="user-menu-arrow-icon" class="self-end ml-2 -mr-1 h-5 w-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+        
+        <div id="user-dropdown-menu" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
+          <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="user-dropdown-button">
+            <a href="{% url 'my_offers' %}" hx-get="{% url 'my_offers' %}" hx-target="#main-content" hx-push-url="true" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">
+              Minhas Ofertas
+            </a>
+  
+            <a href="{% url 'logout' %}" hx-get="{% url 'logout' %}" hx-target="body" hx-push-url="true" class="block px-4 py-2 text-sm text-red-700 hover:bg-red-50 hover:text-red-900" role="menuitem">
+              Sair
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
   </nav>
 
   <main id="main-content" class="container mx-auto px-4 py-8">
-    {% if page == 'home' %}
-      {% include 'home_screen.html' %}
-    {% elif page == 'card_list' %}
+    {% if page == 'card_list' %}
       {% include 'card_list.html' %}
     {% elif page == 'offers' %}
       {% include 'offers.html' %}
@@ -111,8 +135,14 @@
       {% include 'select_cards.html' %}
     {% elif page == 'exchanges' %}
       {% include 'exchanges.html' %}
+    {% elif page == 'my_offers' %}
+      {% include 'my_offers.html' %}      
+    {% elif page == 'create_account' %}
+      {% include 'create_account.html' %}
+    {% elif page == 'login' %}
+      {% include 'login.html' %}
     {% else %}
-      {% block main %}{% endblock %}
+      {% include 'home.html' %}
     {% endif %}
   </main>
 

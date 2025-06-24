@@ -1,10 +1,14 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.views.decorators.cache import never_cache
 import requests
 import json
+from models.user import User
 from models.yugioh_card import YugiohCardRead, CardType, MonsterType
-from db.main import card_operations, offer_operations, exchange_operations
+from db.main import card_operations, user_operations, offer_operations, exchange_operations
+from .decorators import user_login_required
 
+# domain:port
 HOST = '127.0.0.1'
 PORT = 8001
 
@@ -17,12 +21,75 @@ PATHS = {
 }
 
 #########################################################################################
-def home(request):
-  template = 'home_screen.html' if request.htmx else 'base.html'
-  context = {'page': 'home'} if not request.htmx else {}
-  return render(request, template, context)
+def create_account(request):
+  if request.method == 'POST':
+    user_name = request.POST.get('name','')
+    password = request.POST.get('password','')
+    password_confirm = request.POST.get('passwordConfirm','')
+
+    if password != password_confirm:
+      return render(request, 'base.html', {"page": "create_account", 'error': 'As senhas não conferem.'})
+    else:
+      existing_users = user_operations.get_user(name=user_name)
+      if existing_users:
+        return render(request, 'base.html', {"page": "create_account", 'error': 'Usuário já existe.'})
+      else:
+        user_operations.create_user(name=user_name, password=password)
+        return render(request, 'base.html', {"page": "login"})
+  elif request.htmx:
+    return render(request, 'create_account.html')
+  else:
+    return render(request, 'base.html', context={"page": "create_account"})
+
 
 #########################################################################################
+@never_cache
+def home(request):
+  if request.htmx:
+    return render(request, 'home.html')
+
+  return render(request, 'base.html')
+
+def icon(request):
+  return redirect("static/favicon.png", permanent=True)
+
+#########################################################################################
+@never_cache
+def login_account(request):
+  if request.method == 'POST':
+    user_name = request.POST.get('name', '')
+    password = request.POST.get('password', '')
+    existing_users = user_operations.get_user(name=user_name)
+    if not existing_users:
+      return render(request, 'base.html', {"page": "login", 'error': 'Usuário não encontrado.'})
+    elif existing_users[0].password != password:
+      return render(request, 'base.html', {"page": "login", 'error': 'Senha incorreta.'})
+    else:
+      user = existing_users[0]
+
+      if user is None or user.id is None:
+        return HttpResponse('User not found', 404)
+      saved_for_7_days = 3600 * 24 * 7
+
+      response = redirect('offers')
+      response.set_cookie('user_id', str(user.id), max_age=saved_for_7_days)
+      response.set_cookie('user_name', user.name, max_age=saved_for_7_days)
+      return response
+  elif request.htmx:
+    return render(request, 'login.html')
+  else:
+     return render(request, 'base.html', context={"page": "login"})
+ 
+##########################################################################################
+def logout_account(request):
+  response = HttpResponse()
+  response.delete_cookie('user_id')
+  response['HX-REFRESH'] = 'true' 
+  print("Cookie 'user_id' removido, enviando instrução de refresh.")
+  return response
+#########################################################################################
+@never_cache
+@user_login_required
 def select(request):
   user_id = request.COOKIES.get('user_id', '1') 
   cardsOnLeft = requests.get(f'{URL}/cards/').json()
@@ -54,24 +121,19 @@ def select_filter(request, filter = "||", isSideLeft = False):
     context['page'] = 'select_filter'
   return render(request, template, context)
 
-def make_offer(request, cardsWanted, cardsOffered):
-  user_id = request.COOKIES.get('user_id', '1') 
-  stringCardsWanted = cardsWanted[:-3].split("-|-")
-  stringCardsOffered = cardsOffered[:-3].split("-|-")
-  listCardsWanted = []
-  listCardsOffered = []
-  for card in stringCardsWanted:
-    card_attributes = card.split("|")
-    if (card_attributes[2] == ""):
-      card_attributes[2] = None
-    listCardsWanted.append(card_operations.select_card(name=card_attributes[0], card_type=card_attributes[1], monster_type=card_attributes[2]))
-  
-  for card in stringCardsOffered:
-    card_attributes = card.split("|")
-    if (card_attributes[2] == ""):
-      card_attributes[2] = None
-    listCardsOffered.append(card_operations.select_card(name=card_attributes[0], card_type=card_attributes[1], monster_type=card_attributes[2]))
+def make_offer(request, body):
+  try:
+    user_id = request.COOKIES.get('user_id')
+    data = json.loads(body)
+    cardsWanted = data.get("cardsWanted")
+    cardsOffered = data.get("cardsOffered")
+  except Exception as E:
+    print(E)
+    return render(request, template_name="select_cards.html", status=400)
 
+  listCardsWanted = card_operations.select_cards_by_name(cardsWanted)
+  listCardsOffered = card_operations.select_cards_by_name(cardsOffered)
+  
   offer_operations.create_offer(user_id=user_id, cards_given=listCardsOffered, cards_wanted=listCardsWanted)
   return render(request, template_name="select_cards.html", status=204)
 
@@ -110,23 +172,48 @@ def make_offer(request, cardsWanted, cardsOffered):
 #   return render(request, template, context)
 
 #########################################################################################
+@never_cache
+@user_login_required
 def exchanges(request):
+  user_id = request.COOKIES.get('user_id', '1')
+  api_url = f"{URL}/exchanges"
+  params = {'user_id': user_id}
+  exchanges_data = []
+  try:
+    response = requests.get(api_url, params=params)
+    if response.status_code == 200:
+      exchanges_data = response.json()
+    else:
+      error_message = f"Erro ao buscar trocas. Código: {response.status_code}"
+      print(error_message)
+  except requests.exceptions.RequestException as e:
+      error_message = f"Não foi possível conectar à API: {e}"
+      print(error_message)
+
   template = 'exchanges.html' if request.htmx else 'base.html'
-  context = {} if request.htmx else {'page': 'exchanges'}
+  context = {
+    'exchanges': exchanges_data
+  } if request.htmx else {'page': 'exchanges'}
+
   return render(request, template, context)
 
 #########################################################################################
+@never_cache
+@user_login_required
 def card_list(request, list_type='all'):
   user_id = request.COOKIES.get('user_id', '1') 
   response = requests.get(f'{URL}/user/{user_id}/cards')
   user_cards: list[YugiohCardRead] = response.json()
+  wishlist_cards = requests.get(f'{URL}/user/{user_id}/wishlist').json()
 
+  base_cards: list[YugiohCardRead] = []
   if list_type == 'all':
     response = requests.get(f'{URL}{PATHS["list"]}')
-    base_cards: list[YugiohCardRead] = response.json()
+    base_cards = response.json()
   elif list_type == 'user_cards':
     base_cards = user_cards
-  #elif list_type == 'wishlist':
+  elif list_type == 'wishlist':
+    base_cards = wishlist_cards
 
   filtered_cards = search_cards(request, base_cards)
 
@@ -149,56 +236,118 @@ def card_list(request, list_type='all'):
   context = {
     'cards': filtered_cards,
     'user_cards': user_cards,
+    'wishlist_cards': wishlist_cards,
     'page_title': page_title,
     'view_mode': view_mode,
   }
+
   if not request.htmx:
     context['page'] = 'card_list'
 
   return render(request, template, context)
 
 #########################################################################################
+
+def change_wishlist(request, url, card_id, isAdd):
+  user_id = request.COOKIES.get('user_id', '1') 
+  card = requests.get(f'{URL}/card/{card_id}').json()
+  userCards = requests.get(f'{URL}/user/{user_id}/cards').json()
+  template = '_card_buttons.html'
+
+  if (isAdd == "true"):
+    requests.post(url=f"{URL}/user/{user_id}/wishlist/{card_id}")
+  else:
+    requests.delete(url=f"{URL}/user/{user_id}/wishlist/{card_id}")
+  
+  wishlist_cards = requests.get(f'{URL}/user/{user_id}/wishlist').json() 
+
+  context = {'card': card, 'user_cards': userCards, 'wishlist_cards': wishlist_cards}
+  return render(request, template, context)
+
+def change_user_card(request, url, card_id, isAdd):
+  user_id = request.COOKIES.get('user_id', '1') 
+  card = requests.get(f'{URL}/card/{card_id}').json()
+  wishlist_cards = requests.get(f'{URL}/user/{user_id}/wishlist').json() 
+  template = '_card_buttons.html'
+
+  if (isAdd == "true"):
+    requests.post(url=f"{URL}/user/{user_id}/cards/{card_id}")
+  else:
+    requests.delete(url=f"{URL}/user/{user_id}/cards/{card_id}")
+
+  userCards = requests.get(f'{URL}/user/{user_id}/cards').json()
+  context = {'card': card, 'user_cards': userCards, 'wishlist_cards': wishlist_cards}
+
+  return render(request, template, context)
+
+#########################################################################################
+
 def set_user(request):
   if request.method != 'POST':
     return HttpResponse(status=400)
 
   user_id = request.POST.get('user_id')
-  response = HttpResponse(status=200)
-  response.set_cookie('user_id', user_id, max_age=3600*24*7)
-  response.content = json.dumps({'user_id': user_id})
+  if not user_id:
+    return HttpResponse('User ID must be passed', status=400)
+
+  response_data = json.dumps({'user_id': user_id})
+  response = HttpResponse(response_data, content_type='application/json', status=200)
+  live_7_days = 3600 * 24 * 7
+  response.set_cookie('user_id', user_id, max_age=live_7_days)
   return response
 
 #########################################################################################
+@never_cache
+@user_login_required
 def offers(request):
   user_id = request.COOKIES.get('user_id', '1') # default to one
-
-  response = requests.get(f'{URL}/user/{user_id}/cards')
-  cards: list[YugiohCardRead] = response.json()
 
   # Get offers for the current user
   offers_response = requests.get(
     f"{URL}/{PATHS['offers']}",
     params={'user_id': user_id}
   )
+
+  # Get user cards for the current user
+  user_cards_response = requests.get(
+    f"{URL}/user/{user_id}/cards"
+  )
+
+  user_cards = []
+  if user_cards_response.status_code == 200:
+    user_cards = user_cards_response.json()
+
+  user_card_ids = [card['id'] for card in user_cards]
   
   offers = []
   if offers_response.status_code == 200:
     raw_offers = offers_response.json()
+    filtered_offers = []
     # Transform the offers to include only necessary owner info
-    offers = [{
-      'offer_id': offer['offer']['id'],
-      'owner': {
-        'id': offer['owner']['id'],
-        'name': offer['owner']['name']
-      },
-      'cards_given': offer['cards_given'],
-      'cards_wanted': offer['cards_wanted']
-    } for offer in raw_offers]
+    # and filter out offers made by the current user
+    for offer in raw_offers:
+      if str(offer['owner']['id']) != user_id:
+        can_accept = True
+        for card in offer['cards_given']:
+          if card['id'] in user_card_ids:
+            can_accept = False
+            break
+
+        formatted_offer = {
+          'offer_id': offer['offer']['id'],
+          'owner': offer['owner'],
+          'cards_given': offer['cards_given'],
+          'cards_wanted': offer['cards_wanted'],
+          'can_accept': can_accept
+        }
+        filtered_offers.append(formatted_offer)
+
+    offers = filtered_offers
 
   template = 'offers.html' if request.htmx else 'base.html'
   context = {
-    'user_cards': cards,
     'offers': offers,
+    'user_card_ids': user_card_ids,
     'user_id': user_id
   }
   
@@ -207,17 +356,68 @@ def offers(request):
 
   return render(request, template, context)
 
+#########################################################################################]
+@never_cache
+@user_login_required
+def my_offers(request):
+  user_id_str = request.COOKIES.get('user_id', '1')
+  user_id = int(user_id_str)
+    
+  my_offers_list = []
+  error_message = None
+
+  try:
+    exchanges_response = requests.get(f"{URL}/exchanges")
+    exchanges_response.raise_for_status() 
+    all_exchanges = exchanges_response.json()
+
+    for exchange_data in all_exchanges:
+      if exchange_data['offering_user']['id'] == user_id:
+        my_offers_list.append({
+            "status": "Aceita",
+            "data": exchange_data
+        })
+
+    open_offers_response = requests.get(f"{URL}/offers")
+    open_offers_response.raise_for_status()
+    all_open_offers = open_offers_response.json()
+        
+    for offer_data in all_open_offers:
+      if offer_data['owner']['id'] == user_id:
+        my_offers_list.append({
+            "status": "Em Aberto",
+            "data": offer_data
+        })
+  except requests.exceptions.RequestException as e:
+    error_message = f"Não foi possível conectar à API: {e}"
+    print(error_message)
+
+  template = 'my_offers.html' if request.htmx else 'base.html'
+  context = { 
+    'processed_offers': my_offers_list,
+    'user_id': user_id,
+  }
+  if not request.htmx:
+    context['page'] = 'my_offers'
+  return render(request, template, context)
+
 #########################################################################################
 def respond_offer(request):
   if request.method != 'POST':
-    return HttpResponse(status=400)
+    return HttpResponse(request.method, status=405)
 
   try:
-    offer_id = int(request.POST.get('offer_id'))
-    accepted = request.POST.get('accepted') == 'true'
+    if request.content_type == 'application/json':
+      data = json.loads(request.body)
+      offer_id = int(data.get('offer_id'))
+      accepted = data.get('accepted') == 'true'
+    else:
+      offer_id = int(request.POST.get('offer_id'))
+      accepted = request.POST.get('accepted') == 'true'
+
     user_id = request.COOKIES.get('user_id', '1')
-  except (ValueError, TypeError):
-    return HttpResponse(status=400)
+  except (ValueError, TypeError, json.JSONDecodeError):
+    return HttpResponse('Request error', status=400)
 
   # Make API call to respond to offer
   response = requests.post(
