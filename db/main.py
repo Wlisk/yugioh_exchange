@@ -22,8 +22,16 @@ def get_session() -> Generator[Session, Any, None]:
   with Session(ENGINE) as session:
     yield session
 
+
 #########################################################################################
 class card_operations: 
+  # Create a Singleton for this class, so only one instance can be called
+  _instance = None
+  def __new__(cls):
+    if cls._instance is None:
+      cls._instance = super().__new__(cls)
+    return cls._instance
+
   @staticmethod
   def create_card(name: str, card_type: CardType, monster_type: MonsterType | None) -> None:
     with Session(ENGINE) as session:
@@ -60,6 +68,13 @@ class card_operations:
 
 #########################################################################################
 class user_operations:
+  # Create a Singleton for this class, so only one instance can be called
+  _instance = None
+  def __new__(cls):
+    if cls._instance is None:
+      cls._instance = super().__new__(cls)
+    return cls._instance
+  
   @staticmethod
   def create_user(name: str, password: str) -> None:
     with Session(ENGINE) as session:
@@ -111,6 +126,13 @@ class user_operations:
     
 #########################################################################################
 class offer_operations:
+  # Create a Singleton for this class, so only one instance can be called
+  _instance = None
+  def __new__(cls):
+    if cls._instance is None:
+      cls._instance = super().__new__(cls)
+    return cls._instance
+  
   @staticmethod
   def create_offer(user_id:int, cards_given:list[YugiohCard], cards_wanted:list[YugiohCard]) -> None:
     with Session(ENGINE) as session:
@@ -136,6 +158,13 @@ class offer_operations:
 
 #########################################################################################
 class exchange_operations:
+  # Create a Singleton for this class, so only one instance can be called
+  _instance = None
+  def __new__(cls):
+    if cls._instance is None:
+      cls._instance = super().__new__(cls)
+    return cls._instance
+  
   @staticmethod
   def create_exchange(user_id:int, offer_id:int) -> None:
     with Session(ENGINE) as session:

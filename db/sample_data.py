@@ -1,7 +1,7 @@
 from sqlmodel import Session, select
 from db.main import ENGINE
 from models.offer import Exchange, Offer, OfferCardsGiven, OfferCardsWants
-from models.user import User, UserCard
+from models.user import User, UserCard, UserRole
 from models.yugioh_card import CardType, MonsterType, YugiohCard
 
 CARDS = [
@@ -48,10 +48,10 @@ CARDS = [
 ]
 
 USERS = [
-    User(name="Gui", password="ggg"),
-    User(name="Mat", password="mmm"),
-    User(name="Ric", password="rrr"),
-    User(name="admin", password="admin"),
+    User(name="Gui", password="ggg", role=UserRole.USER),
+    User(name="Mat", password="mmm", role=UserRole.USER),
+    User(name="Ric", password="rrr", role=UserRole.USER),
+    User(name="admin", password="admin", role=UserRole.ADMIN),
 ]
 
 def delete_db() -> None:

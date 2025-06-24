@@ -19,4 +19,7 @@ urlpatterns = [
   path('offers/', views.offers, name='offers'),
   path('offers/respond/', views.respond_offer, name='respond_offer'),
   path('my_offers/', views.my_offers, name='my_offers'),
+  path('admin_logout/', views.admin_logout, name='admin_logout'),
+  path('admin/', views.admin_login, name='admin_login'),
+  path('admin/panel/', views.admin, name='admin')
 ]

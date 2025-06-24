@@ -355,8 +355,7 @@ def list_all_exchanges(
   # Optional user filter
   if user_id:
     query = query.where(
-      (Exchange.user_accepted == user_id) |
-      (Offer.user_id == user_id)
+      (Exchange.user_accepted == user_id)
     ).join(Offer).where(Exchange.offer_id == Offer.id)
   
   exchanges = session.exec(query).all()

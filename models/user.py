@@ -1,6 +1,11 @@
-from sqlmodel import Relationship, SQLModel, Field
+import enum
+from sqlmodel import Enum, Relationship, SQLModel, Field, Column
 
 from models.yugioh_card import YugiohCard
+
+class UserRole(enum.Enum):
+   USER = 'user'
+   ADMIN = 'admin'
 
 class UserCard(SQLModel, table=True):
     """Association table for user-card ownership"""
@@ -19,3 +24,4 @@ class User(SQLModel, table=True):
   password: str
   cards: list[YugiohCard] = Relationship(link_model=UserCard)  
   wishlist_cards: list[YugiohCard] = Relationship(link_model=UserWishlist)  
+  role: UserRole = Field(sa_column=Column(Enum(UserRole)))

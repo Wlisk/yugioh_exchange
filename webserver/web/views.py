@@ -3,10 +3,10 @@ from django.shortcuts import render, redirect
 from django.views.decorators.cache import never_cache
 import requests
 import json
-from models.user import User
+from models.user import User, UserRole
 from models.yugioh_card import YugiohCardRead, CardType, MonsterType
 from db.main import card_operations, user_operations, offer_operations, exchange_operations
-from .decorators import user_login_required
+from .decorators import admin_login_required, user_login_required
 
 # domain:port
 HOST = '127.0.0.1'
@@ -491,3 +491,48 @@ def search_cards(request, base_cards):
     filtered_cards = [card for card in filtered_cards if card.get('monster_type') == monster_type_enum]
   
   return filtered_cards
+
+
+#########################################################################################
+# ADMIN OPERATIONS 
+
+def admin_logout(request):
+  response = HttpResponse()
+  response.delete_cookie('admin_id')
+  response['HX-REFRESH'] = 'true' 
+  print("Cookie 'admin_id' removido, enviando instrução de refresh.")
+  return response
+
+@never_cache
+def admin_login(request):
+  if request.method == 'POST':
+    user_name = request.POST.get('name', '')
+    password = request.POST.get('password', '')
+    
+    existing_users = user_operations.get_user(name=user_name) 
+    if not existing_users:
+      return render(request, 'admin.html', {"page": "admin_login", 'error': f'Admin não encontrado.'})
+    user = existing_users[0]
+
+    if user.role != UserRole.ADMIN:
+      return render(request, 'admin.html', {"page": "admin_login", 'error': f'Admin {user.name} não encontrado.'})
+    elif user.password != password:
+      return render(request, 'admin.html', {"page": "admin_login", 'error': 'Senha incorreta.'})
+    else:
+      if user is None or user.id is None:
+        return HttpResponse('Admin not found', 404)
+      saved_for_7_days = 3600 * 24 * 7
+
+      response = redirect('offers')
+      response.set_cookie('admin_id', str(user.id), max_age=saved_for_7_days)
+      response.set_cookie('user_name', user.name, max_age=saved_for_7_days)
+      return response
+  elif request.htmx:
+    return render(request, 'admin.html')
+  else:
+     return render(request, 'admin_base.html', context={"page": "admin_base"})
+  
+@never_cache
+@admin_login_required
+def admin(request):
+  return render(request, 'admin_content.html', context={'page': 'admin'})
