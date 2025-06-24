@@ -319,7 +319,7 @@ function check_offer_status(evt) {
       } else if (response.status === 'user_has_no_card') {
         alert('Você não possui todas as cartas necessárias para aceitar esta oferta!');
       } else {
-        alert('Erro: ' + (response.message || 'Erro desconhecido'));
+        alert(response.message || 'Erro desconhecido');
       }
     } catch (e) {
       console.error('Error parsing response:', e);
