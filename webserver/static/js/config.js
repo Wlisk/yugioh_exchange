@@ -237,7 +237,6 @@ function check_offer_status(evt) {
             offerElement.remove();
           }, 500);
         }
-        alert('Oferta rejeitada com sucesso!');
       } else if (response.status === 'user_has_no_card') {
         alert('Você não possui todas as cartas necessárias para aceitar esta oferta!');
       } else {
