@@ -64,12 +64,18 @@
           <!-- Accept/Hide Buttons -->
           <div class="flex justify-end space-x-2 mt-4">
             <button 
-              type="button" 
+              type="button"
+              {% if offer.can_accept %}
               hx-post="{% url 'respond_offer' %}"
               hx-include="#csrf-form"
               hx-vals='{"offer_id": {{ offer.offer_id }}, "accepted": "true"}'
               hx-swap="none"
-              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+              {% else %}
+              disabled
+              class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+              {% endif %}
+            >
               <span class="button-text">Aceitar Oferta</span>
               <div class="htmx-indicator">
                 <div class="spinner inline-block"></div>

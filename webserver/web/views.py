@@ -327,11 +327,18 @@ def offers(request):
     # and filter out offers made by the current user
     for offer in raw_offers:
       if str(offer['owner']['id']) != user_id:
+        can_accept = True
+        for card in offer['cards_given']:
+          if card['id'] in user_card_ids:
+            can_accept = False
+            break
+
         formatted_offer = {
           'offer_id': offer['offer']['id'],
           'owner': offer['owner'],
           'cards_given': offer['cards_given'],
-          'cards_wanted': offer['cards_wanted']
+          'cards_wanted': offer['cards_wanted'],
+          'can_accept': can_accept
         }
         filtered_offers.append(formatted_offer)
 
