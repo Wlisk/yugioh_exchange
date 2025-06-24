@@ -5,7 +5,7 @@ from sqlalchemy import text
 from models import YugiohCard
 from models.yugioh_card import YugiohCard, CardType, MonsterType
 from models.offer import Exchange, Offer, OfferCardsGiven, OfferCardsWants
-from models.user import User, UserCard, UserWishlist
+from models.user import User, UserCard, UserRole, UserWishlist
 
 DB_FILENAME = "yugioh.db"
 DB_URL = f"sqlite:///{DB_FILENAME}"
@@ -78,7 +78,7 @@ class user_operations:
   @staticmethod
   def create_user(name: str, password: str) -> None:
     with Session(ENGINE) as session:
-      session.add(User(name=name, password=password))
+      session.add(User(name=name, password=password, role=UserRole.USER))
       session.commit()
 
   @staticmethod
@@ -181,3 +181,54 @@ class exchange_operations:
 
       results = session.exec(statement, execution_options={"prebuffer_rows": True}).all()
       return results
+
+#########################################################################################
+class admin_operations:
+  # Create a Singleton for this class, so only one instance can be called
+  _instance = None
+  def __new__(cls):
+    if cls._instance is None:
+      cls._instance = super().__new__(cls)
+    return cls._instance
+  
+  @staticmethod
+  def ban_user(user_id: int) -> bool:
+    with Session(ENGINE) as session:
+      user = session.get(User, user_id)
+      if user is None:
+        return False
+      if user.role == UserRole.ADMIN:
+        return False
+      user.is_banned = True
+      session.add(user)
+      session.commit()
+    return True
+  
+  @staticmethod
+  def deban_user(user_id: int) -> bool:
+    with Session(ENGINE) as session:
+      user = session.get(User, user_id)
+      if user is None:
+        return False
+      if user.role == UserRole.ADMIN:
+        return False
+      user.is_banned = False
+      session.add(user)
+      session.commit()
+    return True
+
+  @staticmethod
+  def add_card(card_name: str, monster_type: str, card_type: str, image_url: str = "https://images.ygoprodeck.com/images/assets/CardBack.jpg") -> bool:
+    new_card = YugiohCard(
+      name=card_name,
+      card_type=CardType.get_type_by_str(card_type),
+      monster_type=MonsterType.get_type_by_str(monster_type),
+      image_url=image_url
+    )
+    with Session(ENGINE) as session:
+      card = session.get(YugiohCard, card_name)
+      if card is not None:
+        return False
+      session.add(new_card)
+      session.commit()
+    return True

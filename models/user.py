@@ -25,3 +25,4 @@ class User(SQLModel, table=True):
   cards: list[YugiohCard] = Relationship(link_model=UserCard)  
   wishlist_cards: list[YugiohCard] = Relationship(link_model=UserWishlist)  
   role: UserRole = Field(sa_column=Column(Enum(UserRole)))
+  is_banned: bool = Field(default=False)

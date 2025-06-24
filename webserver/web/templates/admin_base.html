@@ -31,77 +31,13 @@
   class="bg-gray-100 font-sans leading-normal tracking-normal">
 
   {% if page != 'admin_login' and page != 'admin_base' %}
-  {{page}}
   <nav class="flex items-center px-8 py-4 bg-purple-900">
-    <div class="flex-1">
-    </div>
-
-    <div class="space-x-4">
-      <a 
-        href="{% url 'offers' %}" 
-        hx-get="{% url 'offers' %}" 
-        hx-target="#main-content" 
-        hx-push-url="true"
-        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
-      >Ofertas</a>
-
-      <a 
-        href="{% url 'select' %}" 
-        hx-get="{% url 'select' %}" 
-        hx-target="#main-content" 
-        hx-push-url="true"
-        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
-      >Fazer oferta</a>
-
-      <div class="relative inline-block text-left">
-  
-        <div>
-            <button type="button" id="dropdown-button" class="inline-flex items-center justify-center w-full text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors">
-            Listar cartas
-            <svg id="menu-arrow-icon" class="self-end ml-2 -mr-1 h-5 w-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
-          </button>
-        </div>
-      
-        <div id="dropdown-menu" class="origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
-          <div class="py-1">
-            <a 
-              href="{% url 'card_list_filtered' list_type='all' %}" 
-              hx-get="{% url 'card_list_filtered' list_type='all' %}" 
-              hx-target="#main-content" 
-              hx-push-url="true"
-              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-            >Todas as cartas</a>
-            <a 
-              href="{% url 'card_list_filtered' list_type='user_cards' %}" 
-              hx-get="{% url 'card_list_filtered' list_type='user_cards' %}" 
-              hx-target="#main-content" 
-              hx-push-url="true"
-              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-            >Minhas cartas</a>
-            <a 
-              href="{% url 'card_list_filtered' list_type='wishlist' %}" 
-              hx-get="{% url 'card_list_filtered' list_type='wishlist' %}" 
-              hx-target="#main-content" 
-              hx-push-url="true"
-              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-            >Lista de desejos</a>
-          </div>
-        </div>
-      </div>
-
-      <a 
-        href="{% url 'exchanges' %}" 
-        hx-get="{% url 'exchanges' %}" 
-        hx-target="#main-content" 
-        hx-push-url="true"
-        class="text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors"
-      >Histórico</a>
+    <div class="space-x-4 flex-1 text-left">
+      Voltar
     </div>
 
     <div class="flex-1 text-right">
-      {% if 'user_id' in request.COOKIES %}
+      {% if 'admin_id' in request.COOKIES %}
       <div class="relative inline-block text-left">
         <div>
           <button type="button" id="user-dropdown-button" class="inline-flex items-center justify-center w-full text-white font-bold py-2 px-4 rounded hover:bg-purple-700 transition-colors">
@@ -114,15 +50,7 @@
         
         <div id="user-dropdown-menu" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
           <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="user-dropdown-button">
-            <a href="#" hx-get="#" hx-target="#main-content" hx-push-url="true" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">
-              Perfil
-            </a>
-            
-            <a href="{% url 'my_offers' %}" hx-get="{% url 'my_offers' %}" hx-target="#main-content" hx-push-url="true" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">
-              Minhas Ofertas
-            </a>
-  
-            <a href="{% url 'logout' %}" hx-get="{% url 'logout' %}" hx-target="body" hx-push-url="true" class="block px-4 py-2 text-sm text-red-700 hover:bg-red-50 hover:text-red-900" role="menuitem">
+            <a href="{% url 'admin_logout' %}" hx-get="{% url 'admin_logout' %}" hx-target="body" hx-push-url="true" class="block px-4 py-2 text-sm text-red-700 hover:bg-red-50 hover:text-red-900" role="menuitem">
               Sair
             </a>
           </div>
@@ -134,12 +62,12 @@
   {% endif %}
 
   <main id="main-content" class="container mx-auto px-4 py-8">
-    {% if page == 'card_list' %}
-      {% include 'card_list.html' %}
-    {% elif page == 'offers' %}
-      {% include 'offers.html' %}
-    {% elif page == 'exchanges' %}
-      {% include 'exchanges.html' %}    
+    {% if page == 'admin_users' %}
+      {% include 'admin_users.html' %}
+    {% elif page == 'admin_cards' %}
+      {% include 'admin_cards.html' %}
+    {% elif page == 'admin' %}
+      {% include 'admin_content.html' %}    
     {% elif page == 'admin_login' %}
       {% include 'admin.html' %}
     {% else %}

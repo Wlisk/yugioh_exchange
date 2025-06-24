@@ -1,1 +1,29 @@
-<p>Hello admin</p>
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold text-gray-900 mb-8">Painel Administrativo</h1>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow-md p-6 text-center">
+      <h2 class="text-xl font-semibold text-gray-900 mb-2">Gerenciar Cartas</h2>
+      <p class="text-gray-600 mb-4">Adicionar e visualizar cartas do sistema</p>
+      <button 
+        hx-get="/admin/cards/"
+        hx-target="#main-content"
+        hx-push-url="true"
+        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors">
+        Gerenciar Cartas
+      </button>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 text-center">
+      <h2 class="text-xl font-semibold text-gray-900 mb-2">Gerenciar Usuários</h2>
+      <p class="text-gray-600 mb-4">Visualizar e banir usuários do sistema</p>
+      <button 
+        hx-get="/admin/users/"
+        hx-target="#main-content"
+        hx-push-url="true"
+        class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors">
+        Gerenciar Usuários
+      </button>
+    </div>
+  </div>
+</div>

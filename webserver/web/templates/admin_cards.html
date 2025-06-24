@@ -1,0 +1,114 @@
+<div class="max-w-6xl mx-auto">
+  <form class="space-y-6" action="{% url 'add_card' %}" hx-post="{% url 'add_card' %}" hx-target="#form-response" method="POST">
+  {% csrf_token %}
+  
+  <div>
+    <label for="name" class="block text-sm font-medium text-gray-700">
+      Card Name
+    </label>
+    <input
+      id="name"
+      name="name"
+      type="text"
+      required
+      class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+    >
+  </div>
+
+  <div>
+        <label for="card_type" class="block text-sm font-medium text-gray-700">Tipo de Carta</label>
+          <select 
+            name="card_type" 
+            id="card_type" 
+            class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+          >
+            <option value="">Todos os Tipos</option>
+            <option value="Spell" {% if current_filters.card_type == "Spell" %}selected{% endif %}>Spell</option>
+            <option value="Monster" {% if current_filters.card_type == "Monster" %}selected{% endif %}>Monster</option>
+            <option value="Trap" {% if current_filters.card_type == "Trap" %}selected{% endif %}>Trap</option>
+          </select>
+      </div>
+
+      <div>
+        <label for="monster_type" class="block text-sm font-medium text-gray-700">Tipo de Monstro</label>
+          <select 
+            name="monster_type" 
+            id="monster_type"
+            class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+          >
+            <option value="">Todos os Monstros</option>
+            <option value="Aqua" {% if current_filters.monster_type == "Aqua" %}selected{% endif %}>Aqua</option>
+            <option value="Beast" {% if current_filters.monster_type == "Beast" %}selected{% endif %}>Beast</option>
+            <option value="Beast-Warrior" {% if current_filters.monster_type == "Beast-Warrior" %}selected{% endif %}>Beast Warrior</option>
+            <option value="Creator God" {% if current_filters.monster_type == "Creator God" %}selected{% endif %}>Creator God</option>
+            <option value="Cyberse" {% if current_filters.monster_type == "Cyberse" %}selected{% endif %}>Cyberse</option>
+            <option value="Dinosaur" {% if current_filters.monster_type == "Dinosaur" %}selected{% endif %}>Dinosaur</option>
+            <option value="Divine-Beast" {% if current_filters.monster_type == "Divine-Beast" %}selected{% endif %}>Divine Beast</option>
+            <option value="Dragon" {% if current_filters.monster_type == "Dragon" %}selected{% endif %}>Dragon</option>
+            <option value="Fairy" {% if current_filters.monster_type == "Fairy" %}selected{% endif %}>Fairy</option>
+            <option value="Fiend" {% if current_filters.monster_type == "Fiend" %}selected{% endif %}>Fiend</option>
+            <option value="Fish" {% if current_filters.monster_type == "Fish" %}selected{% endif %}>Fish</option>
+            <option value="Insect" {% if current_filters.monster_type == "Insect" %}selected{% endif %}>Insect</option>
+            <option value="Machine" {% if current_filters.monster_type == "Machine" %}selected{% endif %}>Machine</option>
+            <option value="Plant" {% if current_filters.monster_type == "Plant" %}selected{% endif %}>Plant</option>
+            <option value="Psychic" {% if current_filters.monster_type == "Psychic" %}selected{% endif %}>Psychic</option>
+            <option value="Pyro" {% if current_filters.monster_type == "Pyro" %}selected{% endif %}>Pyro</option>
+            <option value="Reptile" {% if current_filters.monster_type == "Reptile" %}selected{% endif %}>Reptile</option>
+            <option value="Rock" {% if current_filters.monster_type == "Rock" %}selected{% endif %}>Rock</option>
+            <option value="Sea Serpent" {% if current_filters.monster_type == "Sea Serpent" %}selected{% endif %}>Sea Serpent</option>
+            <option value="Spellcaster" {% if current_filters.monster_type == "Spellcaster" %}selected{% endif %}>Spellcaster</option>
+            <option value="Thunder" {% if current_filters.monster_type == "Thunder" %}selected{% endif %}>Thunder</option>
+            <option value="Warrior" {% if current_filters.monster_type == "Warrior" %}selected{% endif %}>Warrior</option>
+            <option value="Winged Beast" {% if current_filters.monster_type == "Winged Beast" %}selected{% endif %}>Winged Beast</option>
+            <option value="Wyrm" {% if current_filters.monster_type == "Wyrm" %}selected{% endif %}>Wyrm</option>
+            <option value="Zombie" {% if current_filters.monster_type == "Zombie" %}selected{% endif %}>Zombie</option>
+          </select>
+      </div>
+
+  <div>
+    <button
+      type="submit"
+      class="w-full px-4 py-3 font-bold text-white bg-purple-900 rounded-md hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
+    >
+      Add Card
+    </button>
+  </div>
+</form>
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monstro</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remove</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        {% for card in cards %}
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ card.id }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ card.name }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ card.card_type }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ card.monster_type }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button 
+              hx-delete="/admin/cards/{{ card.id }}/delete/"
+              hx-confirm="Tem certeza que deseja remover esta carta?"
+              hx-target="closest tr"
+              hx-swap="outerHTML"
+              class="text-red-600 hover:text-red-900">
+              Remover
+            </button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="px-6 py-4 text-center text-gray-500">Nenhuma carta encontrada</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -506,29 +506,29 @@ def admin_logout(request):
 @never_cache
 def admin_login(request):
   if request.method == 'POST':
-    user_name = request.POST.get('name', '')
+    user_name = request.POST.get('username', '')
     password = request.POST.get('password', '')
     
     existing_users = user_operations.get_user(name=user_name) 
     if not existing_users:
-      return render(request, 'admin.html', {"page": "admin_login", 'error': f'Admin não encontrado.'})
+      return render(request, 'admin_base.html', {"page": "admin_login", 'error': f'Admin não encontrado.'})
     user = existing_users[0]
 
     if user.role != UserRole.ADMIN:
-      return render(request, 'admin.html', {"page": "admin_login", 'error': f'Admin {user.name} não encontrado.'})
+      return render(request, 'admin_base.html', {"page": "admin_login", 'error': f'Admin {user.name} não encontrado.'})
     elif user.password != password:
-      return render(request, 'admin.html', {"page": "admin_login", 'error': 'Senha incorreta.'})
+      return render(request, 'admin_base.html', {"page": "admin_login", 'error': 'Senha incorreta.'})
     else:
       if user is None or user.id is None:
         return HttpResponse('Admin not found', 404)
       saved_for_7_days = 3600 * 24 * 7
 
-      response = redirect('offers')
+      response = render(request, 'admin_base.html', {"page": "admin_content"})
       response.set_cookie('admin_id', str(user.id), max_age=saved_for_7_days)
       response.set_cookie('user_name', user.name, max_age=saved_for_7_days)
       return response
   elif request.htmx:
-    return render(request, 'admin.html')
+    return render(request, 'admin_base.html', {"page": "admin_content"})
   else:
      return render(request, 'admin_base.html', context={"page": "admin_base"})
   
@@ -536,3 +536,35 @@ def admin_login(request):
 @admin_login_required
 def admin(request):
   return render(request, 'admin_content.html', context={'page': 'admin'})
+'''
+@admin_login_required
+def add_card(request):
+  response = requests.post(
+    f"{URL}/offers/respond",
+    params={
+      "offer_id": offer_id,
+      "user_id": int(user_id),
+      "accepted": accepted
+    }
+  )'''
+
+@admin_login_required
+def remove_user(request):
+  if request.method == 'POST':
+    user_name = request.POST.get('name','')
+    password = request.POST.get('password','')
+    password_confirm = request.POST.get('passwordConfirm','')
+
+    if password != password_confirm:
+      return render(request, 'base.html', {"page": "create_account", 'error': 'As senhas não conferem.'})
+    else:
+      existing_users = user_operations.get_user(name=user_name)
+      if existing_users:
+        return render(request, 'base.html', {"page": "create_account", 'error': 'Usuário já existe.'})
+      else:
+        user_operations.create_user(name=user_name, password=password)
+        return render(request, 'base.html', {"page": "login"})
+  elif request.htmx:
+    return render(request, 'create_account.html')
+  else:
+    return render(request, 'base.html', context={"page": "create_account"})

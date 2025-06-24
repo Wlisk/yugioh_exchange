@@ -546,3 +546,6 @@ def delete_user_card(
   row = user_operations.get_row_user_card(user_id, card_id)
   session.delete(row)
   session.commit()
+
+###############################################################################
+# ADMIN OPERATIONS 
